@@ -72,44 +72,44 @@
 
 
 //input 1-4
-#define L298_PORT_I1	PORTB
-#define L298_DDR_I1		DDRB
-#define L298_I1			4
+#define Motor_PORT_IN1	PORTB
+#define Motor_DDR_I1		DDRB
+#define Motor_I1			4
 
-#define L298_PORT_I2	PORTB
-#define L298_DDR_I2		DDRB
-#define L298_I2			2
+#define Motor_PORT_IN2	PORTB
+#define Motor_DDR_I2		DDRB
+#define Motor_I2			2
 
-#define L298_PORT_I3
-#define L298_DDR_I3
-#define L298_I3
+#define Motor_PORT_I3
+#define Motor_DDR_I3
+#define Motor_I3
 
-#define L298_PORT_I4
-#define L298_DDR_I4
-#define L298_I4
+#define Motor_PORT_I4
+#define Motor_DDR_I4
+#define Motor_I4
 
 //Enable A Pin
-#define L298_PORT_EA	PORTB
-#define L298_DDR_EA		DDRB
-#define L298_EA			PB1
+#define Motor_PORT_EA	PORTB
+#define Motor_DDR_EA		DDRB
+#define Motor_EA			PB1
 
 //Enable B Pin
-#define L298_PORT_EB
-#define L298_DDR_EB
-#define L298_EB
+#define Motor_PORT_EB
+#define Motor_DDR_EB
+#define Motor_EB
 
 //PWM init
-#define L298_PWM_A		OCR0A
-#define L298_PORT_PWM_A	PORTB
-#define L298_DDR_PWM_A	DDRB
-#define L298_PWM_PIN_A	1
-#define L298_PWM_B
+#define Motor_PWM_A		OCR0A
+#define Motor_PORT_PWM_A	PORTB
+#define Motor_DDR_PWM_A	DDRB
+#define Motor_PWM_PIN_A	1
+#define Motor_PWM_B
 
 //PWM config
-#define L298_TCCRA_A		TCCR0A
-#define L298_TCCRA_WERT_A	0x83
-#define L298_TCCRB_A		TCCR0B
-#define L298_TCCRB_WERT_A	0x03
+#define Motor_TCCRA_A		TCCR0A
+#define Motor_TCCRA_WERT_A	0x83
+#define Motor_TCCRB_A		TCCR0B
+#define Motor_TCCRB_WERT_A	0x03
 #define eeRichtung		0
 volatile uint16_t key_state;                // debounced and inverted key state:
 // bit = 1: key pressed
@@ -191,22 +191,22 @@ ISR( TIMER2_OVF_vect )                            // every 10ms
 
 
 void init_pwm_a() {
-	L298_DDR_PWM_A |= (1 << L298_PWM_PIN_A);
-	L298_TCCRA_A = L298_TCCRA_WERT_A;
-	L298_TCCRB_A = L298_TCCRB_WERT_A;
-	L298_PWM_A = 0;
+	Motor_DDR_PWM_A |= (1 << Motor_PWM_PIN_A);
+	Motor_TCCRA_A = Motor_TCCRA_WERT_A;
+	Motor_TCCRB_A = Motor_TCCRB_WERT_A;
+	Motor_PWM_A = 0;
 }
 
 // Schaltet den Motor 1= richtung 1;	2=richtung 2;	3=stopp;
 void motor_a(uint8_t a) {
 	switch (a) {
 	case 1: {
-		L298_PORT_I2 &= ~(1 << L298_I2);
-		L298_PORT_I1 |= (1 << L298_I1);
+		Motor_PORT_IN2 &= ~(1 << Motor_I2);
+		Motor_PORT_IN1 |= (1 << Motor_I1);
 		//OCR0A=255;
 		/*for(int i=100;i<=254;i++)
 		 {
-		 L298_PWM_A=i;
+		 Motor_PWM_A=i;
 		 _delay_ms(1);
 		 }
 		 */
@@ -214,11 +214,11 @@ void motor_a(uint8_t a) {
 		break;
 
 	case 2: {
-		L298_PORT_I1 &= ~(1 << L298_I1);
-		L298_PORT_I2 |= (1 << L298_I2);
+		Motor_PORT_IN1 &= ~(1 << Motor_I1);
+		Motor_PORT_IN2 |= (1 << Motor_I2);
 		/*for(int i=100;i<=255;i++)
 		 {
-		 L298_PWM_A=i;
+		 Motor_PWM_A=i;
 		 _delay_ms(1);
 		 }
 		 */
@@ -226,9 +226,9 @@ void motor_a(uint8_t a) {
 		break;
 
 	case 3: {
-		//L298_PWM_A = 255;
-		L298_PORT_I2 &= ~(1 << L298_I2);
-		L298_PORT_I1 &= ~(1 << L298_I1);
+		//Motor_PWM_A = 255;
+		Motor_PORT_IN2 &= ~(1 << Motor_I2);
+		Motor_PORT_IN1 &= ~(1 << Motor_I1);
 
 		/*for(int i=200;i<=255;i++)
 		 {
@@ -243,11 +243,11 @@ void motor_a(uint8_t a) {
 void motor_soft_a(uint8_t a) {
 	switch (a) {
 	case 1: {
-		L298_PORT_I2 &= ~(1 << L298_I2);
-		L298_PORT_I1 |= (1 << L298_I1);
+		Motor_PORT_IN2 &= ~(1 << Motor_I2);
+		Motor_PORT_IN1 |= (1 << Motor_I1);
 		//OCR0A=255;
 		for (int i = 100; i <= 254; i++) {
-			L298_PWM_A = i;
+			Motor_PWM_A = i;
 			_delay_ms(1);
 		}
 
@@ -255,10 +255,10 @@ void motor_soft_a(uint8_t a) {
 		break;
 
 	case 2: {
-		L298_PORT_I1 &= ~(1 << L298_I1);
-		L298_PORT_I2 |= (1 << L298_I2);
+		Motor_PORT_IN1 &= ~(1 << Motor_I1);
+		Motor_PORT_IN2 |= (1 << Motor_I2);
 		for (int i = 100; i <= 255; i++) {
-			L298_PWM_A = i;
+			Motor_PWM_A = i;
 			_delay_ms(1);
 		}
 
@@ -266,9 +266,9 @@ void motor_soft_a(uint8_t a) {
 		break;
 
 	case 3: {
-		L298_PWM_A = 255;
-		L298_PORT_I2 |= (1 << L298_I2);
-		L298_PORT_I1 |= (1 << L298_I1);
+		Motor_PWM_A = 255;
+		Motor_PORT_IN2 |= (1 << Motor_I2);
+		Motor_PORT_IN1 |= (1 << Motor_I1);
 
 		/*for(int i=200;i<=255;i++)
 		 {
@@ -281,7 +281,7 @@ void motor_soft_a(uint8_t a) {
 }
 
 void set_motorpower_a(uint8_t b) {
-	L298_PWM_A = b;
+	Motor_PWM_A = b;
 }
 
 
