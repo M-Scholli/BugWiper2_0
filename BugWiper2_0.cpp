@@ -87,6 +87,7 @@
 #define Motor_PORT_PWM_A	PORTB
 #define Motor_DDR_PWM_A		DDRB
 #define Motor_PWM_PIN_A		1
+#define Motor_EN		9
 
 //PWM config
 #define Motor_TCCRA_A		TCCR0A
@@ -174,10 +175,8 @@ ISR( TIMER2_OVF_vect )                            // every 10ms
 
 
 void init_pwm_a() {
-	Motor_DDR_PWM_A |= (1 << Motor_PWM_PIN_A);
-	Motor_TCCRA_A = Motor_TCCRA_WERT_A;
-	Motor_TCCRB_A = Motor_TCCRB_WERT_A;
-	Motor_PWM_A = 0;
+	pinMode(Motor_EN, OUTPUT);
+	analogWrite(Motor_EN, 0);
 }
 
 // Schaltet den Motor 1= richtung 1;	2=richtung 2;	3=stopp;
@@ -211,7 +210,7 @@ void motor_soft_a(uint8_t a) {
 		digitalWrite(Motor_I2, 0);
 		digitalWrite(Motor_I2, 1);
 		for (int i = 100; i <= 254; i++) {
-			Motor_PWM_A = i;
+			analogWrite(Motor_EN, i);
 			_delay_ms(1);
 		}
 
@@ -222,7 +221,7 @@ void motor_soft_a(uint8_t a) {
 		digitalWrite(Motor_I1, 0);
 		digitalWrite(Motor_I2, 1);
 		for (int i = 100; i <= 255; i++) {
-			Motor_PWM_A = i;
+			analogWrite(Motor_EN, i);
 			_delay_ms(1);
 		}
 
@@ -230,7 +229,7 @@ void motor_soft_a(uint8_t a) {
 		break;
 
 	case 3: {
-		Motor_PWM_A = 255;
+		analogWrite(Motor_EN, 255);
 		digitalWrite(Motor_I2, 1);
 		digitalWrite(Motor_I1, 1);
 	}
@@ -239,7 +238,7 @@ void motor_soft_a(uint8_t a) {
 }
 
 void set_motorpower_a(uint8_t b) {
-	Motor_PWM_A = b;
+	analogWrite(Motor_EN, b);
 }
 
 
