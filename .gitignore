@@ -67,3 +67,5 @@ Release/arduino/core/avr-libc/subdir.mk
 Release/Libraries/EEPROM/EEPROM.cpp.d
 Release/Libraries/EEPROM/EEPROM.cpp.o
 Release/Libraries/EEPROM/subdir.mk
+.settings/org.eclipse.cdt.codan.core.prefs
+.settings/org.eclipse.cdt.ui.prefs
