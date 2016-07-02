@@ -5,33 +5,12 @@
 #include <stdint.h>
 #include <EEPROM.h>
 
-// Taster mit Entprellung
-#define KEY_DDR         	DDRD
-#define KEY_PORT        	PORTD
-#define KEY_PIN         	PIND
-#define KEY0            	6	// Seil festziehen
-#define KEY1            	5	// Putzen starten
-#define KEY3			2	//Fahrwerk
-#define ALL_KEYS        	(1<<KEY0 | 1<<KEY1 )
-#define REPEAT_MASK     	(1<<KEY1 | 1<<KEY0)      // repeat: key1, key2
-#define REPEAT_START    	500 	// after 500ms
-#define REPEAT_NEXT     	60      // every 60ms
-
+#define Putzen_PIN		5
+#define Ein_Ziehen_PIN		6
 #define F_FEST_PIN		A1
 #define SAVE_PIN		4	// Sicherheitsschalter deaktiviert BugWiper
-
-#define FAHRWERK_DDR		DDRD
-#define FAHRWERK_PORT		PORTD
-#define FAHRWERK_PINS		PIND
-#define FAHRWERK		PD3
-#define FAHRWERK_PIN		PIND3
-
-#define F_LOSE_DDR		DDRD
-#define F_LOSE_PORT		PORTD
-#define F_LOSE_PINS		PIND
-#define F_LOSE			4
-#define F_LOSE_PIN		PIND4
-
+#define T_Taster_Lang		2000    // Zeit in ms für langen Tastendruck
+#define Time_Schritt		5	// Zeit in ms die für das durchlaufen des Main Loops benötigt wird.
 //Status LED
 #define LED_PIN			13
 #define LED_T_P			50	//Zeit zum blinken
@@ -62,19 +41,13 @@
 //EEPROM Speicherbereich
 #define eeRichtung		0
 
-// Taster Entprellung
-volatile uint16_t key_state;		// debounced and inverted key state:
-// bit = 1: key pressed
-volatile uint16_t key_press;  		// key press detect
-volatile uint16_t key_rpt;		// key long press and repeat
-
-//master slave deklarieren
-//soll später eine Jumperposition abgefragt werden.
-uint8_t master = 1;			//1=master 0=slave
+//Globale Variablen
 int8_t motorrichtung;
 uint8_t motorpower = 0;
+uint16_t t_taster_lang = 0;	// Zeit seit drücken des Langen Tasters
+uint8_t taster_reset = 0;
+
 // der Putzvorgang am Boden soll unterdrückt werden
-uint8_t fahrwerk = 0; 			//Fahrwerk ausgefahren? Flug=0 Boden=1 Test=3
 
 void eeprom_update_byte(int adresse, uint8_t wert)
     {
@@ -83,26 +56,6 @@ void eeprom_update_byte(int adresse, uint8_t wert)
 	EEPROM.write(adresse, wert);
 	}
     }
-
-ISR( TIMER2_OVF_vect )                            // every 10ms
-{
-	static uint8_t ct0, ct1;
-	static uint16_t rpt;
-	uint8_t i;
-	TCNT2 = (uint8_t) (int16_t) -(F_CPU / 1024 * 10e-3 + 0.5); // preload for 10ms
-	i = key_state ^ ~KEY_PIN;                       // key changed ?
-	ct0 = ~(ct0 & i);                             // reset or count ct0
-	ct1 = ct0 ^ (ct1 & i);                          // reset or count ct1
-	i &= ct0 & ct1;                                 // count until roll over ?
-	key_state ^= i;                               // then toggle debounced state
-	key_press |= key_state & i;                     // 0->1: key press detect
-	if ((key_state & REPEAT_MASK) == 0)            // check repeat function
-		rpt = REPEAT_START;                          // start delay
-	if (--rpt == 0) {
-		rpt = REPEAT_NEXT;                            // repeat delay
-		key_rpt |= key_state & REPEAT_MASK;
-	}
-}
 
 // Schaltet den Motor 1= richtung 1;	2=richtung 2;	3=stopp;
 void motor_a(uint8_t a) {
@@ -133,72 +86,6 @@ void set_motorpower_a(uint8_t b) {
 	analogWrite(Motor_EN, b);
 }
 
-
-void key_init(void) {
-	// Configure debouncing routines
-	KEY_DDR &= ~ALL_KEYS;                // configure key port for input
-	KEY_PORT |= ALL_KEYS;                // and turn on pull up resistors
-	TCCR2B = (1 << CS22) | (1 << CS21);         // divide by 1024
-	TCNT2 = (uint8_t) (int16_t) -(F_CPU / 256 * 10e-3 + 0.5); // preload for 10ms
-	TIMSK2 |= 1 << TOIE2;                   // enable timer interrupt
-}
-
-///////////////////////////////////////////////////////////////////
-//
-// check if a key has been pressed. Each pressed key is reported
-// only once
-//
-uint16_t get_key_press(uint16_t key_mask) {
-	cli();
-	// read and clear atomic !
-	key_mask &= key_press;                          // read key(s)
-	key_press ^= key_mask;                          // clear key(s)
-	sei();
-	return key_mask;
-}
-
-///////////////////////////////////////////////////////////////////
-//
-// check if a key has been pressed long enough such that the
-// key repeat functionality kicks in. After a small setup delay
-// the key is reported being pressed in subsequent calls
-// to this function. This simulates the user repeatedly
-// pressing and releasing the key.
-//
-uint16_t get_key_rpt(uint16_t key_mask) {
-	cli();
-	// read and clear atomic !
-	key_mask &= key_rpt;                            // read key(s)
-	key_rpt ^= key_mask;                            // clear key(s)
-	sei();
-	return key_mask;
-}
-
-///////////////////////////////////////////////////////////////////
-//
-// check if a key is pressed right now
-//
-uint16_t get_key_state(uint16_t key_mask)
-
-{
-	key_mask &= key_state;
-	return key_mask;
-}
-
-///////////////////////////////////////////////////////////////////
-//
-uint16_t get_key_short(uint16_t key_mask) {
-	cli();
-	// read key state and key press atomic !
-	return get_key_press(~key_state & key_mask);
-}
-
-///////////////////////////////////////////////////////////////////
-//
-uint16_t get_key_long(uint16_t key_mask) {
-	return get_key_press(get_key_rpt(key_mask));
-}
-
 void init_io(void)
     {
     pinMode(F_FEST_PIN, INPUT_PULLUP);
@@ -207,11 +94,11 @@ void init_io(void)
     pinMode(Motor_I1, OUTPUT);
     pinMode(Motor_I2, OUTPUT);
     pinMode(LED_PIN, OUTPUT);
+    pinMode(Ein_Ziehen_PIN, INPUT_PULLUP);
+    pinMode(Putzen_PIN, INPUT_PULLUP);
     digitalWrite(Motor_I2, 1);
     digitalWrite(Motor_I1, 1);
     digitalWrite(LED_PIN, 0);
-    F_LOSE_DDR &= ~(1 << F_LOSE);
-    F_LOSE_PORT |= (1 << F_LOSE);
     analogWrite(Motor_EN, 0);
     }
 
@@ -290,9 +177,8 @@ void festziehen(void)
 		run = 0;
 		}
 	    // Stopp bei erreichen des Fest-Tasters
-	    if ((PINC & (1 << PINC5)))
-		if (digitalRead(F_FEST_PIN) == 0)
-		    run = 0;
+	    if (digitalRead(F_FEST_PIN) == 0)
+		run = 0;
 	    // LED Blinken
 	    t3++;
 	    if (t3 == LED_T_P)
@@ -301,15 +187,13 @@ void festziehen(void)
 		t3 = 0;
 		}
 	    t1 = 0;
-	    if (get_key_press(1 << KEY1))
+	    if (digitalRead(Putzen_PIN)==0)
 		run = 0;
 	    }
 	delay(1);
 	}
     stop();
     digitalWrite(LED_PIN, 0);
-    get_key_press(1 << KEY0);
-    get_key_press(1 << KEY1);
     if (safe == 1)
 	{
 	digitalWrite(LED_PIN, 0);
@@ -364,7 +248,7 @@ void putzen(void)
 	    }
 	if (digitalRead(F_FEST_PIN) == 1)
 	    t2 = (T_MIN_P - 1);
-	if (get_key_press(1 << KEY0))
+	if (digitalRead(Ein_Ziehen_PIN)==0)
 	    {
 	    run = 0;
 	    safe = 0;
@@ -372,8 +256,6 @@ void putzen(void)
 	delay(1);
 	}
     stop();
-    get_key_press(1 << KEY0);
-    get_key_press(1 << KEY1);
     if (safe == 1)
 	{
 	aender_richtung();
@@ -386,11 +268,8 @@ void putzen(void)
 //The setup function is called once at startup of the sketch
 void setup()
     {
-    key_init();
     init_io();
     lese_richtung();
-    sei();
-    stop();
     }
 
 // The loop function is called in an endless loop
@@ -399,14 +278,32 @@ void loop()
     lese_richtung();
     if (digitalRead(SAVE_PIN) == 0)
 	{
-	if (get_key_short(1 << KEY0))
+	if (digitalRead(Ein_Ziehen_PIN) == 0 && taster_reset == 0)
 	    {
 	    festziehen();
+	    taster_reset = 1;
 	    }
-	if (get_key_long(1 << KEY1))
+	if (digitalRead(Putzen_PIN)
+		== 0&& taster_reset == 0 && t_taster_lang >= T_Taster_Lang)
 	    {
 	    putzen();
+	    taster_reset = 1;
+	    t_taster_lang = 0;
+	    }
+	if (digitalRead(Putzen_PIN) == 0 && taster_reset == 0)
+	    {
+	    t_taster_lang = t_taster_lang + Time_Schritt;
 	    }
 	}
-    delay(5);
+    // Verhindert das nach einem Putzvorgang direkt ein zweiter startet
+    if (digitalRead(Ein_Ziehen_PIN) == 1 && digitalRead(Putzen_PIN) == 1)
+	{
+	taster_reset = 0;
+	delay(100);
+	}
+    if (digitalRead(Putzen_PIN) == 1)
+	{
+	t_taster_lang = 0;
+	}
+    delay(Time_Schritt - 1);
     }
