@@ -71,39 +71,22 @@
 #define START_POWER_F	70
 
 
-//input 1-4
-#define Motor_PORT_IN1	PORTB
-#define Motor_DDR_I1		DDRB
-#define Motor_I1			4
+//Motor Eingang Pins
 
-#define Motor_PORT_IN2	PORTB
-#define Motor_DDR_I2		DDRB
-#define Motor_I2			2
+#define Motor_I1			10
 
-#define Motor_PORT_I3
-#define Motor_DDR_I3
-#define Motor_I3
+#define Motor_I2			11
 
-#define Motor_PORT_I4
-#define Motor_DDR_I4
-#define Motor_I4
-
-//Enable A Pin
+//Enable Motor Pin
 #define Motor_PORT_EA	PORTB
 #define Motor_DDR_EA		DDRB
 #define Motor_EA			PB1
 
-//Enable B Pin
-#define Motor_PORT_EB
-#define Motor_DDR_EB
-#define Motor_EB
-
 //PWM init
 #define Motor_PWM_A		OCR0A
 #define Motor_PORT_PWM_A	PORTB
-#define Motor_DDR_PWM_A	DDRB
-#define Motor_PWM_PIN_A	1
-#define Motor_PWM_B
+#define Motor_DDR_PWM_A		DDRB
+#define Motor_PWM_PIN_A		1
 
 //PWM config
 #define Motor_TCCRA_A		TCCR0A
