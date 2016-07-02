@@ -344,29 +344,10 @@ void festziehen(void)
 	    }
 	_delay_ms(1);
 	}
-    //set_motorpower_a(255);
-    //_delay_ms(300);
-    /*run = 1;
-     t4 = 0;
-     motorpower = 255;
-     while (run == 1) {
-     t4++;
-     if (t4 == VERZOGER_STOP_F) {
-     if (motorpower > EINZIEH_MIN_STOP_F) {
-     motorpower--;
-     set_motorpower_a(motorpower);
-     } else {
-     run = 0;
-     }
-     t4 = 0;
-     }
-     _delay_ms(1);
-     }*/
     stop();
     LED1_PORT &= ~(1 << LED1);
     get_key_press(1 << KEY0);
     get_key_press(1 << KEY1);
-    //get_key_press(1 << KEY2);
     if (safe == 1)
 	{
 	LED1_PORT &= ~(1 << LED1);
@@ -428,32 +409,9 @@ void putzen(void)
 	    }
 	_delay_ms(1);
 	}
-    //_delay_ms(200);
-    /*
-     set_motorpower_a(255);
-     _delay_ms(300);
-     run = 1;
-     t4 = 0;
-     motorpower = 255;
-     while (run == 1) {
-     t4++;
-     if (t4 == VERZOGER_STOP_F) {
-     if (motorpower > EINZIEH_MIN_STOP_F) {
-     motorpower--;
-     set_motorpower_a(motorpower);
-     } else {
-     run = 0;
-     }
-     t4 = 0;
-     }
-     _delay_ms(1);
-     }
-     */
-
     stop();
     get_key_press(1 << KEY0);
     get_key_press(1 << KEY1);
-    //get_key_press(1 << KEY2);
     if (safe == 1)
 	{
 	aender_richtung();
@@ -465,18 +423,18 @@ void putzen(void)
 
 //The setup function is called once at startup of the sketch
 void setup()
-{
-	init_pwm_a();
-	//TIMER1_interrupt_init();
-	pinMode(Motor_I1, OUTPUT);
-	pinMode(Motor_I2, OUTPUT);
-	digitalWrite(Motor_I2, 1);
-	digitalWrite(Motor_I1, 1);
-	key_init();
-	init_io();
-	lese_richtung();
-	sei();
-	stop();}
+    {
+    init_pwm_a();
+    pinMode(Motor_I1, OUTPUT);
+    pinMode(Motor_I2, OUTPUT);
+    digitalWrite(Motor_I2, 1);
+    digitalWrite(Motor_I1, 1);
+    key_init();
+    init_io();
+    lese_richtung();
+    sei();
+    stop();
+    }
 
 // The loop function is called in an endless loop
 void loop()
@@ -493,10 +451,5 @@ void loop()
 	    putzen();
 	    }
 	}
-    /* else if (fahrwerk == 1) {
-     if (get_key_long(1 << KEY0)) {
-     festziehen();
-     }
-     }*/
     _delay_ms(5);
     }
