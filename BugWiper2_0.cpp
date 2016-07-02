@@ -11,14 +11,14 @@
 #define KEY_PIN         	PIND
 #define KEY0            	6	// Seil festziehen
 #define KEY1            	5	// Putzen starten
-#define KEY2            	4   	//Sicherheits schalter
 #define KEY3			2	//Fahrwerk
-#define ALL_KEYS        	(1<<KEY0 | 1<<KEY1 | 1<<KEY2)
+#define ALL_KEYS        	(1<<KEY0 | 1<<KEY1 )
 #define REPEAT_MASK     	(1<<KEY1 | 1<<KEY0)      // repeat: key1, key2
 #define REPEAT_START    	500 	// after 500ms
 #define REPEAT_NEXT     	60      // every 60ms
 
 #define F_FEST_PIN		A1
+#define SAVE_PIN		4	// Sicherheitsschalter deaktiviert BugWiper
 
 #define FAHRWERK_DDR		DDRD
 #define FAHRWERK_PORT		PORTD
@@ -246,6 +246,7 @@ uint16_t get_key_long(uint16_t key_mask) {
 
 void init_io(void) {
 	pinMode(F_FEST_PIN, INPUT_PULLUP);
+	pinMode(SAVE_PIN, INPUT_PULLUP);
 	F_LOSE_DDR &= ~(1 << F_LOSE);
 	F_LOSE_PORT |= (1 << F_LOSE);
 	LED1_DDR |= (1 << LED1);
@@ -290,165 +291,177 @@ void stop(void) {
 	set_motorpower_a(255);
 }
 
-void festziehen(void) {
-	uint8_t t1 = 0;
-	uint8_t t3 = 0;
-	uint8_t t4 = 0;
-	uint16_t t2 = 0;
-	uint8_t run = 1;                            //motor l�uft
-	uint8_t safe = 1;
-	if (!(PINC & (1 << PINC3))) {         //F_LOSE_PINS & (1 << F_LOSE_PIN)) {
-		set_motorpower_a(motorpower = START_POWER_F);
-		if (motorrichtung == 1)
-			motor_a(2);
-		else
-			motor_a(1);
-		while (run == 1) {
-			t1++;
-			t4++;
-			//langsames anfahren der Motors
-			if (t4 == VERZOGER_F) {
-				if (motorpower < EINZIEH_MAX_F) {
-					motorpower++;
-					set_motorpower_a(motorpower);
-				}
-				t4 = 0;
-			}
-
-			if (t1 == 10) {
-				t2++;
-				// maximale Einziehzeit erreicht
-				if (t2 == T_MAX_F) {
-					safe = 0;
-					run = 0;
-				}
-				// Stopp bei erreichen des Fest-Tasters
-				if ((PINC & (1 << PINC5)))
-					if (digitalRead(F_FEST_PIN)==0)
-						run = 0;
-				// LED Blinken
-				t3++;
-
-				if (t3 == LED_T_P) {
-					LED1_PORT ^= (1 << LED1);
-					t3 = 0;
-				}
-				t1 = 0;
-
-				if (get_key_press(1 << KEY1))
-					run = 0;
-			}
-			_delay_ms(1);
+void festziehen(void)
+    {
+    uint8_t t1 = 0;
+    uint8_t t3 = 0;
+    uint8_t t4 = 0;
+    uint16_t t2 = 0;
+    uint8_t run = 1;	//motor läuft
+    uint8_t safe = 1;
+    set_motorpower_a(motorpower = START_POWER_F);
+    if (motorrichtung == 1)
+	motor_a(2);
+    else
+	motor_a(1);
+    while (run == 1)
+	{
+	t1++;
+	t4++;
+	//langsames anfahren der Motors
+	if (t4 == VERZOGER_F)
+	    {
+	    if (motorpower < EINZIEH_MAX_F)
+		{
+		motorpower++;
+		set_motorpower_a(motorpower);
 		}
-		//set_motorpower_a(255);
-		//_delay_ms(300);
-		/*run = 1;
-		 t4 = 0;
-		 motorpower = 255;
-		 while (run == 1) {
-		 t4++;
-		 if (t4 == VERZOGER_STOP_F) {
-		 if (motorpower > EINZIEH_MIN_STOP_F) {
-		 motorpower--;
-		 set_motorpower_a(motorpower);
-		 } else {
-		 run = 0;
-		 }
-		 t4 = 0;
-		 }
-		 _delay_ms(1);
-		 }*/
-		stop();
-		LED1_PORT &= ~(1 << LED1);
-		get_key_press(1 << KEY0);
-		get_key_press(1 << KEY1);
-		//get_key_press(1 << KEY2);
-		if (safe == 1) {
-			LED1_PORT &= ~(1 << LED1);
-		} else
-			LED1_PORT |= (1 << LED1);
-	}
-}
-
-void putzen(void) {
-	uint8_t t1 = 0;
-	uint8_t t4 = 0;
-	uint8_t t5 = 0;
-	uint16_t t2 = 0;
-	uint32_t t3 = 0;
-	uint8_t run = 1;                            //motor l�uft
-	uint8_t safe = 1;
-	if (!(PINC & (1 << PINC3))) {
-		set_motorpower_a(motorpower = START_POWER_P);
-		motor_a(motorrichtung);
-		while (run == 1) {
-			t1++;
-			t4++;
-			if (t4 == VERZOGER_P) {
-				if (motorpower < EINZIEH_MAX_P) {
-					motorpower++;
-					set_motorpower_a(motorpower);
-				}
-				t4 = 0;
-			}
-			if (t1 == 10) {
-				t3++;
-				if (t3 == T_MAX_P) {
-					run = 0;
-					safe = 0;
-				}
-				if (t2 < T_MIN_P)
-					t2++;
-				if ((t2 == T_MIN_P) && digitalRead(F_FEST_PIN)==0)
-					run = 0;
-				t5++;
-				if (t5 == LED_T_P) {
-					LED1_PORT ^= (1 << LED1);
-					t5 = 0;
-				}
-				t1 = 0;
-			}
-			if (digitalRead(F_FEST_PIN)==1)
-				t2 = (T_MIN_P - 1);
-			if (get_key_press(1 << KEY0)) {
-				run = 0;
-				safe = 0;
-			}
-			_delay_ms(1);
+	    t4 = 0;
+	    }
+	if (t1 == 10)
+	    {
+	    t2++;
+	    // maximale Einziehzeit erreicht
+	    if (t2 == T_MAX_F)
+		{
+		safe = 0;
+		run = 0;
 		}
-		//_delay_ms(200);
-		/*
-		 set_motorpower_a(255);
-		 _delay_ms(300);
-		 run = 1;
-		 t4 = 0;
-		 motorpower = 255;
-		 while (run == 1) {
-		 t4++;
-		 if (t4 == VERZOGER_STOP_F) {
-		 if (motorpower > EINZIEH_MIN_STOP_F) {
-		 motorpower--;
-		 set_motorpower_a(motorpower);
-		 } else {
-		 run = 0;
-		 }
-		 t4 = 0;
-		 }
-		 _delay_ms(1);
-		 }
-		 */
-
-		stop();
-		get_key_press(1 << KEY0);
-		get_key_press(1 << KEY1);
-		//get_key_press(1 << KEY2);
-		if (safe == 1) {
-			aender_richtung();
-			LED1_PORT &= ~(1 << LED1);
-		} else
-			LED1_PORT |= (1 << LED1);
+	    // Stopp bei erreichen des Fest-Tasters
+	    if ((PINC & (1 << PINC5)))
+		if (digitalRead(F_FEST_PIN) == 0)
+		    run = 0;
+	    // LED Blinken
+	    t3++;
+	    if (t3 == LED_T_P)
+		{
+		LED1_PORT ^= (1 << LED1);
+		t3 = 0;
+		}
+	    t1 = 0;
+	    if (get_key_press(1 << KEY1))
+		run = 0;
+	    }
+	_delay_ms(1);
 	}
-}
+    //set_motorpower_a(255);
+    //_delay_ms(300);
+    /*run = 1;
+     t4 = 0;
+     motorpower = 255;
+     while (run == 1) {
+     t4++;
+     if (t4 == VERZOGER_STOP_F) {
+     if (motorpower > EINZIEH_MIN_STOP_F) {
+     motorpower--;
+     set_motorpower_a(motorpower);
+     } else {
+     run = 0;
+     }
+     t4 = 0;
+     }
+     _delay_ms(1);
+     }*/
+    stop();
+    LED1_PORT &= ~(1 << LED1);
+    get_key_press(1 << KEY0);
+    get_key_press(1 << KEY1);
+    //get_key_press(1 << KEY2);
+    if (safe == 1)
+	{
+	LED1_PORT &= ~(1 << LED1);
+	}
+    else
+	LED1_PORT |= (1 << LED1);
+    }
+
+void putzen(void)
+    {
+    uint8_t t1 = 0;
+    uint8_t t4 = 0;
+    uint8_t t5 = 0;
+    uint16_t t2 = 0;
+    uint32_t t3 = 0;
+    uint8_t run = 1;                            //motor l�uft
+    uint8_t safe = 1;
+    set_motorpower_a(motorpower = START_POWER_P);
+    motor_a(motorrichtung);
+    while (run == 1)
+	{
+	t1++;
+	t4++;
+	if (t4 == VERZOGER_P)
+	    {
+	    if (motorpower < EINZIEH_MAX_P)
+		{
+		motorpower++;
+		set_motorpower_a(motorpower);
+		}
+	    t4 = 0;
+	    }
+	if (t1 == 10)
+	    {
+	    t3++;
+	    if (t3 == T_MAX_P)
+		{
+		run = 0;
+		safe = 0;
+		}
+	    if (t2 < T_MIN_P)
+		t2++;
+	    if ((t2 == T_MIN_P) && digitalRead(F_FEST_PIN) == 0)
+		run = 0;
+	    t5++;
+	    if (t5 == LED_T_P)
+		{
+		LED1_PORT ^= (1 << LED1);
+		t5 = 0;
+		}
+	    t1 = 0;
+	    }
+	if (digitalRead(F_FEST_PIN) == 1)
+	    t2 = (T_MIN_P - 1);
+	if (get_key_press(1 << KEY0))
+	    {
+	    run = 0;
+	    safe = 0;
+	    }
+	_delay_ms(1);
+	}
+    //_delay_ms(200);
+    /*
+     set_motorpower_a(255);
+     _delay_ms(300);
+     run = 1;
+     t4 = 0;
+     motorpower = 255;
+     while (run == 1) {
+     t4++;
+     if (t4 == VERZOGER_STOP_F) {
+     if (motorpower > EINZIEH_MIN_STOP_F) {
+     motorpower--;
+     set_motorpower_a(motorpower);
+     } else {
+     run = 0;
+     }
+     t4 = 0;
+     }
+     _delay_ms(1);
+     }
+     */
+
+    stop();
+    get_key_press(1 << KEY0);
+    get_key_press(1 << KEY1);
+    //get_key_press(1 << KEY2);
+    if (safe == 1)
+	{
+	aender_richtung();
+	LED1_PORT &= ~(1 << LED1);
+	}
+    else
+	LED1_PORT |= (1 << LED1);
+    }
 
 //The setup function is called once at startup of the sketch
 void setup()
@@ -467,20 +480,23 @@ void setup()
 
 // The loop function is called in an endless loop
 void loop()
-{
-	lese_richtung();
-	//if (fahrwerk == 0) {
-	if (get_key_short(1 << KEY0)) {
-		festziehen();
+    {
+    lese_richtung();
+    if (digitalRead(SAVE_PIN) == 0)
+	{
+	if (get_key_short(1 << KEY0))
+	    {
+	    festziehen();
+	    }
+	if (get_key_long(1 << KEY1))
+	    {
+	    putzen();
+	    }
 	}
-	if (get_key_long(1 << KEY1)) {
-		putzen();
-	}
-	//get_key_press(1 << KEY2);
-	//}
-	/* else if (fahrwerk == 1) {
-	 if (get_key_long(1 << KEY0)) {
-	 festziehen();
-	 }
-	 }*/
-	_delay_ms(5);}
+    /* else if (fahrwerk == 1) {
+     if (get_key_long(1 << KEY0)) {
+     festziehen();
+     }
+     }*/
+    _delay_ms(5);
+    }
