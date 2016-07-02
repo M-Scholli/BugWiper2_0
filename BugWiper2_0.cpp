@@ -132,39 +132,6 @@ void motor_a(uint8_t a) {
 	}
 }
 
-void motor_soft_a(uint8_t a) {
-	switch (a) {
-	case 1: {
-		digitalWrite(Motor_I2, 0);
-		digitalWrite(Motor_I2, 1);
-		for (int i = 100; i <= 254; i++) {
-			analogWrite(Motor_EN, i);
-			_delay_ms(1);
-		}
-
-	}
-		break;
-
-	case 2: {
-		digitalWrite(Motor_I1, 0);
-		digitalWrite(Motor_I2, 1);
-		for (int i = 100; i <= 255; i++) {
-			analogWrite(Motor_EN, i);
-			_delay_ms(1);
-		}
-
-	}
-		break;
-
-	case 3: {
-		analogWrite(Motor_EN, 255);
-		digitalWrite(Motor_I2, 1);
-		digitalWrite(Motor_I1, 1);
-	}
-		break;
-	}
-}
-
 void set_motorpower_a(uint8_t b) {
 	analogWrite(Motor_EN, b);
 }
