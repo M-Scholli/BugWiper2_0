@@ -18,11 +18,7 @@
 #define REPEAT_START    	500 	// after 500ms
 #define REPEAT_NEXT     	60      // every 60ms
 
-#define F_FEST_DDR		DDRC
-#define F_FEST_PORT		PORTC
-#define F_FEST_PINS		PINC
-#define F_FEST			1
-#define F_FEST_PIN		PINC1
+#define F_FEST_PIN		A1
 
 #define FAHRWERK_DDR		DDRD
 #define FAHRWERK_PORT		PORTD
@@ -249,9 +245,8 @@ uint16_t get_key_long(uint16_t key_mask) {
 }
 
 void init_io(void) {
-	F_FEST_DDR &= ~(1 << F_FEST);
+	pinMode(F_FEST_PIN, INPUT_PULLUP);
 	F_LOSE_DDR &= ~(1 << F_LOSE);
-	F_FEST_PORT |= (1 << F_FEST);
 	F_LOSE_PORT |= (1 << F_LOSE);
 	LED1_DDR |= (1 << LED1);
 	LED1_PORT &= ~(1 << LED1);
@@ -329,7 +324,7 @@ void festziehen(void) {
 				}
 				// Stopp bei erreichen des Fest-Tasters
 				if ((PINC & (1 << PINC5)))
-					if (!(F_FEST_PINS & (1 << F_FEST_PIN)))
+					if (digitalRead(F_FEST_PIN)==0)
 						run = 0;
 				// LED Blinken
 				t3++;
@@ -404,7 +399,7 @@ void putzen(void) {
 				}
 				if (t2 < T_MIN_P)
 					t2++;
-				if ((t2 == T_MIN_P) && !(F_FEST_PINS & (1 << F_FEST_PIN)))
+				if ((t2 == T_MIN_P) && digitalRead(F_FEST_PIN)==0)
 					run = 0;
 				t5++;
 				if (t5 == LED_T_P) {
@@ -413,7 +408,7 @@ void putzen(void) {
 				}
 				t1 = 0;
 			}
-			if ((F_FEST_PINS & (1 << F_FEST_PIN)))
+			if (digitalRead(F_FEST_PIN)==1)
 				t2 = (T_MIN_P - 1);
 			if (get_key_press(1 << KEY0)) {
 				run = 0;
