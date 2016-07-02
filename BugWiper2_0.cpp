@@ -186,38 +186,20 @@ void motor_a(uint8_t a) {
 	case 1: {
 		digitalWrite(Motor_I2, 0) ;
 		digitalWrite(Motor_I1, 1) ;
-		//OCR0A=255;
-		/*for(int i=100;i<=254;i++)
-		 {
-		 Motor_PWM_A=i;
-		 _delay_ms(1);
-		 }
-		 */
+
 	}
 		break;
 
 	case 2: {
 		digitalWrite(Motor_I1, 0) ;
 		digitalWrite(Motor_I2, 1) ;
-		/*for(int i=100;i<=255;i++)
-		 {
-		 Motor_PWM_A=i;
-		 _delay_ms(1);
-		 }
-		 */
+
 	}
 		break;
 
 	case 3: {
-		//Motor_PWM_A = 255;
 		digitalWrite(Motor_I2, 0) ;
 		digitalWrite(Motor_I1, 0) ;
-
-		/*for(int i=200;i<=255;i++)
-		 {
-		 OCR0A=i;
-		 _delay_ms(1);
-		 }*/
 	}
 		break;
 	}
@@ -228,7 +210,6 @@ void motor_soft_a(uint8_t a) {
 	case 1: {
 		digitalWrite(Motor_I2, 0);
 		digitalWrite(Motor_I2, 1);
-		//OCR0A=255;
 		for (int i = 100; i <= 254; i++) {
 			Motor_PWM_A = i;
 			_delay_ms(1);
@@ -252,12 +233,6 @@ void motor_soft_a(uint8_t a) {
 		Motor_PWM_A = 255;
 		digitalWrite(Motor_I2, 1);
 		digitalWrite(Motor_I1, 1);
-
-		/*for(int i=200;i<=255;i++)
-		 {
-		 OCR0A=i;
-		 _delay_ms(1);
-		 }*/
 	}
 		break;
 	}
@@ -276,6 +251,7 @@ void key_init(void) {
 	TCNT2 = (uint8_t) (int16_t) -(F_CPU / 256 * 10e-3 + 0.5); // preload for 10ms
 	TIMSK2 |= 1 << TOIE2;                   // enable timer interrupt
 }
+
 ///////////////////////////////////////////////////////////////////
 //
 // check if a key has been pressed. Each pressed key is reported
