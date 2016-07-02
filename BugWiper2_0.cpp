@@ -79,16 +79,13 @@ uint8_t motorpower = 0;
 // der Putzvorgang am Boden soll unterdrückt werden
 uint8_t fahrwerk = 0; 			//Fahrwerk ausgefahren? Flug=0 Boden=1 Test=3
 
-uint8_t eeprom_read_byte(int adresse)
-{
-  return EEPROM.read(adresse);
-}
-
 void eeprom_update_byte(int adresse, uint8_t wert)
-{
-  if( EEPROM.read(adresse) != wert ){
-        EEPROM.write(adresse, wert);
-      }}
+    {
+    if (EEPROM.read(adresse) != wert)
+	{
+	EEPROM.write(adresse, wert);
+	}
+    }
 
 ISR( TIMER2_OVF_vect )                            // every 10ms
 {
@@ -254,7 +251,7 @@ void init_io(void) {
 }
 
 void lese_richtung(void) {
-	motorrichtung = eeprom_read_byte(eeRichtung);
+	motorrichtung = EEPROM.read(eeRichtung);
 	if (motorrichtung != 1 && motorrichtung != 2) {
 		motorrichtung = 1;
 		eeprom_update_byte(eeRichtung, motorrichtung);
