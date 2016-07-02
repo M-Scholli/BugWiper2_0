@@ -33,9 +33,7 @@
 #define F_LOSE_PIN		PIND4
 
 //Status LED
-#define LED1_DDR		DDRB
-#define	LED1_PORT		PORTB
-#define LED1			5
+#define LED_PIN			13
 #define LED_T_P			50	//Zeit zum blinken
 #define LED_T_F			20
 
@@ -209,12 +207,12 @@ void init_io(void)
     pinMode(Motor_EN, OUTPUT);
     pinMode(Motor_I1, OUTPUT);
     pinMode(Motor_I2, OUTPUT);
+    pinMode(LED_PIN, OUTPUT);
     digitalWrite(Motor_I2, 1);
     digitalWrite(Motor_I1, 1);
+    digitalWrite(LED_PIN, 0);
     F_LOSE_DDR &= ~(1 << F_LOSE);
     F_LOSE_PORT |= (1 << F_LOSE);
-    LED1_DDR |= (1 << LED1);
-    LED1_PORT &= ~(1 << LED1);
     analogWrite(Motor_EN, 0);
     }
 
@@ -300,7 +298,7 @@ void festziehen(void)
 	    t3++;
 	    if (t3 == LED_T_P)
 		{
-		LED1_PORT ^= (1 << LED1);
+		digitalWrite(LED_PIN, !digitalRead(LED_PIN));
 		t3 = 0;
 		}
 	    t1 = 0;
@@ -310,15 +308,15 @@ void festziehen(void)
 	_delay_ms(1);
 	}
     stop();
-    LED1_PORT &= ~(1 << LED1);
+    digitalWrite(LED_PIN, 0);
     get_key_press(1 << KEY0);
     get_key_press(1 << KEY1);
     if (safe == 1)
 	{
-	LED1_PORT &= ~(1 << LED1);
+	digitalWrite(LED_PIN, 0);
 	}
     else
-	LED1_PORT |= (1 << LED1);
+	digitalWrite(LED_PIN, 1);
     }
 
 void putzen(void)
@@ -360,7 +358,7 @@ void putzen(void)
 	    t5++;
 	    if (t5 == LED_T_P)
 		{
-		LED1_PORT ^= (1 << LED1);
+		digitalWrite(LED_PIN, !digitalRead(LED_PIN));
 		t5 = 0;
 		}
 	    t1 = 0;
@@ -380,10 +378,10 @@ void putzen(void)
     if (safe == 1)
 	{
 	aender_richtung();
-	LED1_PORT &= ~(1 << LED1);
+	digitalWrite(LED_PIN, 0);
 	}
     else
-	LED1_PORT |= (1 << LED1);
+	digitalWrite(LED_PIN, 1);
     }
 
 //The setup function is called once at startup of the sketch
