@@ -1,34 +1,22 @@
-// Do not remove the include below
 #include "BugWiper2_0.h"
-
 #include <avr/io.h>
 #include <util/delay.h>
 #include <avr/interrupt.h>
 #include <stdint.h>
 #include <EEPROM.h>
-//#include <avr/eeprom.h>
 
-#ifndef EEMEM
-#define EEMEM  __attribute__ ((section (".eeprom")))
-#endif
-
-#ifndef F_CPU
-#define F_CPU           16000000                   // processor clock frequency
-#warning kein F_CPU definiert
-#endif
-
-#define KEY_DDR         DDRD
-#define KEY_PORT        PORTD
-#define KEY_PIN         PIND
-#define KEY0            6	// Seil festziehen
-#define KEY1            5	// Putzen starten
-#define KEY2            4   //Sicherheits schalter
+// Taster mit Entprellung
+#define KEY_DDR         	DDRD
+#define KEY_PORT        	PORTD
+#define KEY_PIN         	PIND
+#define KEY0            	6	// Seil festziehen
+#define KEY1            	5	// Putzen starten
+#define KEY2            	4   	//Sicherheits schalter
 #define KEY3			2	//Fahrwerk
-#define ALL_KEYS        (1<<KEY0 | 1<<KEY1 | 1<<KEY2)
-
-#define REPEAT_MASK     (1<<KEY1 | 1<<KEY0)      // repeat: key1, key2
-#define REPEAT_START    500                        // after 500ms
-#define REPEAT_NEXT     60                        // every 200ms
+#define ALL_KEYS        	(1<<KEY0 | 1<<KEY1 | 1<<KEY2)
+#define REPEAT_MASK     	(1<<KEY1 | 1<<KEY0)      // repeat: key1, key2
+#define REPEAT_START    	500 	// after 500ms
+#define REPEAT_NEXT     	60      // every 60ms
 
 #define F_FEST_DDR		DDRC
 #define F_FEST_PORT		PORTC
@@ -36,11 +24,11 @@
 #define F_FEST			1
 #define F_FEST_PIN		PINC1
 
-#define FAHRWERK_DDR	DDRD
-#define FAHRWERK_PORT	PORTD
-#define FAHRWERK_PINS	PIND
+#define FAHRWERK_DDR		DDRD
+#define FAHRWERK_PORT		PORTD
+#define FAHRWERK_PINS		PIND
 #define FAHRWERK		PD3
-#define FAHRWERK_PIN	PIND3
+#define FAHRWERK_PIN		PIND3
 
 #define F_LOSE_DDR		DDRD
 #define F_LOSE_PORT		PORTD
@@ -48,84 +36,52 @@
 #define F_LOSE			4
 #define F_LOSE_PIN		PIND4
 
+//Status LED
 #define LED1_DDR		DDRB
 #define	LED1_PORT		PORTB
 #define LED1			5
 #define LED_T_P			50	//Zeit zum blinken
 #define LED_T_F			20
 
-#define EINZIEH_MAX_P	255	//Max Power Putzen
-#define EINZIEH_MAX_F	255 //Max Motorpower f�r Festzieh mit Fahrwerk
-#define EINZIEH_MAX		255 //Max Motorpower f�r Einzieh im Flug
-#define EINZIEH_MIN_STOP_F 140
+// Kalibrierung des Putzvorganges
+#define EINZIEH_MAX_P		255	//Max Power Putzen
+#define EINZIEH_MAX_F		255	//Max Motorpower f�r Festzieh mit Fahrwerk
+#define EINZIEH_MAX		255 	//Max Motorpower f�r Einzieh im Flug
+#define EINZIEH_MIN_STOP_F 	140
 #define VERZOGER		10	//wie viel ms bis zum erh�hen der Motorpower um 1
-#define BREMSE_START	210 //Motorpower bremsen startwert
-#define VERZOGER_B		2  //Wie viel bis zum erh�hen beim Bremsen in 250�s
-#define VERZOGER_P		60 //Verz�gern Putzen
+#define BREMSE_START		210 	//Motorpower bremsen startwert
+#define VERZOGER_B		2  	//Wie viel bis zum erh�hen beim Bremsen in 250�s
+#define VERZOGER_P		60 	//Verz�gern Putzen
 #define VERZOGER_F		20
 #define VERZOGER_STOP_F 1
-#define T_MIN_P			18//Minimale Putzzeit[ms] = T_MIN_P * VERZOGER_P
-#define T_MAX_P			9000//Maximale Putzzeit
-#define T_MAX_F			5000 //Maximale festziehzeit //erh�hen der einziehzeit
-#define START_POWER_P	40 //motorpower am anfang Putzen
-#define START_POWER_F	70
+#define T_MIN_P			18	//Minimale Putzzeit[ms] = T_MIN_P * VERZOGER_P
+#define T_MAX_P			9000	//Maximale Putzzeit
+#define T_MAX_F			5000 	//Maximale festziehzeit //erh�hen der einziehzeit
+#define START_POWER_P		40 	//motorpower am anfang Putzen
+#define START_POWER_F		70
 
 
-//Motor Eingang Pins
-
+//Motor Pins
 #define Motor_I1		10
 #define Motor_I2		11
-//PWM
-#define Motor_EN		9
+#define Motor_EN		9 	//PWM Pin
 
 //EEPROM Speicherbereich
 #define eeRichtung		0
-volatile uint16_t key_state;                // debounced and inverted key state:
-// bit = 1: key pressed
-volatile uint16_t key_press;                                // key press detect
 
-volatile uint16_t key_rpt;                          // key long press and repeat
+// Taster Entprellung
+volatile uint16_t key_state;		// debounced and inverted key state:
+// bit = 1: key pressed
+volatile uint16_t key_press;  		// key press detect
+volatile uint16_t key_rpt;		// key long press and repeat
 
 //master slave deklarieren
-//soll sp�ter eine Jumperposition abgefragt werden.
-uint8_t master = 1;		//1=master 0=slave
-//uint8_t not_stop = 0;
-//uint8_t motor_an = 0;		//0=aus
+//soll später eine Jumperposition abgefragt werden.
+uint8_t master = 1;			//1=master 0=slave
 int8_t motorrichtung;
 uint8_t motorpower = 0;
-uint8_t fahrwerk = 0; //fahrwerkausgefahren? flug=0 boden=1 test=3
-//uint8_t key = 0;
-//volatile int8_t z;
-//volatile int8_t sekunde = T_MAX;
-/*
- ISR( TIMER1_COMPA_vect ) {	//z�hlt die Zeit runter
- if (motor_an == 1) {
- z++;
- if (z == 3) { //normal 125
- sekunde--;
- z = 0;
- if (sekunde == -1) {
- sekunde = T_MAX;
- motor_soft_a(3);
- not_stop = 1;
- motor_an = 0;
- }
- }
- }
- }
-
- void TIMER1_interrupt_init(void) //konfiguriert die Uhr
- {
- z = 0; //ISR-Z�hler = 0
- TCNT1 = 0; //Anfangsz�hlerstand = 0
- OCR1AL = 1; //Z�hler z�hlt bis 124: 15625Hz/124 =126
- TCCR1B = 0x1d; //CTC-Modus: Takt intern von 16 Mhz /1024 =15625Hz
- //Timer/Counter0 Compare Match Interrupt aktivieren:
- TIMSK1 |= (1 << OCIE1A);
- //sei();
- }
- */
-// Timer f�r Key-Debounce
+// der Putzvorgang am Boden soll unterdrückt werden
+uint8_t fahrwerk = 0; 			//Fahrwerk ausgefahren? Flug=0 Boden=1 Test=3
 
 uint8_t eeprom_read_byte(int adresse)
 {
