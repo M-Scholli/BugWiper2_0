@@ -8,16 +8,21 @@
 #define Putzen_PIN		5
 #define Ein_Ziehen_PIN		6
 #define F_FEST_PIN		A1
+#define F_Lose_PIN		A2
 #define SAVE_PIN		4	// Sicherheitsschalter deaktiviert BugWiper
 #define T_Taster_Lang		2000    // Zeit in ms für langen Tastendruck
 #define Time_Schritt		5	// Zeit in ms die für das durchlaufen des Main Loops benötigt wird.
 //Status LED
 #define LED_PIN			13
 #define LED_T_P			50	//Zeit zum blinken
-
+#define LED_T_E			500
+//Motor Pins
+#define Motor_I1		10
+#define Motor_I2		11
+#define Motor_EN		9 	//PWM Pin
 // Kalibrierung des Putzvorganges
 #define EINZIEH_MAX_P		255	//Max Power Putzen
-#define EINZIEH_MAX_F		255	//Max Motorpower f�r Festzieh mit Fahrwerk
+#define EINZIEH_MAX_E		255	//Max Motorpower f�r Festzieh mit Fahrwerk
 #define EINZIEH_MAX		255 	//Max Motorpower f�r Einzieh im Flug
 #define EINZIEH_MIN_STOP_F 	140
 #define VERZOGER		10	//wie viel ms bis zum erh�hen der Motorpower um 1
@@ -28,15 +33,9 @@
 #define VERZOGER_STOP_F 1
 #define T_MIN_P			18	//Minimale Putzzeit[ms] = T_MIN_P * VERZOGER_P
 #define T_MAX_P			9000	//Maximale Putzzeit
-#define T_MAX_F			5000 	//Maximale festziehzeit //erh�hen der einziehzeit
+#define T_MAX_E			50000 	//Maximale festziehzeit //erh�hen der einziehzeit
 #define START_POWER_P		40 	//motorpower am anfang Putzen
 #define START_POWER_F		70
-
-
-//Motor Pins
-#define Motor_I1		10
-#define Motor_I2		11
-#define Motor_EN		9 	//PWM Pin
 
 //EEPROM Speicherbereich
 #define eeRichtung		0
@@ -89,6 +88,7 @@ void set_motorpower_a(uint8_t b) {
 void init_io(void)
     {
     pinMode(F_FEST_PIN, INPUT_PULLUP);
+    pinMode(F_Lose_PIN, INPUT_PULLUP);
     pinMode(SAVE_PIN, INPUT_PULLUP);
     pinMode(Motor_EN, OUTPUT);
     pinMode(Motor_I1, OUTPUT);
@@ -142,10 +142,9 @@ void stop(void) {
 
 void festziehen(void)
     {
-    uint8_t t1 = 0;
-    uint8_t t3 = 0;
-    uint8_t t4 = 0;
-    uint16_t t2 = 0;
+    uint16_t t3 = 0;	//LED timer
+    uint8_t t4 = 0;	//PWM erhöhungs Timer
+    uint32_t t2 = 0;	// Maximale Motor Zeit
     uint8_t run = 1;	//motor läuft
     uint8_t safe = 1;
     set_motorpower_a(motorpower = START_POWER_F);
@@ -155,40 +154,44 @@ void festziehen(void)
 	motor_a(1);
     while (run == 1)
 	{
-	t1++;
+	t2++;
+	t3++;
 	t4++;
 	//langsames anfahren der Motors
 	if (t4 == VERZOGER_F)
 	    {
-	    if (motorpower < EINZIEH_MAX_F)
+	    if (motorpower < EINZIEH_MAX_E)
 		{
 		motorpower++;
 		set_motorpower_a(motorpower);
 		}
 	    t4 = 0;
 	    }
-	if (t1 == 10)
+	// maximale Einziehzeit erreicht
+	if (t2 == T_MAX_E)
 	    {
-	    t2++;
-	    // maximale Einziehzeit erreicht
-	    if (t2 == T_MAX_F)
-		{
-		safe = 0;
-		run = 0;
-		}
-	    // Stopp bei erreichen des Fest-Tasters
-	    if (digitalRead(F_FEST_PIN) == 0)
-		run = 0;
-	    // LED Blinken
-	    t3++;
-	    if (t3 == LED_T_P)
-		{
-		digitalWrite(LED_PIN, !digitalRead(LED_PIN));
-		t3 = 0;
-		}
-	    t1 = 0;
-	    if (digitalRead(Putzen_PIN)==0)
-		run = 0;
+	    safe = 0;
+	    run = 0;
+	    }
+	//Stopp bei drücken des Putzen Pins
+	if (digitalRead(Putzen_PIN) == 0)
+	    {
+	    run = 0;
+	    }
+	// Stopp bei erreichen des Fest-Tasters
+	if (digitalRead(F_FEST_PIN) == 0)
+	    {
+	    run = 0;
+	    }
+	// LED Blinken
+	if (t3 >= LED_T_E)
+	    {
+	    digitalWrite(LED_PIN, !digitalRead(LED_PIN));
+	    t3 = 0;
+	    }
+	if (digitalRead(F_Lose_PIN) == 0)
+	    {
+	    motorpower = 0;
 	    }
 	delay(1);
 	}
