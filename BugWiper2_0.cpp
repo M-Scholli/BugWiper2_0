@@ -73,27 +73,12 @@
 
 //Motor Eingang Pins
 
-#define Motor_I1			10
-
-#define Motor_I2			11
-
-//Enable Motor Pin
-#define Motor_PORT_EA	PORTB
-#define Motor_DDR_EA		DDRB
-#define Motor_EA			PB1
-
-//PWM init
-#define Motor_PWM_A		OCR0A
-#define Motor_PORT_PWM_A	PORTB
-#define Motor_DDR_PWM_A		DDRB
-#define Motor_PWM_PIN_A		1
+#define Motor_I1		10
+#define Motor_I2		11
+//PWM
 #define Motor_EN		9
 
-//PWM config
-#define Motor_TCCRA_A		TCCR0A
-#define Motor_TCCRA_WERT_A	0x83
-#define Motor_TCCRB_A		TCCR0B
-#define Motor_TCCRB_WERT_A	0x03
+//EEPROM Speicherbereich
 #define eeRichtung		0
 volatile uint16_t key_state;                // debounced and inverted key state:
 // bit = 1: key pressed
