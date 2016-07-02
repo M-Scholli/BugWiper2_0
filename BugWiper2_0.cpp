@@ -35,7 +35,6 @@
 //Status LED
 #define LED_PIN			13
 #define LED_T_P			50	//Zeit zum blinken
-#define LED_T_F			20
 
 // Kalibrierung des Putzvorganges
 #define EINZIEH_MAX_P		255	//Max Power Putzen
@@ -305,7 +304,7 @@ void festziehen(void)
 	    if (get_key_press(1 << KEY1))
 		run = 0;
 	    }
-	_delay_ms(1);
+	delay(1);
 	}
     stop();
     digitalWrite(LED_PIN, 0);
@@ -370,7 +369,7 @@ void putzen(void)
 	    run = 0;
 	    safe = 0;
 	    }
-	_delay_ms(1);
+	delay(1);
 	}
     stop();
     get_key_press(1 << KEY0);
@@ -409,5 +408,5 @@ void loop()
 	    putzen();
 	    }
 	}
-    _delay_ms(5);
+    delay(5);
     }
