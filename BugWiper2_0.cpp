@@ -201,8 +201,8 @@ void init_pwm_a() {
 void motor_a(uint8_t a) {
 	switch (a) {
 	case 1: {
-		Motor_PORT_IN2 &= ~(1 << Motor_I2);
-		Motor_PORT_IN1 |= (1 << Motor_I1);
+		digitalWrite(Motor_I2, 0) ;
+		digitalWrite(Motor_I1, 1) ;
 		//OCR0A=255;
 		/*for(int i=100;i<=254;i++)
 		 {
@@ -214,8 +214,8 @@ void motor_a(uint8_t a) {
 		break;
 
 	case 2: {
-		Motor_PORT_IN1 &= ~(1 << Motor_I1);
-		Motor_PORT_IN2 |= (1 << Motor_I2);
+		digitalWrite(Motor_I1, 0) ;
+		digitalWrite(Motor_I2, 1) ;
 		/*for(int i=100;i<=255;i++)
 		 {
 		 Motor_PWM_A=i;
@@ -227,8 +227,8 @@ void motor_a(uint8_t a) {
 
 	case 3: {
 		//Motor_PWM_A = 255;
-		Motor_PORT_IN2 &= ~(1 << Motor_I2);
-		Motor_PORT_IN1 &= ~(1 << Motor_I1);
+		digitalWrite(Motor_I2, 0) ;
+		digitalWrite(Motor_I1, 0) ;
 
 		/*for(int i=200;i<=255;i++)
 		 {
@@ -243,8 +243,8 @@ void motor_a(uint8_t a) {
 void motor_soft_a(uint8_t a) {
 	switch (a) {
 	case 1: {
-		Motor_PORT_IN2 &= ~(1 << Motor_I2);
-		Motor_PORT_IN1 |= (1 << Motor_I1);
+		digitalWrite(Motor_I2, 0);
+		digitalWrite(Motor_I2, 1);
 		//OCR0A=255;
 		for (int i = 100; i <= 254; i++) {
 			Motor_PWM_A = i;
@@ -255,8 +255,8 @@ void motor_soft_a(uint8_t a) {
 		break;
 
 	case 2: {
-		Motor_PORT_IN1 &= ~(1 << Motor_I1);
-		Motor_PORT_IN2 |= (1 << Motor_I2);
+		digitalWrite(Motor_I1, 0);
+		digitalWrite(Motor_I2, 1);
 		for (int i = 100; i <= 255; i++) {
 			Motor_PWM_A = i;
 			_delay_ms(1);
@@ -267,8 +267,8 @@ void motor_soft_a(uint8_t a) {
 
 	case 3: {
 		Motor_PWM_A = 255;
-		Motor_PORT_IN2 |= (1 << Motor_I2);
-		Motor_PORT_IN1 |= (1 << Motor_I1);
+		digitalWrite(Motor_I2, 1);
+		digitalWrite(Motor_I1, 1);
 
 		/*for(int i=200;i<=255;i++)
 		 {
@@ -561,6 +561,10 @@ void setup()
 {
 	init_pwm_a();
 	//TIMER1_interrupt_init();
+	pinMode(Motor_I1, OUTPUT);
+	pinMode(Motor_I2, OUTPUT);
+	digitalWrite(Motor_I2, 1);
+	digitalWrite(Motor_I1, 1);
 	key_init();
 	init_io();
 	lese_richtung();
