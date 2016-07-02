@@ -107,12 +107,6 @@ ISR( TIMER2_OVF_vect )                            // every 10ms
 	}
 }
 
-
-void init_pwm_a() {
-	pinMode(Motor_EN, OUTPUT);
-	analogWrite(Motor_EN, 0);
-}
-
 // Schaltet den Motor 1= richtung 1;	2=richtung 2;	3=stopp;
 void motor_a(uint8_t a) {
 	switch (a) {
@@ -241,14 +235,21 @@ uint16_t get_key_long(uint16_t key_mask) {
 	return get_key_press(get_key_rpt(key_mask));
 }
 
-void init_io(void) {
-	pinMode(F_FEST_PIN, INPUT_PULLUP);
-	pinMode(SAVE_PIN, INPUT_PULLUP);
-	F_LOSE_DDR &= ~(1 << F_LOSE);
-	F_LOSE_PORT |= (1 << F_LOSE);
-	LED1_DDR |= (1 << LED1);
-	LED1_PORT &= ~(1 << LED1);
-}
+void init_io(void)
+    {
+    pinMode(F_FEST_PIN, INPUT_PULLUP);
+    pinMode(SAVE_PIN, INPUT_PULLUP);
+    pinMode(Motor_EN, OUTPUT);
+    pinMode(Motor_I1, OUTPUT);
+    pinMode(Motor_I2, OUTPUT);
+    digitalWrite(Motor_I2, 1);
+    digitalWrite(Motor_I1, 1);
+    F_LOSE_DDR &= ~(1 << F_LOSE);
+    F_LOSE_PORT |= (1 << F_LOSE);
+    LED1_DDR |= (1 << LED1);
+    LED1_PORT &= ~(1 << LED1);
+    analogWrite(Motor_EN, 0);
+    }
 
 void lese_richtung(void) {
 	motorrichtung = EEPROM.read(eeRichtung);
@@ -421,11 +422,6 @@ void putzen(void)
 //The setup function is called once at startup of the sketch
 void setup()
     {
-    init_pwm_a();
-    pinMode(Motor_I1, OUTPUT);
-    pinMode(Motor_I2, OUTPUT);
-    digitalWrite(Motor_I2, 1);
-    digitalWrite(Motor_I1, 1);
     key_init();
     init_io();
     lese_richtung();
