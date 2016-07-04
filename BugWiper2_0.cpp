@@ -268,7 +268,7 @@ void loop()
 	    && status_putzen_a == 3)
 	{
 	status_putzen_a = 0;
-	delay(100);
+	delay(50);
 	}
     if (digitalRead(Putzen_PIN) == 1)
 	{
