@@ -153,14 +153,6 @@ void stop(void) {
 
 void festziehen(void)
     {
-    t_led_a = 0;
-    t_m_pwm_a = 0;
-    t_p_start = 0;
-    set_motorpower_a(motorpower = START_POWER_F);
-    if (motorrichtung == 1)
-	motor_a(2);
-    else
-	motor_a(1);
     while (status_putzen_a == 2)
 	{
 	t_p_start++;
@@ -207,11 +199,6 @@ void festziehen(void)
 
 void putzen(void)
     {
-    t_m_pwm_a = 0;
-    t_led_a = 0;
-    t_p_start = 0;
-    set_motorpower_a(motorpower = START_POWER_P);
-    motor_a(motorrichtung);
     while (status_putzen_a == 1)
 	{
 	t_p_start++;
@@ -264,12 +251,25 @@ void loop()
 	if (digitalRead(Ein_Ziehen_PIN) == 0 && status_putzen_a == 0)
 	    {
 	    status_putzen_a = 2;
+	    t_led_a = 0;
+	    t_m_pwm_a = 0;
+	    t_p_start = 0;
+	    set_motorpower_a(motorpower = START_POWER_F);
+	    if (motorrichtung == 1)
+		motor_a(2);
+	    else
+		motor_a(1);
 	    festziehen();
 	    }
 	if (digitalRead(Putzen_PIN)
 		== 0&& status_putzen_a == 0 && t_taster_lang >= T_Taster_Lang)
 	    {
 	    status_putzen_a = 1;
+	    t_m_pwm_a = 0;
+	    t_led_a = 0;
+	    t_p_start = 0;
+	    set_motorpower_a(motorpower = START_POWER_P);
+	    motor_a(motorrichtung);
 	    putzen();
 	    t_taster_lang = 0;
 	    }
