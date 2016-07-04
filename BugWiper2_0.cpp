@@ -203,14 +203,6 @@ void festziehen(void)
 	    }
 	delay(1);
 	}
-    stop();
-    digitalWrite(LED_PIN, 0);
-    if (status_putzen_a == 5)
-	{
-	digitalWrite(LED_PIN, 0);
-	}
-    else
-	digitalWrite(LED_PIN, 1);
     }
 
 void putzen(void)
@@ -255,14 +247,6 @@ void putzen(void)
 	    }
 	delay(1);
 	}
-    stop();
-    if (status_putzen_a == 4)
-	{
-	aender_richtung();
-	digitalWrite(LED_PIN, 0);
-	}
-    else
-	digitalWrite(LED_PIN, 1);
     }
 
 //The setup function is called once at startup of the sketch
@@ -303,6 +287,23 @@ void loop()
     if (digitalRead(Putzen_PIN) == 1)
 	{
 	t_taster_lang = 0;
+	}
+    // Putzen beenden
+    if (status_putzen_a == 4)
+	{
+	stop();
+	aender_richtung();
+	digitalWrite(LED_PIN, 0);
+	}
+    if (status_putzen_a == 5)
+	{
+	stop();
+	digitalWrite(LED_PIN, 0);
+	}
+    if (status_putzen_a == 6)
+	{
+	stop();
+	digitalWrite(LED_PIN, 1);
 	}
     delay(Time_Schritt - 1);
     }
