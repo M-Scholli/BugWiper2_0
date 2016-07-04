@@ -218,11 +218,9 @@ void putzen(void)
     uint8_t t_m_pwm_a = 0;  //Motor PWM
     uint16_t t_led_a = 0; //LED
     uint32_t t_p_start = 0; // T_MIN , T_MAX
-    uint8_t run = 1;                            //motor l�uft
-    uint8_t safe = 1;
     set_motorpower_a(motorpower = START_POWER_P);
     motor_a(motorrichtung);
-    while (run == 1)
+    while (status_putzen_a == 1)
 	{
 	t_p_start++;
 	t_m_pwm_a++;
@@ -238,11 +236,10 @@ void putzen(void)
 	    }
 	if (t_p_start >= T_MAX_P)
 	    {
-	    run = 0;
-	    safe = 0;
+	    status_putzen_a = 6;
 	    }
 	if ((t_p_start >= T_MIN_P) && digitalRead(F_FEST_PIN) == 0)
-	    run = 0;
+	    status_putzen_a = 4;
 	if (t_led_a == LED_T_P)
 	    {
 	    digitalWrite(LED_PIN, !digitalRead(LED_PIN));
@@ -250,8 +247,7 @@ void putzen(void)
 	    }
 	if (digitalRead(Ein_Ziehen_PIN) == 0)
 	    {
-	    run = 0;
-	    safe = 0;
+	    status_putzen_a = 6;
 	    }
 	if (t_p_start >= T_MIN_P && digitalRead(F_Lose_PIN) == 0)
 	    {
@@ -260,7 +256,7 @@ void putzen(void)
 	delay(1);
 	}
     stop();
-    if (safe == 1)
+    if (status_putzen_a == 4)
 	{
 	aender_richtung();
 	digitalWrite(LED_PIN, 0);
