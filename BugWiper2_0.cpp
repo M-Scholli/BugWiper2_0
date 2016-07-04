@@ -153,14 +153,12 @@ void festziehen(void)
     uint16_t t_led_a = 0;	//LED timer
     uint8_t t_m_pwm_a = 0;	//PWM erhöhungs Timer
     uint32_t t_p_start = 0;	// Maximale Motor Zeit
-    uint8_t run = 1;	//motor läuft
-    uint8_t safe = 1;
     set_motorpower_a(motorpower = START_POWER_F);
     if (motorrichtung == 1)
 	motor_a(2);
     else
 	motor_a(1);
-    while (run == 1)
+    while (status_putzen_a == 2)
 	{
 	t_p_start++;
 	t_led_a++;
@@ -178,18 +176,17 @@ void festziehen(void)
 	// maximale Einziehzeit erreicht
 	if (t_p_start == T_MAX_E)
 	    {
-	    safe = 0;
-	    run = 0;
+	    status_putzen_a = 6;
 	    }
 	//Stopp bei drücken des Putzen Pins
 	if (digitalRead(Putzen_PIN) == 0)
 	    {
-	    run = 0;
+	    status_putzen_a = 5;
 	    }
 	// Stopp bei erreichen des Fest-Tasters
 	if (digitalRead(F_FEST_PIN) == 0)
 	    {
-	    run = 0;
+	    status_putzen_a = 5;
 	    }
 	// LED Blinken
 	if (t_led_a >= LED_T_E)
@@ -205,7 +202,7 @@ void festziehen(void)
 	}
     stop();
     digitalWrite(LED_PIN, 0);
-    if (safe == 1)
+    if (status_putzen_a == 5)
 	{
 	digitalWrite(LED_PIN, 0);
 	}
