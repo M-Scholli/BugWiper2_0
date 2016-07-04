@@ -42,7 +42,7 @@
 int8_t motorrichtung;
 uint8_t motorpower = 0;
 uint16_t t_taster_lang = 0;	// Zeit seit drücken des Langen Tasters
-uint8_t taster_reset = 0;
+uint8_t status_putzen_a = 0;	//gibt an ob 0 = auf putzen gewartet, 1 = geputzt, 2 = eingezogen oder 3 = auf Taster loslassen gewartet wird
 
 // der Putzvorgang am Boden soll unterdrückt werden
 
@@ -271,19 +271,19 @@ void loop()
     {
     if (digitalRead(SAVE_PIN) == 0)
 	{
-	if (digitalRead(Ein_Ziehen_PIN) == 0 && taster_reset == 0)
+	if (digitalRead(Ein_Ziehen_PIN) == 0 && status_putzen_a == 0)
 	    {
+	    status_putzen_a = 2;
 	    festziehen();
-	    taster_reset = 1;
 	    }
 	if (digitalRead(Putzen_PIN)
-		== 0&& taster_reset == 0 && t_taster_lang >= T_Taster_Lang)
+		== 0&& status_putzen_a == 0 && t_taster_lang >= T_Taster_Lang)
 	    {
+	    status_putzen_a = 1;
 	    putzen();
-	    taster_reset = 1;
 	    t_taster_lang = 0;
 	    }
-	if (digitalRead(Putzen_PIN) == 0 && taster_reset == 0)
+	if (digitalRead(Putzen_PIN) == 0 && status_putzen_a == 0)
 	    {
 	    t_taster_lang = t_taster_lang + Time_Schritt;
 	    }
@@ -291,7 +291,7 @@ void loop()
     // Verhindert das nach einem Putzvorgang direkt ein zweiter startet
     if (digitalRead(Ein_Ziehen_PIN) == 1 && digitalRead(Putzen_PIN) == 1)
 	{
-	taster_reset = 0;
+	status_putzen_a = 0;
 	delay(100);
 	}
     if (digitalRead(Putzen_PIN) == 1)
