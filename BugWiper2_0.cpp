@@ -273,13 +273,14 @@ void loop()
 	    putzen();
 	    t_taster_lang = 0;
 	    }
-	if (digitalRead(Putzen_PIN) == 0 && status_putzen_a == 0)
-	    {
-	    t_taster_lang = t_taster_lang + Time_Schritt;
-	    }
+	}
+    if (digitalRead(Putzen_PIN) == 0 && status_putzen_a == 0)
+	{
+	t_taster_lang = t_taster_lang + Time_Schritt;
 	}
     // Verhindert, dass nach einem Putzvorgang direkt ein zweiter startet
-    if (digitalRead(Ein_Ziehen_PIN) == 1 && digitalRead(Putzen_PIN) == 1)
+    if (digitalRead(Ein_Ziehen_PIN) == 1 && digitalRead(Putzen_PIN) == 1
+	    && status_putzen_a == 3)
 	{
 	status_putzen_a = 0;
 	delay(100);
@@ -294,16 +295,19 @@ void loop()
 	stop();
 	aender_richtung();
 	digitalWrite(LED_PIN, 0);
+	status_putzen_a = 3;
 	}
     if (status_putzen_a == 5)
 	{
 	stop();
 	digitalWrite(LED_PIN, 0);
+	status_putzen_a = 3;
 	}
     if (status_putzen_a == 6)
 	{
 	stop();
 	digitalWrite(LED_PIN, 1);
+	status_putzen_a = 3;
 	}
     delay(Time_Schritt - 1);
     }
