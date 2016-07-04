@@ -140,9 +140,9 @@ void stop(void) {
 
 void festziehen(void)
     {
-    uint16_t t3 = 0;	//LED timer
-    uint8_t t4 = 0;	//PWM erhöhungs Timer
-    uint32_t t2 = 0;	// Maximale Motor Zeit
+    uint16_t t_led_a = 0;	//LED timer
+    uint8_t t_m_pwm_a = 0;	//PWM erhöhungs Timer
+    uint32_t t_p_start = 0;	// Maximale Motor Zeit
     uint8_t run = 1;	//motor läuft
     uint8_t safe = 1;
     set_motorpower_a(motorpower = START_POWER_F);
@@ -152,21 +152,21 @@ void festziehen(void)
 	motor_a(1);
     while (run == 1)
 	{
-	t2++;
-	t3++;
-	t4++;
+	t_p_start++;
+	t_led_a++;
+	t_m_pwm_a++;
 	//langsames anfahren der Motors
-	if (t4 == VERZOGER_F)
+	if (t_m_pwm_a == VERZOGER_F)
 	    {
 	    if (motorpower < EINZIEH_MAX_E)
 		{
 		motorpower++;
 		set_motorpower_a(motorpower);
 		}
-	    t4 = 0;
+	    t_m_pwm_a = 0;
 	    }
 	// maximale Einziehzeit erreicht
-	if (t2 == T_MAX_E)
+	if (t_p_start == T_MAX_E)
 	    {
 	    safe = 0;
 	    run = 0;
@@ -182,10 +182,10 @@ void festziehen(void)
 	    run = 0;
 	    }
 	// LED Blinken
-	if (t3 >= LED_T_E)
+	if (t_led_a >= LED_T_E)
 	    {
 	    digitalWrite(LED_PIN, !digitalRead(LED_PIN));
-	    t3 = 0;
+	    t_led_a = 0;
 	    }
 	if (digitalRead(F_Lose_PIN) == 0)
 	    {
@@ -205,45 +205,45 @@ void festziehen(void)
 
 void putzen(void)
     {
-    uint8_t t4 = 0;  //Motor PWM
-    uint16_t t5 = 0; //LED
-    uint32_t t3 = 0; // T_MIN , T_MAX
+    uint8_t t_m_pwm_a = 0;  //Motor PWM
+    uint16_t t_led_a = 0; //LED
+    uint32_t t_p_start = 0; // T_MIN , T_MAX
     uint8_t run = 1;                            //motor l�uft
     uint8_t safe = 1;
     set_motorpower_a(motorpower = START_POWER_P);
     motor_a(motorrichtung);
     while (run == 1)
 	{
-	t3++;
-	t4++;
-	t5++;
-	if (t4 == VERZOGER_P)
+	t_p_start++;
+	t_m_pwm_a++;
+	t_led_a++;
+	if (t_m_pwm_a == VERZOGER_P)
 	    {
 	    if (motorpower < EINZIEH_MAX_P)
 		{
 		motorpower++;
 		set_motorpower_a(motorpower);
 		}
-	    t4 = 0;
+	    t_m_pwm_a = 0;
 	    }
-	if (t3 >= T_MAX_P)
+	if (t_p_start >= T_MAX_P)
 	    {
 	    run = 0;
 	    safe = 0;
 	    }
-	if ((t3 >= T_MIN_P) && digitalRead(F_FEST_PIN) == 0)
+	if ((t_p_start >= T_MIN_P) && digitalRead(F_FEST_PIN) == 0)
 	    run = 0;
-	if (t5 == LED_T_P)
+	if (t_led_a == LED_T_P)
 	    {
 	    digitalWrite(LED_PIN, !digitalRead(LED_PIN));
-	    t5 = 0;
+	    t_led_a = 0;
 	    }
 	if (digitalRead(Ein_Ziehen_PIN) == 0)
 	    {
 	    run = 0;
 	    safe = 0;
 	    }
-	if (t3 >= T_MIN_P && digitalRead(F_Lose_PIN) == 0)
+	if (t_p_start >= T_MIN_P && digitalRead(F_Lose_PIN) == 0)
 	    {
 	    motorpower=0;
 	    }
