@@ -151,13 +151,52 @@ void stop(void) {
 	set_motorpower_a(255);
 }
 
-void festziehen(void)
+//The setup function is called once at startup of the sketch
+void setup()
     {
-    while (status_putzen_a == 2)
+    init_io();
+    lese_richtung();
+    }
+
+// The loop function is called in an endless loop
+void loop()
+    {
+    t_p_start++;
+    t_m_pwm_a++;
+    t_led_a++;
+    if (status_putzen_a == 1)
 	{
-	t_p_start++;
-	t_led_a++;
-	t_m_pwm_a++;
+	if (t_m_pwm_a == VERZOGER_P)
+	    {
+	    if (motorpower < EINZIEH_MAX_P)
+		{
+		motorpower++;
+		set_motorpower_a(motorpower);
+		}
+	    t_m_pwm_a = 0;
+	    }
+	if (t_p_start >= T_MAX_P)
+	    {
+	    status_putzen_a = 6;
+	    }
+	if ((t_p_start >= T_MIN_P) && digitalRead(F_FEST_PIN) == 0)
+	    status_putzen_a = 4;
+	if (t_led_a == LED_T_P)
+	    {
+	    digitalWrite(LED_PIN, !digitalRead(LED_PIN));
+	    t_led_a = 0;
+	    }
+	if (digitalRead(Ein_Ziehen_PIN) == 0)
+	    {
+	    status_putzen_a = 6;
+	    }
+	if (t_p_start >= T_MIN_P && digitalRead(F_Lose_PIN) == 0)
+	    {
+	    motorpower=0;
+	    }
+	}
+    if (status_putzen_a == 2)
+	{
 	//langsames anfahren der Motors
 	if (t_m_pwm_a == VERZOGER_F)
 	    {
@@ -193,59 +232,7 @@ void festziehen(void)
 	    {
 	    motorpower = 0;
 	    }
-	delay(1);
 	}
-    }
-
-void putzen(void)
-    {
-    while (status_putzen_a == 1)
-	{
-	t_p_start++;
-	t_m_pwm_a++;
-	t_led_a++;
-	if (t_m_pwm_a == VERZOGER_P)
-	    {
-	    if (motorpower < EINZIEH_MAX_P)
-		{
-		motorpower++;
-		set_motorpower_a(motorpower);
-		}
-	    t_m_pwm_a = 0;
-	    }
-	if (t_p_start >= T_MAX_P)
-	    {
-	    status_putzen_a = 6;
-	    }
-	if ((t_p_start >= T_MIN_P) && digitalRead(F_FEST_PIN) == 0)
-	    status_putzen_a = 4;
-	if (t_led_a == LED_T_P)
-	    {
-	    digitalWrite(LED_PIN, !digitalRead(LED_PIN));
-	    t_led_a = 0;
-	    }
-	if (digitalRead(Ein_Ziehen_PIN) == 0)
-	    {
-	    status_putzen_a = 6;
-	    }
-	if (t_p_start >= T_MIN_P && digitalRead(F_Lose_PIN) == 0)
-	    {
-	    motorpower=0;
-	    }
-	delay(1);
-	}
-    }
-
-//The setup function is called once at startup of the sketch
-void setup()
-    {
-    init_io();
-    lese_richtung();
-    }
-
-// The loop function is called in an endless loop
-void loop()
-    {
     if (digitalRead(SAVE_PIN) == 0)
 	{
 	if (digitalRead(Ein_Ziehen_PIN) == 0 && status_putzen_a == 0)
@@ -259,7 +246,6 @@ void loop()
 		motor_a(2);
 	    else
 		motor_a(1);
-	    festziehen();
 	    }
 	if (digitalRead(Putzen_PIN)
 		== 0&& status_putzen_a == 0 && t_taster_lang >= T_Taster_Lang)
@@ -270,7 +256,6 @@ void loop()
 	    t_p_start = 0;
 	    set_motorpower_a(motorpower = START_POWER_P);
 	    motor_a(motorrichtung);
-	    putzen();
 	    t_taster_lang = 0;
 	    }
 	}
@@ -278,7 +263,7 @@ void loop()
 	{
 	t_taster_lang = t_taster_lang + 1;
 	}
-    // Verhindert, dass nach einem Putzvorgang direkt ein zweiter startet
+// Verhindert, dass nach einem Putzvorgang direkt ein zweiter startet
     if (digitalRead(Ein_Ziehen_PIN) == 1 && digitalRead(Putzen_PIN) == 1
 	    && status_putzen_a == 3)
 	{
@@ -289,7 +274,7 @@ void loop()
 	{
 	t_taster_lang = 0;
 	}
-    // Putzen beenden
+// Putzen beenden
     if (status_putzen_a == 4)
 	{
 	stop();
