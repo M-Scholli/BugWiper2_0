@@ -269,7 +269,6 @@ void setup()
 // The loop function is called in an endless loop
 void loop()
     {
-    lese_richtung();
     if (digitalRead(SAVE_PIN) == 0)
 	{
 	if (digitalRead(Ein_Ziehen_PIN) == 0 && taster_reset == 0)
