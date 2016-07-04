@@ -13,7 +13,7 @@
 #define T_Taster_Lang		2000    // Zeit in ms für langen Tastendruck
 #define Time_Schritt		5	// Zeit in ms die für das durchlaufen des Main Loops benötigt wird.
 //Status LED
-#define LED_PIN			13
+#define LED_A_PIN			13
 #define LED_T_P			500	//Zeit zum blinken
 #define LED_T_E			250
 //Motor Pins
@@ -103,12 +103,12 @@ void init_io(void)
     pinMode(Motor_A_EN, OUTPUT);
     pinMode(Motor_A_IN1, OUTPUT);
     pinMode(Motor_A_IN2, OUTPUT);
-    pinMode(LED_PIN, OUTPUT);
+    pinMode(LED_A_PIN, OUTPUT);
     pinMode(Ein_Ziehen_PIN, INPUT_PULLUP);
     pinMode(Putzen_PIN, INPUT_PULLUP);
     digitalWrite(Motor_A_IN2, 1);
     digitalWrite(Motor_A_IN1, 1);
-    digitalWrite(LED_PIN, 0);
+    digitalWrite(LED_A_PIN, 0);
     analogWrite(Motor_A_EN, 0);
     }
 
@@ -182,7 +182,7 @@ void loop()
 	    status_putzen_a = 4;
 	if (t_led_a == LED_T_P)
 	    {
-	    digitalWrite(LED_PIN, !digitalRead(LED_PIN));
+	    digitalWrite(LED_A_PIN, !digitalRead(LED_A_PIN));
 	    t_led_a = 0;
 	    }
 	if (digitalRead(Ein_Ziehen_PIN) == 0)
@@ -224,7 +224,7 @@ void loop()
 	// LED Blinken
 	if (t_led_a >= LED_T_E)
 	    {
-	    digitalWrite(LED_PIN, !digitalRead(LED_PIN));
+	    digitalWrite(LED_A_PIN, !digitalRead(LED_A_PIN));
 	    t_led_a = 0;
 	    }
 	if (digitalRead(F_Lose_PIN) == 0)
@@ -278,19 +278,19 @@ void loop()
 	{
 	stop();
 	aender_richtung();
-	digitalWrite(LED_PIN, 0);
+	digitalWrite(LED_A_PIN, 0);
 	status_putzen_a = 3;
 	}
     if (status_putzen_a == 5)
 	{
 	stop();
-	digitalWrite(LED_PIN, 0);
+	digitalWrite(LED_A_PIN, 0);
 	status_putzen_a = 3;
 	}
     if (status_putzen_a == 6)
 	{
 	stop();
-	digitalWrite(LED_PIN, 1);
+	digitalWrite(LED_A_PIN, 1);
 	status_putzen_a = 3;
 	}
     delay(1);
