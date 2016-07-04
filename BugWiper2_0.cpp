@@ -276,7 +276,7 @@ void loop()
 	}
     if (digitalRead(Putzen_PIN) == 0 && status_putzen_a == 0)
 	{
-	t_taster_lang = t_taster_lang + Time_Schritt;
+	t_taster_lang = t_taster_lang + 1;
 	}
     // Verhindert, dass nach einem Putzvorgang direkt ein zweiter startet
     if (digitalRead(Ein_Ziehen_PIN) == 1 && digitalRead(Putzen_PIN) == 1
@@ -309,5 +309,5 @@ void loop()
 	digitalWrite(LED_PIN, 1);
 	status_putzen_a = 3;
 	}
-    delay(Time_Schritt - 1);
+    delay(1);
     }
