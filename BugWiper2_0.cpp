@@ -17,22 +17,21 @@
 #define LED_T_P			500	//Zeit zum blinken
 #define LED_T_E			250
 //Motor Pins
-#define Motor_I1		10
-#define Motor_I2		11
-#define Motor_EN		9 	//PWM Pin
+#define Motor_A_IN1		10
+#define Motor_A_IN2		11
+#define Motor_A_EN		9 	//PWM Pin
 // Kalibrierung des Putzvorganges
 #define EINZIEH_MAX_P		255	//Max Power Putzen
-#define EINZIEH_MAX_E		255	//Max Motorpower f�r Festzieh mit Fahrwerk
-#define EINZIEH_MAX		255 	//Max Motorpower f�r Einzieh im Flug
-#define EINZIEH_MIN_STOP_F 	140
+#define EINZIEH_MAX_E		255	//Max Motorpower beim Einziehen
+#define EINZIEH_MAX_GND		255 	//Max Motorpower am Boden
 #define BREMSE_START		210 	//Motorpower bremsen startwert
 #define VERZOGER_B		2  	//Wie viel bis zum erh�hen beim Bremsen in 250�s
 #define VERZOGER_P		60 	//Verz�gern Putzen
-#define VERZOGER_F		20
+#define VERZOGER_E		20	//Verzögern Einziehen
 #define T_MIN_P			300	//Minimale Putzzeit[ms]
 #define T_MAX_P			90000	//Maximale Putzzeit
 #define T_MAX_E			50000 	//Maximale festziehzeit //erh�hen der einziehzeit
-#define START_POWER_P		40 	//motorpower am anfang Putzen
+#define START_POWER_P		40 	//Motorpower bei losfahren Putzen
 #define START_POWER_F		70
 
 //EEPROM Speicherbereich
@@ -71,29 +70,29 @@ void eeprom_update_byte(int adresse, uint8_t wert)
 void motor_a(uint8_t a) {
 	switch (a) {
 	case 1: {
-		digitalWrite(Motor_I2, 0) ;
-		digitalWrite(Motor_I1, 1) ;
+		digitalWrite(Motor_A_IN2, 0) ;
+		digitalWrite(Motor_A_IN1, 1) ;
 
 	}
 		break;
 
 	case 2: {
-		digitalWrite(Motor_I1, 0) ;
-		digitalWrite(Motor_I2, 1) ;
+		digitalWrite(Motor_A_IN1, 0) ;
+		digitalWrite(Motor_A_IN2, 1) ;
 
 	}
 		break;
 
 	case 3: {
-		digitalWrite(Motor_I2, 0) ;
-		digitalWrite(Motor_I1, 0) ;
+		digitalWrite(Motor_A_IN2, 0) ;
+		digitalWrite(Motor_A_IN1, 0) ;
 	}
 		break;
 	}
 }
 
 void set_motorpower_a(uint8_t b) {
-	analogWrite(Motor_EN, b);
+	analogWrite(Motor_A_EN, b);
 }
 
 void init_io(void)
@@ -101,16 +100,16 @@ void init_io(void)
     pinMode(F_FEST_PIN, INPUT_PULLUP);
     pinMode(F_Lose_PIN, INPUT_PULLUP);
     pinMode(SAVE_PIN, INPUT_PULLUP);
-    pinMode(Motor_EN, OUTPUT);
-    pinMode(Motor_I1, OUTPUT);
-    pinMode(Motor_I2, OUTPUT);
+    pinMode(Motor_A_EN, OUTPUT);
+    pinMode(Motor_A_IN1, OUTPUT);
+    pinMode(Motor_A_IN2, OUTPUT);
     pinMode(LED_PIN, OUTPUT);
     pinMode(Ein_Ziehen_PIN, INPUT_PULLUP);
     pinMode(Putzen_PIN, INPUT_PULLUP);
-    digitalWrite(Motor_I2, 1);
-    digitalWrite(Motor_I1, 1);
+    digitalWrite(Motor_A_IN2, 1);
+    digitalWrite(Motor_A_IN1, 1);
     digitalWrite(LED_PIN, 0);
-    analogWrite(Motor_EN, 0);
+    analogWrite(Motor_A_EN, 0);
     }
 
 void lese_richtung(void) {
@@ -198,7 +197,7 @@ void loop()
     if (status_putzen_a == 2)
 	{
 	//langsames anfahren der Motors
-	if (t_m_pwm_a == VERZOGER_F)
+	if (t_m_pwm_a == VERZOGER_E)
 	    {
 	    if (motorpower < EINZIEH_MAX_E)
 		{
