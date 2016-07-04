@@ -41,8 +41,18 @@
 //Globale Variablen
 int8_t motorrichtung;
 uint8_t motorpower = 0;
-uint16_t t_taster_lang = 0;	// Zeit seit drücken des Langen Tasters
-uint8_t status_putzen_a = 0;	//gibt an ob 0 = auf putzen gewartet, 1 = geputzt, 2 = eingezogen oder 3 = auf Taster loslassen gewartet wird
+uint16_t t_taster_lang = 0;	// Zeit seit rücken des Langen Tasters
+
+/*Statusanzeige vom Putzvorgang
+0 = Warten auf Tastendruck
+1 = ganzer Putzvorgang
+2 = Seil einziehen
+3 = warten auf Taster reset
+4 = putzen fertig
+5 = einziehen fertig
+6 = ERROR
+ */
+uint8_t status_putzen_a = 0;
 
 // der Putzvorgang am Boden soll unterdrückt werden
 
@@ -288,7 +298,7 @@ void loop()
 	    t_taster_lang = t_taster_lang + Time_Schritt;
 	    }
 	}
-    // Verhindert das nach einem Putzvorgang direkt ein zweiter startet
+    // Verhindert, dass nach einem Putzvorgang direkt ein zweiter startet
     if (digitalRead(Ein_Ziehen_PIN) == 1 && digitalRead(Putzen_PIN) == 1)
 	{
 	status_putzen_a = 0;
