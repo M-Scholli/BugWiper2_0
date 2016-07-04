@@ -5,8 +5,8 @@
 #include <stdint.h>
 #include <EEPROM.h>
 
-#define Putzen_PIN		5
-#define Ein_Ziehen_PIN		6
+#define Putzen_A_PIN		5
+#define Ein_Ziehen_A_PIN		6
 #define F_Fest_A_PIN		A1
 #define F_Lose_A_PIN		A2
 #define SAVE_PIN		4	// Sicherheitsschalter deaktiviert BugWiper
@@ -104,8 +104,8 @@ void init_io(void)
     pinMode(Motor_A_IN1, OUTPUT);
     pinMode(Motor_A_IN2, OUTPUT);
     pinMode(LED_A_PIN, OUTPUT);
-    pinMode(Ein_Ziehen_PIN, INPUT_PULLUP);
-    pinMode(Putzen_PIN, INPUT_PULLUP);
+    pinMode(Ein_Ziehen_A_PIN, INPUT_PULLUP);
+    pinMode(Putzen_A_PIN, INPUT_PULLUP);
     digitalWrite(Motor_A_IN2, 1);
     digitalWrite(Motor_A_IN1, 1);
     digitalWrite(LED_A_PIN, 0);
@@ -185,7 +185,7 @@ void loop()
 	    digitalWrite(LED_A_PIN, !digitalRead(LED_A_PIN));
 	    t_led_a = 0;
 	    }
-	if (digitalRead(Ein_Ziehen_PIN) == 0)
+	if (digitalRead(Ein_Ziehen_A_PIN) == 0)
 	    {
 	    status_putzen_a = 6;
 	    }
@@ -212,7 +212,7 @@ void loop()
 	    status_putzen_a = 6;
 	    }
 	//Stopp bei drücken des Putzen Pins
-	if (digitalRead(Putzen_PIN) == 0)
+	if (digitalRead(Putzen_A_PIN) == 0)
 	    {
 	    status_putzen_a = 5;
 	    }
@@ -234,7 +234,7 @@ void loop()
 	}
     if (digitalRead(SAVE_PIN) == 0)
 	{
-	if (digitalRead(Ein_Ziehen_PIN) == 0 && status_putzen_a == 0)
+	if (digitalRead(Ein_Ziehen_A_PIN) == 0 && status_putzen_a == 0)
 	    {
 	    status_putzen_a = 2;
 	    t_led_a = 0;
@@ -246,7 +246,7 @@ void loop()
 	    else
 		motor_a(1);
 	    }
-	if (digitalRead(Putzen_PIN)
+	if (digitalRead(Putzen_A_PIN)
 		== 0&& status_putzen_a == 0 && t_taster_lang >= T_Taster_Lang)
 	    {
 	    status_putzen_a = 1;
@@ -258,18 +258,18 @@ void loop()
 	    t_taster_lang = 0;
 	    }
 	}
-    if (digitalRead(Putzen_PIN) == 0 && status_putzen_a == 0)
+    if (digitalRead(Putzen_A_PIN) == 0 && status_putzen_a == 0)
 	{
 	t_taster_lang = t_taster_lang + 1;
 	}
 // Verhindert, dass nach einem Putzvorgang direkt ein zweiter startet
-    if (digitalRead(Ein_Ziehen_PIN) == 1 && digitalRead(Putzen_PIN) == 1
+    if (digitalRead(Ein_Ziehen_A_PIN) == 1 && digitalRead(Putzen_A_PIN) == 1
 	    && status_putzen_a == 3)
 	{
 	status_putzen_a = 0;
 	delay(50);
 	}
-    if (digitalRead(Putzen_PIN) == 1)
+    if (digitalRead(Putzen_A_PIN) == 1)
 	{
 	t_taster_lang = 0;
 	}

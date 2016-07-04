@@ -4,8 +4,8 @@ Code:;Hardware:;ein/ausgang;Arduino;Atmega328P;Pin Funktion
 ;;;2;PD2;INT0
 Fahrwerk;;ein pullup;3;PD3;INT1
 SAVE_PIN;;ein pullup;4;PD4;
-Putzen_PIN;Taster oben;ein pullup;5;PD5;
-Ein_Ziehen_PIN;Taster unten;ein pullup;6;PD6;
+Putzen_A_PIN;Taster oben;ein pullup;5;PD5;
+Ein_Ziehen_A_PIN;Taster unten;ein pullup;6;PD6;
 ;;;7;PD7;
 ;;;8;PB0;
 Motor_A_EN;PWM Pin;aus;9;PB1;OC1A
