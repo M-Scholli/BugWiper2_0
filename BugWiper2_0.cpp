@@ -8,7 +8,7 @@
 #define Putzen_PIN		5
 #define Ein_Ziehen_PIN		6
 #define F_Fest_A_PIN		A1
-#define F_Lose_PIN		A2
+#define F_Lose_A_PIN		A2
 #define SAVE_PIN		4	// Sicherheitsschalter deaktiviert BugWiper
 #define T_Taster_Lang		2000    // Zeit in ms für langen Tastendruck
 #define Time_Schritt		5	// Zeit in ms die für das durchlaufen des Main Loops benötigt wird.
@@ -98,7 +98,7 @@ void set_motorpower_a(uint8_t b) {
 void init_io(void)
     {
     pinMode(F_Fest_A_PIN, INPUT_PULLUP);
-    pinMode(F_Lose_PIN, INPUT_PULLUP);
+    pinMode(F_Lose_A_PIN, INPUT_PULLUP);
     pinMode(SAVE_PIN, INPUT_PULLUP);
     pinMode(Motor_A_EN, OUTPUT);
     pinMode(Motor_A_IN1, OUTPUT);
@@ -189,7 +189,7 @@ void loop()
 	    {
 	    status_putzen_a = 6;
 	    }
-	if (t_p_start >= T_MIN_P && digitalRead(F_Lose_PIN) == 0)
+	if (t_p_start >= T_MIN_P && digitalRead(F_Lose_A_PIN) == 0)
 	    {
 	    motorpower=0;
 	    }
@@ -227,7 +227,7 @@ void loop()
 	    digitalWrite(LED_A_PIN, !digitalRead(LED_A_PIN));
 	    t_led_a = 0;
 	    }
-	if (digitalRead(F_Lose_PIN) == 0)
+	if (digitalRead(F_Lose_A_PIN) == 0)
 	    {
 	    motorpower = 0;
 	    }
