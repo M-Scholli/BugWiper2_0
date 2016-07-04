@@ -42,6 +42,9 @@
 int8_t motorrichtung;
 uint8_t motorpower = 0;
 uint16_t t_taster_lang = 0;	// Zeit seit rücken des Langen Tasters
+uint8_t t_m_pwm_a = 0; 		//Motor PWM
+uint16_t t_led_a = 0; 		//LED
+uint32_t t_p_start = 0;		// T_MIN , T_MAX
 
 /*Statusanzeige vom Putzvorgang
 0 = Warten auf Tastendruck
@@ -150,9 +153,9 @@ void stop(void) {
 
 void festziehen(void)
     {
-    uint16_t t_led_a = 0;	//LED timer
-    uint8_t t_m_pwm_a = 0;	//PWM erhöhungs Timer
-    uint32_t t_p_start = 0;	// Maximale Motor Zeit
+    t_led_a = 0;
+    t_m_pwm_a = 0;
+    t_p_start = 0;
     set_motorpower_a(motorpower = START_POWER_F);
     if (motorrichtung == 1)
 	motor_a(2);
@@ -212,9 +215,9 @@ void festziehen(void)
 
 void putzen(void)
     {
-    uint8_t t_m_pwm_a = 0;  //Motor PWM
-    uint16_t t_led_a = 0; //LED
-    uint32_t t_p_start = 0; // T_MIN , T_MAX
+    t_m_pwm_a = 0;
+    t_led_a = 0;
+    t_p_start = 0;
     set_motorpower_a(motorpower = START_POWER_P);
     motor_a(motorrichtung);
     while (status_putzen_a == 1)
