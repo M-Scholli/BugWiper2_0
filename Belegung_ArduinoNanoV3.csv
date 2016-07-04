@@ -14,7 +14,7 @@ Motor_A_IN2;In2 H-Bridge;aus;11;PB4;
 ;;;12;PB3;OC2
 LED;;aus;13;PB5;LED
 ;;;A0 / D14;PC0;
-F_FEST_PIN;;ein pullup;A1 / D15;PC1;
+F_Fest_A_PIN;;ein pullup;A1 / D15;PC1;
 F_Lose_PIN;;ein pullup;A2 / D16;PC2;
 ;;;A3 / D17;PC3;
 ;;;A4 / D18;PC4;
