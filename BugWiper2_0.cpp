@@ -216,22 +216,45 @@ void aender_richtung_B(void)
     schreibe_richtung();
     }
 
-void stop_A(void) {
-	uint8_t t = 0;
-	set_motorpower_a(BREMSE_START);
-	motor_a(3);
-	while (motorpower_a < 255) {
-		t++;
-		if (t == VERZOGER_B) {
-			motorpower_a++;
-			set_motorpower_a(motorpower_a);
-			t = 0;
-		}
-		_delay_us(250);
+void stop_A(void)
+    {
+    uint8_t t = 0;
+    set_motorpower_a(BREMSE_START);
+    motor_a(3);
+    while (motorpower_a < 255)
+	{
+	t++;
+	if (t == VERZOGER_B)
+	    {
+	    motorpower_a++;
+	    set_motorpower_a(motorpower_a);
+	    t = 0;
+	    }
+	_delay_us(250);
 	}
-	motor_a(3);
-	set_motorpower_a(255);
-}
+    motor_a(3);
+    set_motorpower_a(255);
+    }
+
+void stop_B(void)
+    {
+    uint8_t t = 0;
+    set_motorpower_b(BREMSE_START);
+    motor_b(3);
+    while (motorpower_b < 255)
+	{
+	t++;
+	if (t == VERZOGER_B)
+	    {
+	    motorpower_b++;
+	    set_motorpower_b(motorpower_b);
+	    t = 0;
+	    }
+	_delay_us(250);
+	}
+    motor_b(3);
+    set_motorpower_b(255);
+    }
 
 //The setup function is called once at startup of the sketch
 void setup()
