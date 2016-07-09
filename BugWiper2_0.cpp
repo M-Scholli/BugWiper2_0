@@ -111,6 +111,10 @@ void set_motorpower_a(uint8_t b) {
 	analogWrite(Motor_A_EN, b);
 }
 
+void set_motorpower_b(uint8_t b) {
+	analogWrite(Motor_B_EN, b);
+}
+
 void init_io(void)
     {
     pinMode(F_Fest_A_PIN, INPUT_PULLUP);
