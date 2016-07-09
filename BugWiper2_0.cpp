@@ -184,9 +184,11 @@ void lese_richtung(void)
 	}
     }
 
-void schreibe_richtung(void) {
-	eeprom_update_byte(eeRichtung_A, motorrichtung_A);
-}
+void schreibe_richtung(void)
+    {
+    eeprom_update_byte(eeRichtung_A, motorrichtung_A);
+    eeprom_update_byte(eeRichtung_B, motorrichtung_B);
+    }
 
 void aender_richtung_A(void) {
 	if (motorrichtung_A == 1) {
