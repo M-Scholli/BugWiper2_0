@@ -106,17 +106,29 @@ void init_io(void)
     {
     pinMode(F_Fest_A_PIN, INPUT_PULLUP);
     pinMode(F_Lose_A_PIN, INPUT_PULLUP);
+    pinMode(F_Fest_B_PIN, INPUT_PULLUP);
+    pinMode(F_Lose_B_PIN, INPUT_PULLUP);
     pinMode(SAVE_PIN, INPUT_PULLUP);
     pinMode(Motor_A_EN, OUTPUT);
     pinMode(Motor_A_IN1, OUTPUT);
     pinMode(Motor_A_IN2, OUTPUT);
+    pinMode(Motor_B_EN, OUTPUT);
+    pinMode(Motor_B_IN1, OUTPUT);
+    pinMode(Motor_B_IN2, OUTPUT);
     pinMode(LED_A_PIN, OUTPUT);
+    pinMode(LED_B_PIN, OUTPUT);
     pinMode(Ein_Ziehen_A_PIN, INPUT_PULLUP);
     pinMode(Putzen_A_PIN, INPUT_PULLUP);
+    pinMode(Ein_Ziehen_B_PIN, INPUT_PULLUP);
+    pinMode(Putzen_B_PIN, INPUT_PULLUP);
     digitalWrite(Motor_A_IN2, 1);
     digitalWrite(Motor_A_IN1, 1);
+    digitalWrite(Motor_B_IN2, 1);
+    digitalWrite(Motor_B_IN1, 1);
     digitalWrite(LED_A_PIN, 0);
     analogWrite(Motor_A_EN, 0);
+    digitalWrite(LED_B_PIN, 0);
+    analogWrite(Motor_B_EN, 0);
     }
 
 void lese_richtung(void) {
