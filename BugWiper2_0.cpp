@@ -107,6 +107,30 @@ void motor_a(uint8_t a) {
 	}
 }
 
+void motor_b(uint8_t a) {
+	switch (a) {
+	case 1: {
+		digitalWrite(Motor_B_IN2, 0) ;
+		digitalWrite(Motor_B_IN1, 1) ;
+
+	}
+		break;
+
+	case 2: {
+		digitalWrite(Motor_B_IN1, 0) ;
+		digitalWrite(Motor_B_IN2, 1) ;
+
+	}
+		break;
+
+	case 3: {
+		digitalWrite(Motor_B_IN2, 0) ;
+		digitalWrite(Motor_B_IN1, 0) ;
+	}
+		break;
+	}
+}
+
 void set_motorpower_a(uint8_t b) {
 	analogWrite(Motor_A_EN, b);
 }
