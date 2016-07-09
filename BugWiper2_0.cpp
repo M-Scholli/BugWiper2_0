@@ -6,21 +6,28 @@
 #include <EEPROM.h>
 
 #define Putzen_A_PIN		5
-#define Ein_Ziehen_A_PIN		6
+#define Ein_Ziehen_A_PIN	6
+#define Putzen_B_PIN		0
+#define Ein_Ziehen_B_PIN	1
 #define F_Fest_A_PIN		A1
 #define F_Lose_A_PIN		A2
+#define F_Fest_B_PIN		A3
+#define F_Lose_B_PIN		A4
 #define SAVE_PIN		4	// Sicherheitsschalter deaktiviert BugWiper
-#define T_Taster_Lang		2000    // Zeit in ms für langen Tastendruck
-#define Time_Schritt		5	// Zeit in ms die für das durchlaufen des Main Loops benötigt wird.
 //Status LED
 #define LED_A_PIN		13
+#define LED_B_PIN		A0
 #define LED_T_P			500	//Zeit zum blinken
 #define LED_T_E			250
 //Motor Pins
-#define Motor_A_IN1		10
-#define Motor_A_IN2		11
+#define Motor_A_IN1		7
+#define Motor_A_IN2		8
 #define Motor_A_EN		9 	//PWM Pin
+#define Motor_B_IN1		11
+#define Motor_B_IN2		12
+#define Motor_B_EN		10 	//PWM Pin
 // Kalibrierung des Putzvorganges
+#define T_Taster_Lang		2000    // Zeit in ms für langen Tastendruck
 #define EINZIEH_MAX_P		255	//Max Power Putzen
 #define EINZIEH_MAX_E		255	//Max Motorpower beim Einziehen
 #define EINZIEH_MAX_GND		255 	//Max Motorpower am Boden
