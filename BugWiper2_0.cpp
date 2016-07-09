@@ -168,13 +168,21 @@ void init_io(void)
     analogWrite(Motor_B_EN, 0);
     }
 
-void lese_richtung(void) {
-	motorrichtung_A = EEPROM.read(eeRichtung_A);
-	if (motorrichtung_A != 1 && motorrichtung_A != 2) {
-		motorrichtung_A = 1;
-		eeprom_update_byte(eeRichtung_A, motorrichtung_A);
+void lese_richtung(void)
+    {
+    motorrichtung_A = EEPROM.read(eeRichtung_A);
+    motorrichtung_B = EEPROM.read(eeRichtung_B);
+    if (motorrichtung_A != 1 && motorrichtung_A != 2)
+	{
+	motorrichtung_A = 1;
+	eeprom_update_byte(eeRichtung_A, motorrichtung_A);
 	}
-}
+    if (motorrichtung_B != 1 && motorrichtung_B != 2)
+	{
+	motorrichtung_B = 1;
+	eeprom_update_byte(eeRichtung_B, motorrichtung_B);
+	}
+    }
 
 void schreibe_richtung(void) {
 	eeprom_update_byte(eeRichtung_A, motorrichtung_A);
