@@ -217,54 +217,6 @@ void aender_richtung_B(void)
     schreibe_richtung();
     }
 
-void stop_A(void)
-    {
-    t_m_pwm_a = 0;
-    set_motorpower_a(BREMSE_START);
-    motor_a(3);
-    while (motorpower_a < 255)
-	{
-	t_m_pwm_a++;
-	if (t_m_pwm_a == VERZOGER_B)
-	    {
-	    motorpower_a++;
-	    set_motorpower_a(motorpower_a);
-	    t_m_pwm_a = 0;
-	    }
-	_delay_us(250);
-	}
-    if (motorpower_a == 255 && status_putzen_a == 7)
-	{
-	motor_a(3);
-	set_motorpower_a(255);
-	status_putzen_a = 3;
-	}
-    }
-
-void stop_B(void)
-    {
-    t_m_pwm_b = 0;
-    set_motorpower_b(BREMSE_START);
-    motor_b(3);
-    while (motorpower_b < 255)
-	{
-	t_m_pwm_b++;
-	if (t_m_pwm_b == VERZOGER_B)
-	    {
-	    motorpower_b++;
-	    set_motorpower_b(motorpower_b);
-	    t_m_pwm_b = 0;
-	    }
-	_delay_us(250);
-	}
-    if (motorpower_b == 255 && status_putzen_b == 7)
-	{
-	motor_b(3);
-	set_motorpower_b(255);
-	status_putzen_b = 3;
-	}
-    }
-
 //The setup function is called once at startup of the sketch
 void setup()
     {
@@ -421,6 +373,7 @@ void loop()
 	}
     if (digitalRead(SAVE_PIN) == 0)
 	{
+// Einziehen starten Motor A
 	if (digitalRead(Ein_Ziehen_A_PIN) == 0 && status_putzen_a == 0)
 	    {
 	    status_putzen_a = 2;
@@ -433,6 +386,7 @@ void loop()
 	    else
 		motor_a(1);
 	    }
+// Putzen starten Motor A
 	if (digitalRead(Putzen_A_PIN)
 		== 0&& status_putzen_a == 0 && t_taster_lang_a >= T_Taster_Lang)
 	    {
@@ -444,6 +398,7 @@ void loop()
 	    motor_a(motorrichtung_A);
 	    t_taster_lang_a = 0;
 	    }
+// Einziehen starten Motor B
 	if (digitalRead(Ein_Ziehen_B_PIN) == 0 && status_putzen_b == 0)
 	    {
 	    status_putzen_b = 2;
@@ -456,6 +411,7 @@ void loop()
 	    else
 		motor_b(1);
 	    }
+// Putzen starten Motor B
 	if (digitalRead(Putzen_B_PIN)
 		== 0&& status_putzen_b == 0 && t_taster_lang_b >= T_Taster_Lang)
 	    {
@@ -489,6 +445,7 @@ void loop()
 	status_putzen_b = 0;
 	delay(50);
 	}
+// reset des Zählers für lange Tastendrücke
     if (digitalRead(Putzen_A_PIN) == 1)
 	{
 	t_taster_lang_a = 0;
@@ -500,41 +457,78 @@ void loop()
 // Putzen beenden
     if (status_putzen_a == 4)
 	{
-	stop_A();
+	t_m_pwm_a = 0;
+	set_motorpower_a(BREMSE_START);
+	motor_a(3);
 	aender_richtung_A();
 	digitalWrite(LED_A_PIN, 0);
 	status_putzen_a = 7;
 	}
     if (status_putzen_a == 5)
 	{
-	stop_A();
+	t_m_pwm_a = 0;
+	set_motorpower_a(BREMSE_START);
+	motor_a(3);
 	digitalWrite(LED_A_PIN, 0);
 	status_putzen_a = 7;
 	}
     if (status_putzen_a == 6)
 	{
-	stop_A();
+	t_m_pwm_a = 0;
+	set_motorpower_a(BREMSE_START);
+	motor_a(3);
 	digitalWrite(LED_A_PIN, 1);
 	status_putzen_a = 7;
 	}
     if (status_putzen_b == 4)
 	{
-	stop_B();
+	t_m_pwm_b = 0;
+	set_motorpower_b(BREMSE_START);
+	motor_b(3);
 	aender_richtung_B();
 	digitalWrite(LED_B_PIN, 0);
 	status_putzen_b = 7;
 	}
     if (status_putzen_b == 5)
 	{
-	stop_B();
+	t_m_pwm_b = 0;
+	set_motorpower_b(BREMSE_START);
+	motor_b(3);
 	digitalWrite(LED_B_PIN, 0);
 	status_putzen_b = 7;
 	}
     if (status_putzen_b == 6)
 	{
-	stop_B();
+	t_m_pwm_b = 0;
+	set_motorpower_b(BREMSE_START);
+	motor_b(3);
 	digitalWrite(LED_B_PIN, 1);
 	status_putzen_b = 7;
+	}
+    // Motor bremsen
+    if (status_putzen_a == 7 && t_m_pwm_a >= VERZOGER_B)
+	{
+	motorpower_a++;
+	set_motorpower_a(motorpower_a);
+	t_m_pwm_a = 0;
+	}
+    if (motorpower_a == 255 && status_putzen_a == 7)
+	{
+	motor_a(3);
+	set_motorpower_a(255);
+	status_putzen_a = 3;
+	}
+    if (status_putzen_b == 7 && t_m_pwm_b >= VERZOGER_B)
+	{
+	motorpower_b++;
+	set_motorpower_b(motorpower_b);
+	t_m_pwm_b = 0;
+	}
+    if (motorpower_b == 255 && status_putzen_b == 7)
+	{
+	motor_b(3);
+	set_motorpower_b(255);
+	status_putzen_b = 3;
 	}
     delay(1);
     }
