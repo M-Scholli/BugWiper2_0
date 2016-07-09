@@ -67,6 +67,7 @@ uint32_t t_p_start_b = 0;		// T_MIN , T_MAX
 4 = putzen fertig
 5 = einziehen fertig
 6 = ERROR
+7 = Stopp
  */
 uint8_t status_putzen_a = 0;
 uint8_t status_putzen_b = 0;
@@ -218,42 +219,50 @@ void aender_richtung_B(void)
 
 void stop_A(void)
     {
-    uint8_t t = 0;
+    t_m_pwm_a = 0;
     set_motorpower_a(BREMSE_START);
     motor_a(3);
     while (motorpower_a < 255)
 	{
-	t++;
-	if (t == VERZOGER_B)
+	t_m_pwm_a++;
+	if (t_m_pwm_a == VERZOGER_B)
 	    {
 	    motorpower_a++;
 	    set_motorpower_a(motorpower_a);
-	    t = 0;
+	    t_m_pwm_a = 0;
 	    }
 	_delay_us(250);
 	}
-    motor_a(3);
-    set_motorpower_a(255);
+    if (motorpower_a == 255 && status_putzen_a == 7)
+	{
+	motor_a(3);
+	set_motorpower_a(255);
+	status_putzen_a = 3;
+	}
     }
 
 void stop_B(void)
     {
-    uint8_t t = 0;
+    t_m_pwm_b = 0;
     set_motorpower_b(BREMSE_START);
     motor_b(3);
     while (motorpower_b < 255)
 	{
-	t++;
-	if (t == VERZOGER_B)
+	t_m_pwm_b++;
+	if (t_m_pwm_b == VERZOGER_B)
 	    {
 	    motorpower_b++;
 	    set_motorpower_b(motorpower_b);
-	    t = 0;
+	    t_m_pwm_b = 0;
 	    }
 	_delay_us(250);
 	}
-    motor_b(3);
-    set_motorpower_b(255);
+    if (motorpower_b == 255 && status_putzen_b == 7)
+	{
+	motor_b(3);
+	set_motorpower_b(255);
+	status_putzen_b = 3;
+	}
     }
 
 //The setup function is called once at startup of the sketch
@@ -494,38 +503,38 @@ void loop()
 	stop_A();
 	aender_richtung_A();
 	digitalWrite(LED_A_PIN, 0);
-	status_putzen_a = 3;
+	status_putzen_a = 7;
 	}
     if (status_putzen_a == 5)
 	{
 	stop_A();
 	digitalWrite(LED_A_PIN, 0);
-	status_putzen_a = 3;
+	status_putzen_a = 7;
 	}
     if (status_putzen_a == 6)
 	{
 	stop_A();
 	digitalWrite(LED_A_PIN, 1);
-	status_putzen_a = 3;
+	status_putzen_a = 7;
 	}
     if (status_putzen_b == 4)
 	{
 	stop_B();
 	aender_richtung_B();
 	digitalWrite(LED_B_PIN, 0);
-	status_putzen_b = 3;
+	status_putzen_b = 7;
 	}
     if (status_putzen_b == 5)
 	{
 	stop_B();
 	digitalWrite(LED_B_PIN, 0);
-	status_putzen_b = 3;
+	status_putzen_b = 7;
 	}
     if (status_putzen_b == 6)
 	{
 	stop_B();
 	digitalWrite(LED_B_PIN, 1);
-	status_putzen_b = 3;
+	status_putzen_b = 7;
 	}
     delay(1);
     }
