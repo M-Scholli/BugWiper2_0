@@ -190,14 +190,31 @@ void schreibe_richtung(void)
     eeprom_update_byte(eeRichtung_B, motorrichtung_B);
     }
 
-void aender_richtung_A(void) {
-	if (motorrichtung_A == 1) {
-		motorrichtung_A = 2;
-	} else if (motorrichtung_A == 2) {
-		motorrichtung_A = 1;
+void aender_richtung_A(void)
+    {
+    if (motorrichtung_A == 1)
+	{
+	motorrichtung_A = 2;
 	}
-	schreibe_richtung();
-}
+    else if (motorrichtung_A == 2)
+	{
+	motorrichtung_A = 1;
+	}
+    schreibe_richtung();
+    }
+
+void aender_richtung_B(void)
+    {
+    if (motorrichtung_B == 1)
+	{
+	motorrichtung_B = 2;
+	}
+    else if (motorrichtung_B == 2)
+	{
+	motorrichtung_B = 1;
+	}
+    schreibe_richtung();
+    }
 
 void stop_A(void) {
 	uint8_t t = 0;
