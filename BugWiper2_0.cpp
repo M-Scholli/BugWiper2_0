@@ -42,11 +42,12 @@
 #define START_POWER_F		70
 
 //EEPROM Speicherbereich
-#define eeRichtung		0
-
+#define eeRichtung_A		0
+#define eeRichtung_B		1
 //Globale Variablen
-int8_t motorrichtung;
-uint8_t motorpower = 0;
+int8_t motorrichtung_A;
+int8_t motorrichtung_B;
+uint8_t motorpower_a = 0;
 uint16_t t_taster_lang = 0;	// Zeit seit rücken des Langen Tasters
 uint8_t t_m_pwm_a = 0; 		//Motor PWM
 uint16_t t_led_a = 0; 		//LED
@@ -132,35 +133,35 @@ void init_io(void)
     }
 
 void lese_richtung(void) {
-	motorrichtung = EEPROM.read(eeRichtung);
-	if (motorrichtung != 1 && motorrichtung != 2) {
-		motorrichtung = 1;
-		eeprom_update_byte(eeRichtung, motorrichtung);
+	motorrichtung_A = EEPROM.read(eeRichtung_A);
+	if (motorrichtung_A != 1 && motorrichtung_A != 2) {
+		motorrichtung_A = 1;
+		eeprom_update_byte(eeRichtung_A, motorrichtung_A);
 	}
 }
 
 void schreibe_richtung(void) {
-	eeprom_update_byte(eeRichtung, motorrichtung);
+	eeprom_update_byte(eeRichtung_A, motorrichtung_A);
 }
 
-void aender_richtung(void) {
-	if (motorrichtung == 1) {
-		motorrichtung = 2;
-	} else if (motorrichtung == 2) {
-		motorrichtung = 1;
+void aender_richtung_A(void) {
+	if (motorrichtung_A == 1) {
+		motorrichtung_A = 2;
+	} else if (motorrichtung_A == 2) {
+		motorrichtung_A = 1;
 	}
 	schreibe_richtung();
 }
 
-void stop(void) {
+void stop_A(void) {
 	uint8_t t = 0;
 	set_motorpower_a(BREMSE_START);
 	motor_a(3);
-	while (motorpower < 255) {
+	while (motorpower_a < 255) {
 		t++;
 		if (t == VERZOGER_B) {
-			motorpower++;
-			set_motorpower_a(motorpower);
+			motorpower_a++;
+			set_motorpower_a(motorpower_a);
 			t = 0;
 		}
 		_delay_us(250);
@@ -186,10 +187,10 @@ void loop()
 	{
 	if (t_m_pwm_a == VERZOGER_P)
 	    {
-	    if (motorpower < EINZIEH_MAX_P)
+	    if (motorpower_a < EINZIEH_MAX_P)
 		{
-		motorpower++;
-		set_motorpower_a(motorpower);
+		motorpower_a++;
+		set_motorpower_a(motorpower_a);
 		}
 	    t_m_pwm_a = 0;
 	    }
@@ -210,7 +211,7 @@ void loop()
 	    }
 	if (t_p_start >= T_MIN_P && digitalRead(F_Lose_A_PIN) == 0)
 	    {
-	    motorpower=0;
+	    motorpower_a=0;
 	    }
 	}
     if (status_putzen_a == 2)
@@ -218,10 +219,10 @@ void loop()
 	//langsames anfahren der Motors
 	if (t_m_pwm_a == VERZOGER_E)
 	    {
-	    if (motorpower < EINZIEH_MAX_E)
+	    if (motorpower_a < EINZIEH_MAX_E)
 		{
-		motorpower++;
-		set_motorpower_a(motorpower);
+		motorpower_a++;
+		set_motorpower_a(motorpower_a);
 		}
 	    t_m_pwm_a = 0;
 	    }
@@ -248,7 +249,7 @@ void loop()
 	    }
 	if (digitalRead(F_Lose_A_PIN) == 0)
 	    {
-	    motorpower = 0;
+	    motorpower_a = 0;
 	    }
 	}
     if (digitalRead(SAVE_PIN) == 0)
@@ -259,8 +260,8 @@ void loop()
 	    t_led_a = 0;
 	    t_m_pwm_a = 0;
 	    t_p_start = 0;
-	    set_motorpower_a(motorpower = START_POWER_F);
-	    if (motorrichtung == 1)
+	    set_motorpower_a(motorpower_a = START_POWER_F);
+	    if (motorrichtung_A == 1)
 		motor_a(2);
 	    else
 		motor_a(1);
@@ -272,8 +273,8 @@ void loop()
 	    t_m_pwm_a = 0;
 	    t_led_a = 0;
 	    t_p_start = 0;
-	    set_motorpower_a(motorpower = START_POWER_P);
-	    motor_a(motorrichtung);
+	    set_motorpower_a(motorpower_a = START_POWER_P);
+	    motor_a(motorrichtung_A);
 	    t_taster_lang = 0;
 	    }
 	}
@@ -295,20 +296,20 @@ void loop()
 // Putzen beenden
     if (status_putzen_a == 4)
 	{
-	stop();
-	aender_richtung();
+	stop_A();
+	aender_richtung_A();
 	digitalWrite(LED_A_PIN, 0);
 	status_putzen_a = 3;
 	}
     if (status_putzen_a == 5)
 	{
-	stop();
+	stop_A();
 	digitalWrite(LED_A_PIN, 0);
 	status_putzen_a = 3;
 	}
     if (status_putzen_a == 6)
 	{
-	stop();
+	stop_A();
 	digitalWrite(LED_A_PIN, 1);
 	status_putzen_a = 3;
 	}
