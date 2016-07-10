@@ -397,6 +397,42 @@ void tasterAbfrage(void)
 	}
     }
 
+void check_Ende(void)
+    {
+    if (status_putzen_a == 4)
+	{
+	set_bremse_a();
+	aender_richtung_A();
+	digitalWrite(LED_A_PIN, 0);
+	}
+    if (status_putzen_a == 5)
+	{
+	set_bremse_a();
+	digitalWrite(LED_A_PIN, 0);
+	}
+    if (status_putzen_a == 6)
+	{
+	set_bremse_a();
+	digitalWrite(LED_A_PIN, 1);
+	}
+    if (status_putzen_b == 4)
+	{
+	set_bremse_b();
+	aender_richtung_B();
+	digitalWrite(LED_B_PIN, 0);
+	}
+    if (status_putzen_b == 5)
+	{
+	set_bremse_b();
+	digitalWrite(LED_B_PIN, 0);
+	}
+    if (status_putzen_b == 6)
+	{
+	set_bremse_b();
+	digitalWrite(LED_B_PIN, 1);
+	}
+    }
+
 //The setup function is called once at startup of the sketch
 void setup()
     {
@@ -515,39 +551,8 @@ void loop()
 	    }
 	}
     tasterAbfrage();
-// Putzen beenden
-    if (status_putzen_a == 4)
-	{
-	set_bremse_a();
-	aender_richtung_A();
-	digitalWrite(LED_A_PIN, 0);
-	}
-    if (status_putzen_a == 5)
-	{
-	set_bremse_a();
-	digitalWrite(LED_A_PIN, 0);
-	}
-    if (status_putzen_a == 6)
-	{
-	set_bremse_a();
-	digitalWrite(LED_A_PIN, 1);
-	}
-    if (status_putzen_b == 4)
-	{
-	set_bremse_b();
-	aender_richtung_B();
-	digitalWrite(LED_B_PIN, 0);
-	}
-    if (status_putzen_b == 5)
-	{
-	set_bremse_b();
-	digitalWrite(LED_B_PIN, 0);
-	}
-    if (status_putzen_b == 6)
-	{
-	set_bremse_b();
-	digitalWrite(LED_B_PIN, 1);
-	}
+    // Putzen beendet?
+    check_Ende();
     // Motor bremsen
     if (status_putzen_a == 7)
 	{
