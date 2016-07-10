@@ -57,7 +57,7 @@ uint16_t t_taster_lang_b = 0;	// Zeit seit rücken des Langen Tasters
 uint8_t t_m_pwm_b = 0; 		//Motor PWM
 uint16_t t_led_b = 0; 		//LED
 uint32_t t_p_start_b = 0;		// T_MIN , T_MAX
-
+unsigned long t_timer = 0;
 
 /*Statusanzeige vom Putzvorgang
 0 = Warten auf Tastendruck
@@ -227,12 +227,17 @@ void setup()
 // The loop function is called in an endless loop
 void loop()
     {
-    t_p_start_a++;
-    t_m_pwm_a++;
-    t_led_a++;
-    t_p_start_b++;
-    t_m_pwm_b++;
-    t_led_b++;
+    //zählt jede ms die Timer hoch
+    if (micros() >= t_timer)
+	{
+	t_p_start_a++;
+	t_m_pwm_a++;
+	t_led_a++;
+	t_p_start_b++;
+	t_m_pwm_b++;
+	t_led_b++;
+	t_timer = t_timer + 1000;
+	}
     if (status_putzen_a == 1)
 	{
 	if (t_m_pwm_a == VERZOGER_P)
@@ -530,5 +535,4 @@ void loop()
 	set_motorpower_b(255);
 	status_putzen_b = 3;
 	}
-    delay(1);
     }
