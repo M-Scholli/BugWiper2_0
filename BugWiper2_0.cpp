@@ -368,16 +368,14 @@ void tasterAbfrage(void)
 	}
     // Verhindert, dass nach einem Putzvorgang direkt ein zweiter startet
     if (digitalRead(Ein_Ziehen_A_PIN) == 1 && digitalRead(Putzen_A_PIN) == 1
-	    && status_putzen_a == 3)
+	    && status_putzen_a == 3 && t_p_start_a >= 500)
 	{
 	status_putzen_a = 0;
-	delay(50);
 	}
     if (digitalRead(Ein_Ziehen_B_PIN) == 1 && digitalRead(Putzen_B_PIN) == 1
-	    && status_putzen_b == 3)
+	    && status_putzen_b == 3 && t_p_start_b >= 500)
 	{
 	status_putzen_b = 0;
-	delay(50);
 	}
     // reset des Zählers für lange Tastendrücke
     if (digitalRead(Putzen_A_PIN) == 1)
@@ -549,6 +547,7 @@ void loop()
     if (motorpower_a == 255 && status_putzen_a == 7)
 	{
 	status_putzen_a = 3;
+	t_p_start_a = 0;
 	}
     if (status_putzen_b == 7)
 	{
@@ -557,5 +556,6 @@ void loop()
     if (motorpower_b == 255 && status_putzen_b == 7)
 	{
 	status_putzen_b = 3;
+	t_p_start_b = 0;
 	}
     }
