@@ -445,9 +445,16 @@ void loop()
     {
     setTimer();
     tasterAbfrage();
-    if (status_putzen_a == 1)
+    if (status_putzen_a == (1 || 2 || 7))
 	{
 	set_motorpower_a();
+	}
+    if (status_putzen_b == (1 || 2 || 7))
+	{
+	set_motorpower_b();
+	}
+    if (status_putzen_a == 1)
+	{
 	if (t_p_start_a >= T_MAX_P)
 	    {
 	    status_putzen_a = 6;
@@ -470,8 +477,6 @@ void loop()
 	}
     if (status_putzen_a == 2)
 	{
-	//langsames anfahren der Motors
-	set_motorpower_a();
 	// maximale Einziehzeit erreicht
 	if (t_p_start_a == T_MAX_E)
 	    {
@@ -500,7 +505,6 @@ void loop()
 	}
     if (status_putzen_b == 1)
 	{
-	set_motorpower_b();
 	if (t_p_start_b >= T_MAX_P)
 	    {
 	    status_putzen_b = 6;
@@ -523,8 +527,6 @@ void loop()
 	}
     if (status_putzen_b == 2)
 	{
-	//langsames anfahren der Motors
-	set_motorpower_b();
 	// maximale Einziehzeit erreicht
 	if (t_p_start_b == T_MAX_E)
 	    {
@@ -552,24 +554,15 @@ void loop()
 	    }
 	}
     // Motor bremsen
-    if (status_putzen_a == 7)
+    if (status_putzen_a == 7 && motorpower_a == 255)
 	{
-	set_motorpower_a();
-	if (motorpower_a == 255)
-	    {
-	    status_putzen_a = 3;
-	    t_p_start_a = 0;
-	    }
+	status_putzen_a = 3;
+	t_p_start_a = 0;
 	}
-    if (status_putzen_b == 7)
+    if (status_putzen_b == 7 && motorpower_b == 255)
 	{
-	set_motorpower_b();
-
-	if (motorpower_b == 255)
-	    {
-	    status_putzen_b = 3;
-	    t_p_start_b = 0;
-	    }
+	status_putzen_b = 3;
+	t_p_start_b = 0;
 	}
     // Putzen beendet?
     check_Ende();
