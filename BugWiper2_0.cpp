@@ -67,14 +67,14 @@ uint8_t pwmMax_B = 0;
 uint8_t pwmVerzoger_B = 0;
 
 /*Statusanzeige vom Putzvorgang
-0 = Warten auf Tastendruck
-1 = ganzer Putzvorgang
-2 = Seil einziehen
-3 = warten auf Taster reset
-4 = putzen fertig
-5 = einziehen fertig
-6 = ERROR
-7 = Stopp
+ 0 = Warten auf Tastendruck
+ 1 = ganzer Putzvorgang
+ 2 = Seil einziehen
+ 3 = warten auf Taster reset
+ 4 = putzen fertig
+ 5 = einziehen fertig
+ 6 = ERROR
+ 7 = Stopp
  */
 uint8_t status_putzen_a = 0;
 uint8_t status_putzen_b = 0;
@@ -366,7 +366,7 @@ void tasterAbfrage(void)
 	// Einziehen starten Motor B
 	if (digitalRead(Ein_Ziehen_B_PIN) == 0 && status_putzen_b == 0)
 	    {
-	   set_einziehen_B();
+	    set_einziehen_B();
 	    }
 	// Putzen starten Motor B
 	if (digitalRead(Putzen_B_PIN)
@@ -444,6 +444,7 @@ void setup()
 void loop()
     {
     setTimer();
+    tasterAbfrage();
     if (status_putzen_a == 1)
 	{
 	set_motorpower_a();
@@ -550,26 +551,26 @@ void loop()
 	    motorpower_b = 0;
 	    }
 	}
-    tasterAbfrage();
-    // Putzen beendet?
-    check_Ende();
     // Motor bremsen
     if (status_putzen_a == 7)
 	{
 	set_motorpower_a();
-	}
-    if (motorpower_a == 255 && status_putzen_a == 7)
-	{
-	status_putzen_a = 3;
-	t_p_start_a = 0;
+	if (motorpower_a == 255)
+	    {
+	    status_putzen_a = 3;
+	    t_p_start_a = 0;
+	    }
 	}
     if (status_putzen_b == 7)
 	{
 	set_motorpower_b();
+
+	if (motorpower_b == 255)
+	    {
+	    status_putzen_b = 3;
+	    t_p_start_b = 0;
+	    }
 	}
-    if (motorpower_b == 255 && status_putzen_b == 7)
-	{
-	status_putzen_b = 3;
-	t_p_start_b = 0;
-	}
+    // Putzen beendet?
+    check_Ende();
     }
