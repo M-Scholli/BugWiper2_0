@@ -27,7 +27,7 @@
 #define Motor_B_IN2		12
 #define Motor_B_EN		10 	//PWM Pin
 // Kalibrierung des Putzvorganges
-#define T_Taster_Lang		2000    // Zeit in ms für langen Tastendruck
+#define T_Taster_Lang		1000    // Zeit in ms für langen Tastendruck
 #define EINZIEH_MAX_P		255	//Max Power Putzen
 #define EINZIEH_MAX_E		255	//Max Motorpower beim Einziehen
 #define EINZIEH_MAX_GND		255 	//Max Motorpower am Boden
@@ -327,6 +327,14 @@ void setTimer(void)
 	t_p_start_b++;
 	t_m_pwm_b++;
 	t_led_b++;
+	if (digitalRead(Putzen_A_PIN) == 0 && status_putzen_a == 0)
+	    {
+	    t_taster_lang_a = t_taster_lang_a + 1;
+	    }
+	if (digitalRead(Putzen_B_PIN) == 0 && status_putzen_b == 0)
+	    {
+	    t_taster_lang_b = t_taster_lang_b + 1;
+	    }
 	t_timer = t_timer + 1000;
 	}
     }
@@ -500,14 +508,6 @@ void loop()
 	    }
 	}
     tasterAbfrage();
-    if (digitalRead(Putzen_A_PIN) == 0 && status_putzen_a == 0)
-	{
-	t_taster_lang_a = t_taster_lang_a + 1;
-	}
-    if (digitalRead(Putzen_B_PIN) == 0 && status_putzen_b == 0)
-	{
-	t_taster_lang_b = t_taster_lang_b + 1;
-	}
 // Putzen beenden
     if (status_putzen_a == 4)
 	{
