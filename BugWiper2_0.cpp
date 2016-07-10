@@ -501,6 +501,7 @@ void loop()
 	if (digitalRead(F_Lose_A_PIN) == 0)
 	    {
 	    motorpower_a = 0;
+	    pwmVerzoger_A = VERZOGER_E;
 	    }
 	}
     if (status_putzen_b == 1)
@@ -551,6 +552,7 @@ void loop()
 	if (digitalRead(F_Lose_B_PIN) == 0)
 	    {
 	    motorpower_b = 0;
+	    pwmVerzoger_B = VERZOGER_E;
 	    }
 	}
     // Motor bremsen
