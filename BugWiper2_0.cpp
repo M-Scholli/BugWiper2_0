@@ -217,17 +217,9 @@ void aender_richtung_B(void)
     schreibe_richtung();
     }
 
-//The setup function is called once at startup of the sketch
-void setup()
+//zählt jede ms die Timer hoch
+void setTimer(void)
     {
-    init_io();
-    lese_richtung();
-    }
-
-// The loop function is called in an endless loop
-void loop()
-    {
-    //zählt jede ms die Timer hoch
     if (micros() >= t_timer)
 	{
 	t_p_start_a++;
@@ -238,6 +230,19 @@ void loop()
 	t_led_b++;
 	t_timer = t_timer + 1000;
 	}
+    }
+
+//The setup function is called once at startup of the sketch
+void setup()
+    {
+    init_io();
+    lese_richtung();
+    }
+
+// The loop function is called in an endless loop
+void loop()
+    {
+    setTimer();
     if (status_putzen_a == 1)
 	{
 	if (t_m_pwm_a == VERZOGER_P)
