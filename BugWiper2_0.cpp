@@ -287,6 +287,28 @@ void tasterAbfrage(void)
 	    t_taster_lang_b = 0;
 	    }
 	}
+    // Verhindert, dass nach einem Putzvorgang direkt ein zweiter startet
+    if (digitalRead(Ein_Ziehen_A_PIN) == 1 && digitalRead(Putzen_A_PIN) == 1
+	    && status_putzen_a == 3)
+	{
+	status_putzen_a = 0;
+	delay(50);
+	}
+    if (digitalRead(Ein_Ziehen_B_PIN) == 1 && digitalRead(Putzen_B_PIN) == 1
+	    && status_putzen_b == 3)
+	{
+	status_putzen_b = 0;
+	delay(50);
+	}
+    // reset des Zählers für lange Tastendrücke
+    if (digitalRead(Putzen_A_PIN) == 1)
+	{
+	t_taster_lang_a = 0;
+	}
+    if (digitalRead(Putzen_B_PIN) == 1)
+	{
+	t_taster_lang_b = 0;
+	}
     }
 
 //The setup function is called once at startup of the sketch
@@ -446,28 +468,6 @@ void loop()
     if (digitalRead(Putzen_B_PIN) == 0 && status_putzen_b == 0)
 	{
 	t_taster_lang_b = t_taster_lang_b + 1;
-	}
-// Verhindert, dass nach einem Putzvorgang direkt ein zweiter startet
-    if (digitalRead(Ein_Ziehen_A_PIN) == 1 && digitalRead(Putzen_A_PIN) == 1
-	    && status_putzen_a == 3)
-	{
-	status_putzen_a = 0;
-	delay(50);
-	}
-    if (digitalRead(Ein_Ziehen_B_PIN) == 1 && digitalRead(Putzen_B_PIN) == 1
-	    && status_putzen_b == 3)
-	{
-	status_putzen_b = 0;
-	delay(50);
-	}
-// reset des Zählers für lange Tastendrücke
-    if (digitalRead(Putzen_A_PIN) == 1)
-	{
-	t_taster_lang_a = 0;
-	}
-    if (digitalRead(Putzen_B_PIN) == 1)
-	{
-	t_taster_lang_b = 0;
 	}
 // Putzen beenden
     if (status_putzen_a == 4)
