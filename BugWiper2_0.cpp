@@ -74,7 +74,49 @@ uint8_t status_putzen_a = 0;
 uint8_t status_putzen_b = 0;
 
 
-// der Putzvorgang am Boden soll unterdrückt werden
+// Zykluszeitmessung
+unsigned long us, ms, ck;
+unsigned long _us, _ms, _ck;
+unsigned long __us, __ms, __ck;
+boolean firstloop=1;
+unsigned int t_zyklus = 0;
+
+
+void Zykluszeit()
+    {
+    if (firstloop) {
+                    Serial.print("clocks for 1us:");
+                    ck=microsecondsToClockCycles(1);
+                    Serial.println(ck,DEC);
+                    firstloop--;
+                    Serial.println("runtime us, ms, ck :: elapsed tme us, ms ck");
+            }
+
+            _us=us;
+            _ms=ms;
+            _ck=ck;
+
+            us=micros(); // us since program start
+            ms=millis();
+            //ms=us/1000;
+            ck=microsecondsToClockCycles(us);
+            Serial.print(us,DEC);
+            Serial.print("\t");
+            Serial.print(ms,DEC);
+            Serial.print("\t");
+            Serial.print(ck,DEC);
+            Serial.print("\t::\t");
+
+            __us = us - _us;
+            __ms = ms - _ms;
+            __ck = ck - _ck;
+            Serial.print(__us,DEC);
+            Serial.print("\t");
+            Serial.print(__ms,DEC);
+            Serial.print("\t");
+            Serial.println(__ck,DEC);
+    }
+
 
 void eeprom_update_byte(int adresse, uint8_t wert)
     {
@@ -235,6 +277,7 @@ void loop()
     t_p_start_b++;
     t_m_pwm_b++;
     t_led_b++;
+    t_zyklus++;
     if (status_putzen_a == 1)
 	{
 	if (t_m_pwm_a == VERZOGER_P)
@@ -532,6 +575,10 @@ void loop()
 	set_motorpower_b(255);
 	status_putzen_b = 3;
 	}
-    delay(1);
-    Serial.println(freeMemory());
+    if (t_zyklus == 100)
+	{
+	Zykluszeit();
+	Serial.println(freeMemory());
+	t_zyklus = 0;
+	}
     }
