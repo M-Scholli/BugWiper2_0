@@ -232,6 +232,63 @@ void setTimer(void)
 	}
     }
 
+void tasterAbfrage(void)
+    {
+    if (digitalRead(SAVE_PIN) == 0)
+	{
+	// Einziehen starten Motor A
+	if (digitalRead(Ein_Ziehen_A_PIN) == 0 && status_putzen_a == 0)
+	    {
+	    status_putzen_a = 2;
+	    t_led_a = 0;
+	    t_m_pwm_a = 0;
+	    t_p_start_a = 0;
+	    set_motorpower_a(motorpower_a = START_POWER_F);
+	    if (motorrichtung_A == 1)
+		motor_a(2);
+	    else
+		motor_a(1);
+	    }
+	// Putzen starten Motor A
+	if (digitalRead(Putzen_A_PIN)
+		== 0&& status_putzen_a == 0 && t_taster_lang_a >= T_Taster_Lang)
+	    {
+	    status_putzen_a = 1;
+	    t_m_pwm_a = 0;
+	    t_led_a = 0;
+	    t_p_start_a = 0;
+	    set_motorpower_a(motorpower_a = START_POWER_P);
+	    motor_a(motorrichtung_A);
+	    t_taster_lang_a = 0;
+	    }
+	// Einziehen starten Motor B
+	if (digitalRead(Ein_Ziehen_B_PIN) == 0 && status_putzen_b == 0)
+	    {
+	    status_putzen_b = 2;
+	    t_led_b = 0;
+	    t_m_pwm_b = 0;
+	    t_p_start_b = 0;
+	    set_motorpower_b(motorpower_b = START_POWER_F);
+	    if (motorrichtung_B == 1)
+		motor_b(2);
+	    else
+		motor_b(1);
+	    }
+	// Putzen starten Motor B
+	if (digitalRead(Putzen_B_PIN)
+		== 0&& status_putzen_b == 0 && t_taster_lang_b >= T_Taster_Lang)
+	    {
+	    status_putzen_b = 1;
+	    t_m_pwm_b = 0;
+	    t_led_b = 0;
+	    t_p_start_b = 0;
+	    set_motorpower_b(motorpower_b = START_POWER_P);
+	    motor_b(motorrichtung_B);
+	    t_taster_lang_b = 0;
+	    }
+	}
+    }
+
 //The setup function is called once at startup of the sketch
 void setup()
     {
@@ -381,59 +438,7 @@ void loop()
 	    motorpower_b = 0;
 	    }
 	}
-    if (digitalRead(SAVE_PIN) == 0)
-	{
-// Einziehen starten Motor A
-	if (digitalRead(Ein_Ziehen_A_PIN) == 0 && status_putzen_a == 0)
-	    {
-	    status_putzen_a = 2;
-	    t_led_a = 0;
-	    t_m_pwm_a = 0;
-	    t_p_start_a = 0;
-	    set_motorpower_a(motorpower_a = START_POWER_F);
-	    if (motorrichtung_A == 1)
-		motor_a(2);
-	    else
-		motor_a(1);
-	    }
-// Putzen starten Motor A
-	if (digitalRead(Putzen_A_PIN)
-		== 0&& status_putzen_a == 0 && t_taster_lang_a >= T_Taster_Lang)
-	    {
-	    status_putzen_a = 1;
-	    t_m_pwm_a = 0;
-	    t_led_a = 0;
-	    t_p_start_a = 0;
-	    set_motorpower_a(motorpower_a = START_POWER_P);
-	    motor_a(motorrichtung_A);
-	    t_taster_lang_a = 0;
-	    }
-// Einziehen starten Motor B
-	if (digitalRead(Ein_Ziehen_B_PIN) == 0 && status_putzen_b == 0)
-	    {
-	    status_putzen_b = 2;
-	    t_led_b = 0;
-	    t_m_pwm_b = 0;
-	    t_p_start_b = 0;
-	    set_motorpower_b(motorpower_b = START_POWER_F);
-	    if (motorrichtung_B == 1)
-		motor_b(2);
-	    else
-		motor_b(1);
-	    }
-// Putzen starten Motor B
-	if (digitalRead(Putzen_B_PIN)
-		== 0&& status_putzen_b == 0 && t_taster_lang_b >= T_Taster_Lang)
-	    {
-	    status_putzen_b = 1;
-	    t_m_pwm_b = 0;
-	    t_led_b = 0;
-	    t_p_start_b = 0;
-	    set_motorpower_b(motorpower_b = START_POWER_P);
-	    motor_b(motorrichtung_B);
-	    t_taster_lang_b = 0;
-	    }
-	}
+    tasterAbfrage();
     if (digitalRead(Putzen_A_PIN) == 0 && status_putzen_a == 0)
 	{
 	t_taster_lang_a = t_taster_lang_a + 1;
