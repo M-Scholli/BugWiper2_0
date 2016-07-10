@@ -5,6 +5,7 @@
 #include <stdint.h>
 #include <EEPROM.h>
 
+//Taster Pins
 #define Putzen_A_PIN		5
 #define Ein_Ziehen_A_PIN	6
 #define Putzen_B_PIN		2
@@ -45,6 +46,7 @@
 //EEPROM Speicherbereich
 #define eeRichtung_A		0
 #define eeRichtung_B		1
+
 //Globale Variablen
 int8_t motorrichtung_A;
 int8_t motorrichtung_B;
@@ -77,9 +79,6 @@ uint8_t pwmVerzoger_B = 0;
 uint8_t status_putzen_a = 0;
 uint8_t status_putzen_b = 0;
 
-
-// der Putzvorgang am Boden soll unterdrückt werden
-
 void eeprom_update_byte(int adresse, uint8_t wert)
     {
     if (EEPROM.read(adresse) != wert)
@@ -89,53 +88,63 @@ void eeprom_update_byte(int adresse, uint8_t wert)
     }
 
 // Schaltet den Motor 1= richtung 1;	2=richtung 2;	3=stopp;
-void motor_a(uint8_t a) {
-	switch (a) {
-	case 1: {
-		digitalWrite(Motor_A_IN2, 0) ;
-		digitalWrite(Motor_A_IN1, 1) ;
+void motor_a(uint8_t a)
+    {
+    switch (a)
+	{
+    case 1:
+	{
+	digitalWrite(Motor_A_IN2, 0);
+	digitalWrite(Motor_A_IN1, 1);
 
 	}
-		break;
+	break;
 
-	case 2: {
-		digitalWrite(Motor_A_IN1, 0) ;
-		digitalWrite(Motor_A_IN2, 1) ;
-
-	}
-		break;
-
-	case 3: {
-		digitalWrite(Motor_A_IN2, 0) ;
-		digitalWrite(Motor_A_IN1, 0) ;
-	}
-		break;
-	}
-}
-
-void motor_b(uint8_t a) {
-	switch (a) {
-	case 1: {
-		digitalWrite(Motor_B_IN2, 0) ;
-		digitalWrite(Motor_B_IN1, 1) ;
+    case 2:
+	{
+	digitalWrite(Motor_A_IN1, 0);
+	digitalWrite(Motor_A_IN2, 1);
 
 	}
-		break;
+	break;
 
-	case 2: {
-		digitalWrite(Motor_B_IN1, 0) ;
-		digitalWrite(Motor_B_IN2, 1) ;
+    case 3:
+	{
+	digitalWrite(Motor_A_IN2, 0);
+	digitalWrite(Motor_A_IN1, 0);
+	}
+	break;
+	}
+    }
+
+void motor_b(uint8_t a)
+    {
+    switch (a)
+	{
+    case 1:
+	{
+	digitalWrite(Motor_B_IN2, 0);
+	digitalWrite(Motor_B_IN1, 1);
 
 	}
-		break;
+	break;
 
-	case 3: {
-		digitalWrite(Motor_B_IN2, 0) ;
-		digitalWrite(Motor_B_IN1, 0) ;
+    case 2:
+	{
+	digitalWrite(Motor_B_IN1, 0);
+	digitalWrite(Motor_B_IN2, 1);
+
 	}
-		break;
+	break;
+
+    case 3:
+	{
+	digitalWrite(Motor_B_IN2, 0);
+	digitalWrite(Motor_B_IN1, 0);
 	}
-}
+	break;
+	}
+    }
 
 void set_motorpower_a(void)
     {
