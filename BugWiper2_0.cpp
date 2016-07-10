@@ -289,7 +289,7 @@ void loop()
 	//Stopp bei drücken des Putzen Pins
 	if (digitalRead(Putzen_A_PIN) == 0)
 	    {
-	    status_putzen_a = 5;
+	    status_putzen_a = 6;
 	    }
 	// Stopp bei erreichen des Fest-Tasters
 	if (digitalRead(F_Fest_A_PIN) == 0)
@@ -358,7 +358,7 @@ void loop()
 	//Stopp bei drücken des Putzen Pins
 	if (digitalRead(Putzen_B_PIN) == 0)
 	    {
-	    status_putzen_b = 5;
+	    status_putzen_b = 6;
 	    }
 	// Stopp bei erreichen des Fest-Tasters
 	if (digitalRead(F_Fest_B_PIN) == 0)
