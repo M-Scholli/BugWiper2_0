@@ -4,6 +4,7 @@
 #include <avr/interrupt.h>
 #include <stdint.h>
 #include <EEPROM.h>
+#include <MemoryFree.h>
 
 #define Putzen_A_PIN		5
 #define Ein_Ziehen_A_PIN	6
@@ -222,6 +223,7 @@ void setup()
     {
     init_io();
     lese_richtung();
+    Serial.begin(115200);
     }
 
 // The loop function is called in an endless loop
@@ -531,4 +533,5 @@ void loop()
 	status_putzen_b = 3;
 	}
     delay(1);
+    Serial.println(freeMemory());
     }
