@@ -1,23 +1,23 @@
 Code:;Hardware:;ein/ausgang;Arduino;Atmega328P;Pin Funktion
-;;;0;PD0;
-;;;1;PD1;
-;;;2;PD2;INT0
-Fahrwerk;;ein pullup;3;PD3;INT1
+;;;0;PD0;RXD
+;;;1;PD1;TXD
+Putzen_B_PIN;Taster oben;ein pullup;2;PD2;INT0
+Ein_Ziehen_B_PIN;Taster unten;ein pullup;3;PD3;INT1
 SAVE_PIN;;ein pullup;4;PD4;
 Putzen_A_PIN;Taster oben;ein pullup;5;PD5;
 Ein_Ziehen_A_PIN;Taster unten;ein pullup;6;PD6;
-;;;7;PD7;
-;;;8;PB0;
+Motor_A_IN1;In 1 H-Bridge;aus;7;PD7;
+Motor_A_IN2;In2 H-Bridge;aus;8;PB0;
 Motor_A_EN;PWM Pin;aus;9;PB1;OC1A
-Motor_A_IN1;In 1 H-Bridge;aus;10;PB2;OC1B
-Motor_A_IN2;In2 H-Bridge;aus;11;PB4;
-;;;12;PB3;OC2
+Motor_B_EN;PWM Pin;aus;10;PB2;OC1B
+Motor_B_IN1;In 1 H-Bridge;aus;11;PB4;
+Motor_B_IN2;In2 H-Bridge;aus;12;PB3;OC2
 LED;;aus;13;PB5;LED
-;;;A0 / D14;PC0;
+LED;;aus;A0 / D14;PC0;
 F_Fest_A_PIN;;ein pullup;A1 / D15;PC1;
 F_Lose_A_PIN;;ein pullup;A2 / D16;PC2;
-;;;A3 / D17;PC3;
-;;;A4 / D18;PC4;
+F_Fest_B_PIN;;ein pullup;A3 / D17;PC3;
+F_Lose_B_PIN;;ein pullup;A4 / D18;PC4;
 ;;;A5 / D19;PC5;
 ;;;A6;;
 ;;;A7;;

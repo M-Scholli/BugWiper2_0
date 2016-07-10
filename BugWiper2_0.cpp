@@ -7,8 +7,8 @@
 
 #define Putzen_A_PIN		5
 #define Ein_Ziehen_A_PIN	6
-#define Putzen_B_PIN		0
-#define Ein_Ziehen_B_PIN	1
+#define Putzen_B_PIN		2
+#define Ein_Ziehen_B_PIN	3
 #define F_Fest_A_PIN		A1
 #define F_Lose_A_PIN		A2
 #define F_Fest_B_PIN		A3
