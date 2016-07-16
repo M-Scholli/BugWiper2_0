@@ -445,11 +445,11 @@ void loop()
     {
     setTimer();
     tasterAbfrage();
-    if (status_putzen_a == (1 || 2 || 7))
+    if (status_putzen_a == 1 || status_putzen_a == 2 || status_putzen_a == 7)
 	{
 	set_motorpower_a();
 	}
-    if (status_putzen_b == (1 || 2 || 7))
+    if (status_putzen_b == 1 || status_putzen_b == 2 || status_putzen_b == 7)
 	{
 	set_motorpower_b();
 	}
