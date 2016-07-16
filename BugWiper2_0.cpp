@@ -613,11 +613,19 @@ void loop()
 	t_p_start_b = 0;
 	}
 
-    if (t_zyklus == 100)
+    if (t_zyklus == 1000)
 	{
 	Zykluszeit();
 	Serial.println(freeMemory());
 	t_zyklus = 0;
+	Serial.print("status a:");
+	Serial.print(status_putzen_a, DEC);
+	Serial.print(" status b:");
+	Serial.print(status_putzen_b, DEC);
+	Serial.print(" m.Pwr-A:");
+	Serial.print(motorpower_a, DEC);
+	Serial.print(" m.Pwr-A:");
+	Serial.println(motorpower_a, DEC);
 	}
     // Putzen beendet?
     check_Ende();
