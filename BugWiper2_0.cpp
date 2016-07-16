@@ -521,7 +521,7 @@ void loop()
 	    {
 	    status_putzen_b = 6;
 	    }
-	if (t_p_start_b >= T_MIN_P && !digitalRead(F_Lose_B_PIN) == 0)
+	if (t_p_start_b >= T_MIN_P && digitalRead(F_Lose_B_PIN) == 0)
 	    {
 	    motorpower_b = 0;
 	    }
@@ -549,7 +549,7 @@ void loop()
 	    digitalWrite(LED_B_PIN, !digitalRead(LED_B_PIN));
 	    t_led_b = 0;
 	    }
-	if (t_p_start_b >= T_MIN_P && !digitalRead(F_Lose_B_PIN) == 0)
+	if (t_p_start_b >= T_MIN_P && digitalRead(F_Lose_B_PIN) == 0)
 	    {
 	    motorpower_b = 0;
 	    pwmVerzoger_B = VERZOGER_E;
