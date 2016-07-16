@@ -43,7 +43,7 @@
 #define T_MAX_E			50000 	//Maximale festziehzeit //erh�hen der einziehzeit
 #define START_POWER_P		40 	//Motorpower bei losfahren Putzen
 #define START_POWER_F		70
-
+#define TASTER_Debounce		50      //ms zum Taster enstoeren
 //EEPROM Speicherbereich
 #define eeRichtung_A		0
 #define eeRichtung_B		1
@@ -66,6 +66,14 @@ uint8_t pwmMax_A = 0;
 uint8_t pwmVerzoger_A = 0;
 uint8_t pwmMax_B = 0;
 uint8_t pwmVerzoger_B = 0;
+uint8_t t_taster_lose_a = 0;
+uint8_t t_taster_lose_b = 0;
+uint8_t t_taster_fest_a = 0;
+uint8_t t_taster_fest_b = 0;
+uint8_t t_taster_einzieh_a = 0;
+uint8_t t_taster_einzieh_b = 0;
+uint8_t t_taster_putzen_a = 0;
+uint8_t t_taster_putzen_b = 0;
 
 /*Statusanzeige vom Putzvorgang
  0 = Warten auf Tastendruck
@@ -87,6 +95,71 @@ unsigned long __us, __ms, __ck;
 boolean firstloop=1;
 unsigned int t_zyklus = 0;
 
+void setPwmFrequency(int pin, int divisor)
+    {
+    byte mode;
+    if (pin == 5 || pin == 6 || pin == 9 || pin == 10)
+	{
+	switch (divisor)
+	    {
+	case 1:
+	    mode = 0x01;
+	    break;
+	case 8:
+	    mode = 0x02;
+	    break;
+	case 64:
+	    mode = 0x03;
+	    break;
+	case 256:
+	    mode = 0x04;
+	    break;
+	case 1024:
+	    mode = 0x05;
+	    break;
+	default:
+	    return;
+	    }
+	if (pin == 5 || pin == 6)
+	    {
+	    TCCR0B = TCCR0B & 0b11111000 | mode;
+	    }
+	else
+	    {
+	    TCCR1B = TCCR1B & 0b11111000 | mode;
+	    }
+	}
+    else if (pin == 3 || pin == 11)
+	{
+	switch (divisor)
+	    {
+	case 1:
+	    mode = 0x01;
+	    break;
+	case 8:
+	    mode = 0x02;
+	    break;
+	case 32:
+	    mode = 0x03;
+	    break;
+	case 64:
+	    mode = 0x04;
+	    break;
+	case 128:
+	    mode = 0x05;
+	    break;
+	case 256:
+	    mode = 0x06;
+	    break;
+	case 1024:
+	    mode = 0x7;
+	    break;
+	default:
+	    return;
+	    }
+	TCCR2B = TCCR2B & 0b11111000 | mode;
+	}
+    }
 
 void Zykluszeit()
     {
@@ -294,6 +367,8 @@ void set_putzen_B(void)
 
 void init_io(void)
     {
+    setPwmFrequency(10, 2);
+    setPwmFrequency(9, 2);
     pinMode(F_Fest_A_PIN, INPUT_PULLUP);
     pinMode(F_Lose_A_PIN, INPUT_PULLUP);
     pinMode(F_Fest_B_PIN, INPUT_PULLUP);
@@ -369,6 +444,74 @@ void aender_richtung_B(void)
     schreibe_richtung();
     }
 
+void taster_debounce(void)
+    {
+    if (digitalRead(F_Lose_A_PIN) == 0 && t_taster_lose_a < 255)
+	{
+	t_taster_lose_a++;
+	}
+    else if (digitalRead(F_Lose_A_PIN) && t_taster_lose_a > 0)
+	{
+	t_taster_lose_a--;
+	}
+    if (digitalRead(F_Lose_B_PIN) == 0 && t_taster_lose_b < 255)
+  	{
+  	t_taster_lose_b++;
+  	}
+      else if (digitalRead(F_Lose_B_PIN) && t_taster_lose_b > 0)
+  	{
+  	t_taster_lose_b--;
+  	}
+    if (digitalRead(F_Fest_A_PIN) == 0 && t_taster_fest_a < 255)
+	{
+	t_taster_fest_a++;
+	}
+    else if (digitalRead(F_Fest_A_PIN) && t_taster_fest_a > 0)
+	{
+	t_taster_fest_a--;
+	}
+    if (digitalRead(F_Fest_B_PIN) == 0 && t_taster_fest_b < 255)
+  	{
+  	t_taster_fest_b++;
+  	}
+      else if (digitalRead(F_Fest_B_PIN) && t_taster_fest_b > 0)
+  	{
+  	t_taster_fest_b--;
+  	}
+    if (digitalRead(Ein_Ziehen_A_PIN) == 0 && t_taster_einzieh_a < 255)
+	{
+	t_taster_einzieh_a++;
+	}
+    else if (digitalRead(Ein_Ziehen_A_PIN) && t_taster_einzieh_a > 0)
+	{
+	t_taster_einzieh_a--;
+	}
+    if (digitalRead(Ein_Ziehen_B_PIN) == 0 && t_taster_einzieh_b < 255)
+  	{
+  	t_taster_einzieh_b++;
+  	}
+      else if (digitalRead(Ein_Ziehen_B_PIN) && t_taster_einzieh_b > 0)
+  	{
+  	t_taster_einzieh_b--;
+  	}
+    if (digitalRead(Putzen_A_PIN) == 0 && t_taster_putzen_a < 255)
+ 	{
+ 	t_taster_putzen_a++;
+ 	}
+     else if (digitalRead(Putzen_A_PIN) && t_taster_putzen_a > 0)
+ 	{
+ 	t_taster_putzen_a--;
+ 	}
+     if (digitalRead(Putzen_B_PIN) == 0 && t_taster_putzen_b < 255)
+   	{
+   	t_taster_putzen_b++;
+   	}
+       else if (digitalRead(Putzen_B_PIN) && t_taster_putzen_b > 0)
+   	{
+   	t_taster_putzen_b--;
+   	}
+    }
+
 //zählt jede ms die Timer hoch
 void setTimer(void)
     {
@@ -380,14 +523,15 @@ void setTimer(void)
 	t_p_start_b++;
 	t_m_pwm_b++;
 	t_led_b++;
-	if (digitalRead(Putzen_A_PIN) == 0 && status_putzen_a == 0)
+	if (t_taster_putzen_a >= TASTER_Debounce && status_putzen_a == 0)
 	    {
 	    t_taster_lang_a = t_taster_lang_a + 1;
 	    }
-	if (digitalRead(Putzen_B_PIN) == 0 && status_putzen_b == 0)
+	if (t_taster_putzen_b >= TASTER_Debounce && status_putzen_b == 0)
 	    {
 	    t_taster_lang_b = t_taster_lang_b + 1;
 	    }
+	taster_debounce();
 	t_timer = t_timer + 1000;
 	}
     }
@@ -397,45 +541,43 @@ void tasterAbfrage(void)
     if (digitalRead(SAVE_PIN) == 0)
 	{
 	// Einziehen starten Motor A
-	if (digitalRead(Ein_Ziehen_A_PIN) == 0 && status_putzen_a == 0)
+	if (t_taster_einzieh_a >= TASTER_Debounce && status_putzen_a == 0)
 	    {
 	    set_einziehen_A();
 	    }
 	// Putzen starten Motor A
-	if (digitalRead(Putzen_A_PIN)
-		== 0&& status_putzen_a == 0 && t_taster_lang_a >= T_Taster_Lang)
+	if (status_putzen_a == 0 && t_taster_lang_a >= T_Taster_Lang)
 	    {
 	    set_putzen_A();
 	    }
 	// Einziehen starten Motor B
-	if (digitalRead(Ein_Ziehen_B_PIN) == 0 && status_putzen_b == 0)
+	if (t_taster_einzieh_b >= TASTER_Debounce && status_putzen_b == 0)
 	    {
 	    set_einziehen_B();
 	    }
 	// Putzen starten Motor B
-	if (digitalRead(Putzen_B_PIN)
-		== 0&& status_putzen_b == 0 && t_taster_lang_b >= T_Taster_Lang)
+	if (status_putzen_b == 0 && t_taster_lang_b >= T_Taster_Lang)
 	    {
 	    set_putzen_B();
 	    }
 	}
     // Verhindert, dass nach einem Putzvorgang direkt ein zweiter startet
-    if (digitalRead(Ein_Ziehen_A_PIN) == 1 && digitalRead(Putzen_A_PIN) == 1
-	    && status_putzen_a == 3 && t_p_start_a >= 500)
+    if (t_taster_einzieh_a <= 5 && t_taster_putzen_a <= 5
+	    && status_putzen_a == 3 && t_p_start_a >= 200)
 	{
 	status_putzen_a = 0;
 	}
-    if (digitalRead(Ein_Ziehen_B_PIN) == 1 && digitalRead(Putzen_B_PIN) == 1
-	    && status_putzen_b == 3 && t_p_start_b >= 500)
+    if (t_taster_einzieh_b <= 5 && t_taster_putzen_b <= 5
+	    && status_putzen_b == 3 && t_p_start_b >= 200)
 	{
 	status_putzen_b = 0;
 	}
     // reset des Zählers für lange Tastendrücke
-    if (digitalRead(Putzen_A_PIN) == 1)
+    if (t_taster_putzen_a <= 5)
 	{
 	t_taster_lang_a = 0;
 	}
-    if (digitalRead(Putzen_B_PIN) == 1)
+    if (t_taster_putzen_b <= 5)
 	{
 	t_taster_lang_b = 0;
 	}
@@ -505,18 +647,18 @@ void loop()
 	    {
 	    status_putzen_a = 6;
 	    }
-	if ((t_p_start_a >= T_MIN_P) && digitalRead(F_Fest_A_PIN) == 0)
+	if ((t_p_start_a >= T_MIN_P) && t_taster_fest_a >= TASTER_Debounce)
 	    status_putzen_a = 4;
 	if (t_led_a == LED_T_P)
 	    {
 	    digitalWrite(LED_A_PIN, !digitalRead(LED_A_PIN));
 	    t_led_a = 0;
 	    }
-	if (digitalRead(Ein_Ziehen_A_PIN) == 0)
+	if (t_taster_einzieh_a >= TASTER_Debounce)
 	    {
 	    status_putzen_a = 6;
 	    }
-	if (t_p_start_a >= T_MIN_P && digitalRead(F_Lose_A_PIN) == 0)
+	if (t_p_start_a >= T_MIN_P && t_taster_lose_a <= 5)
 	    {
 	    motorpower_a = 0;
 	    pwmVerzoger_A = VERZOGER_E;
@@ -530,12 +672,12 @@ void loop()
 	    status_putzen_a = 6;
 	    }
 	//Stopp bei drücken des Putzen Pins
-	if (digitalRead(Putzen_A_PIN) == 0)
+	if (t_taster_putzen_a >= TASTER_Debounce)
 	    {
 	    status_putzen_a = 6;
 	    }
 	// Stopp bei erreichen des Fest-Tasters
-	if (digitalRead(F_Fest_A_PIN) == 0)
+	if (t_taster_fest_a >= TASTER_Debounce)
 	    {
 	    status_putzen_a = 5;
 	    }
@@ -545,7 +687,7 @@ void loop()
 	    digitalWrite(LED_A_PIN, !digitalRead(LED_A_PIN));
 	    t_led_a = 0;
 	    }
-	if (digitalRead(F_Lose_A_PIN) == 0)
+	if ( t_taster_lose_a <= 5)
 	    {
 	    motorpower_a = 0;
 	    }
@@ -556,18 +698,20 @@ void loop()
 	    {
 	    status_putzen_b = 6;
 	    }
-	if ((t_p_start_b >= T_MIN_P) && digitalRead(F_Fest_B_PIN) == 0)
+	if ((t_p_start_b >= T_MIN_P) && t_taster_fest_b >= TASTER_Debounce)
+	    {
 	    status_putzen_b = 4;
+	    }
 	if (t_led_b == LED_T_P)
 	    {
 	    digitalWrite(LED_B_PIN, !digitalRead(LED_B_PIN));
 	    t_led_b = 0;
 	    }
-	if (digitalRead(Ein_Ziehen_B_PIN) == 0)
+	if (t_taster_einzieh_b >= TASTER_Debounce)
 	    {
 	    status_putzen_b = 6;
 	    }
-	if (t_p_start_b >= T_MIN_P && digitalRead(F_Lose_B_PIN) == 0)
+	if (t_p_start_b >= T_MIN_P &&  t_taster_lose_b <= 5)
 	    {
 	    motorpower_b = 0;
 	    pwmVerzoger_B = VERZOGER_E;
@@ -581,12 +725,12 @@ void loop()
 	    status_putzen_b = 6;
 	    }
 	//Stopp bei drücken des Putzen Pins
-	if (digitalRead(Putzen_B_PIN) == 0)
+	if (t_taster_putzen_b >= TASTER_Debounce)
 	    {
 	    status_putzen_b = 6;
 	    }
 	// Stopp bei erreichen des Fest-Tasters
-	if (digitalRead(F_Fest_B_PIN) == 0)
+	if (t_taster_fest_b >= TASTER_Debounce)
 	    {
 	    status_putzen_b = 5;
 	    }
@@ -596,7 +740,7 @@ void loop()
 	    digitalWrite(LED_B_PIN, !digitalRead(LED_B_PIN));
 	    t_led_b = 0;
 	    }
-	if (t_p_start_b >= T_MIN_P && digitalRead(F_Lose_B_PIN) == 0)
+	if (t_p_start_b >= T_MIN_P &&  t_taster_lose_b <= 5)
 	    {
 	    motorpower_b = 0;
 	    }
@@ -612,7 +756,6 @@ void loop()
 	status_putzen_b = 3;
 	t_p_start_b = 0;
 	}
-
     if (t_zyklus == 2000)
 	{
 	Zykluszeit();
