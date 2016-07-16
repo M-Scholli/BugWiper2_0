@@ -43,6 +43,7 @@
 #define T_MAX_E			50000 	//Maximale festziehzeit //erh�hen der einziehzeit
 #define START_POWER_P		40 	//Motorpower bei losfahren Putzen
 #define START_POWER_F		70
+#define START_POWER_L		70 	// Start Power nach losem Seil
 #define TASTER_Debounce		50      //ms zum Taster enstoeren
 //EEPROM Speicherbereich
 #define eeRichtung_A		0
@@ -624,6 +625,10 @@ void loop()
 	    digitalWrite(LED_A_PIN, !digitalRead(LED_A_PIN));
 	    t_led_a = 0;
 	    }
+	if( t_taster_lose_a >= TASTER_Debounce && motorpower_a < START_POWER_L )
+	    {
+	    motorpower_a = START_POWER_L;
+	    }
 	}
     if (status_putzen_a == 2)
 	{
@@ -656,6 +661,10 @@ void loop()
 	    digitalWrite(LED_A_PIN, !digitalRead(LED_A_PIN));
 	    t_led_a = 0;
 	    }
+	if( t_taster_lose_a >= TASTER_Debounce && motorpower_a < START_POWER_L )
+	    {
+	    motorpower_a = START_POWER_L;
+	    }
 	}
     if (status_putzen_b == 1)
 	{
@@ -683,6 +692,10 @@ void loop()
 	    {
 	    digitalWrite(LED_B_PIN, !digitalRead(LED_B_PIN));
 	    t_led_b = 0;
+	    }
+	if( t_taster_lose_b >= TASTER_Debounce && motorpower_b < START_POWER_L )
+	    {
+	    motorpower_b = START_POWER_L;
 	    }
 	}
     if (status_putzen_b == 2)
@@ -715,6 +728,10 @@ void loop()
 	    {
 	    digitalWrite(LED_B_PIN, !digitalRead(LED_B_PIN));
 	    t_led_b = 0;
+	    }
+	if( t_taster_lose_b >= TASTER_Debounce && motorpower_b < START_POWER_L )
+	    {
+	    motorpower_b = START_POWER_L;
 	    }
 	}
     // Motor bremsen
