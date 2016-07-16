@@ -37,6 +37,7 @@
 #define VERZOGER_B		2  	//Wie viel bis zum erh�hen beim Bremsen in 250�s
 #define VERZOGER_P		60 	//Verz�gern Putzen
 #define VERZOGER_E		20	//Verzögern Einziehen
+#define VERZOGER_L		10	//Verzögern Lose
 #define T_MIN_P			300	//Minimale Putzzeit[ms]
 #define T_MAX_P			90000	//Maximale Putzzeit
 #define T_MAX_E			50000 	//Maximale festziehzeit //erh�hen der einziehzeit
@@ -615,7 +616,7 @@ void loop()
 	    if (t_p_start_a >= T_MIN_P && t_taster_lose_a <= 5)
 		{
 		motorpower_a = 0;
-		pwmVerzoger_A = VERZOGER_E;
+		pwmVerzoger_A = VERZOGER_L;
 		}
 	    }
 	if (t_led_a == LED_T_P)
@@ -646,6 +647,7 @@ void loop()
 	    if (t_taster_lose_a <= 5)
 		{
 		motorpower_a = 0;
+		pwmVerzoger_A = VERZOGER_L;
 		}
 	    }
 	// LED Blinken
@@ -674,7 +676,7 @@ void loop()
 	    if (t_p_start_b >= T_MIN_P && t_taster_lose_b <= 5)
 		{
 		motorpower_b = 0;
-		pwmVerzoger_B = VERZOGER_E;
+		pwmVerzoger_B = VERZOGER_L;
 		}
 	    }
 	if (t_led_b == LED_T_P)
@@ -705,6 +707,7 @@ void loop()
 	    if (t_p_start_b >= T_MIN_P && t_taster_lose_b <= 5)
 		{
 		motorpower_b = 0;
+		pwmVerzoger_B = VERZOGER_L;
 		}
 	    }
 	// LED Blinken
