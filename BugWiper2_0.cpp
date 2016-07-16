@@ -473,12 +473,13 @@ void loop()
 	if (t_p_start_a >= T_MIN_P && digitalRead(F_Lose_A_PIN) == 0)
 	    {
 	    motorpower_a = 0;
+	    pwmVerzoger_A = VERZOGER_E;
 	    }
 	}
     if (status_putzen_a == 2)
 	{
 	// maximale Einziehzeit erreicht
-	if (t_p_start_a == T_MAX_E)
+	if (t_p_start_a >= T_MAX_E)
 	    {
 	    status_putzen_a = 6;
 	    }
@@ -501,7 +502,6 @@ void loop()
 	if (digitalRead(F_Lose_A_PIN) == 0)
 	    {
 	    motorpower_a = 0;
-	    pwmVerzoger_A = VERZOGER_E;
 	    }
 	}
     if (status_putzen_b == 1)
@@ -524,12 +524,13 @@ void loop()
 	if (t_p_start_b >= T_MIN_P && digitalRead(F_Lose_B_PIN) == 0)
 	    {
 	    motorpower_b = 0;
+	    pwmVerzoger_B = VERZOGER_E;
 	    }
 	}
     if (status_putzen_b == 2)
 	{
 	// maximale Einziehzeit erreicht
-	if (t_p_start_b == T_MAX_E)
+	if (t_p_start_b >= T_MAX_E)
 	    {
 	    status_putzen_b = 6;
 	    }
@@ -552,7 +553,6 @@ void loop()
 	if (t_p_start_b >= T_MIN_P && digitalRead(F_Lose_B_PIN) == 0)
 	    {
 	    motorpower_b = 0;
-	    pwmVerzoger_B = VERZOGER_E;
 	    }
 	}
     // Motor bremsen
