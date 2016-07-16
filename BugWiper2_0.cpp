@@ -598,43 +598,55 @@ void loop()
 	}
     if (status_putzen_a == 1)
 	{
-	if (t_p_start_a >= T_MAX_P)
+	if (t_taster_putzen_a <= TASTER_Debounce)
 	    {
-	    status_putzen_a = 6;
+	    if (t_p_start_a >= T_MAX_P)
+		{
+		status_putzen_a = 6;
+		}
+	    if ((t_p_start_a >= T_MIN_P) && t_taster_fest_a >= TASTER_Debounce)
+		{
+		status_putzen_a = 4;
+		}
+	    if (t_taster_einzieh_a >= TASTER_Debounce)
+		{
+		status_putzen_a = 6;
+		}
+	    if (t_p_start_a >= T_MIN_P && t_taster_lose_a <= 5)
+		{
+		motorpower_a = 0;
+		pwmVerzoger_A = VERZOGER_E;
+		}
 	    }
-	if ((t_p_start_a >= T_MIN_P) && t_taster_fest_a >= TASTER_Debounce)
-	    status_putzen_a = 4;
 	if (t_led_a == LED_T_P)
 	    {
 	    digitalWrite(LED_A_PIN, !digitalRead(LED_A_PIN));
 	    t_led_a = 0;
 	    }
-	if (t_taster_einzieh_a >= TASTER_Debounce)
-	    {
-	    status_putzen_a = 6;
-	    }
-	if (t_p_start_a >= T_MIN_P && t_taster_lose_a <= 5)
-	    {
-	    motorpower_a = 0;
-	    pwmVerzoger_A = VERZOGER_E;
-	    }
 	}
     if (status_putzen_a == 2)
 	{
-	// maximale Einziehzeit erreicht
-	if (t_p_start_a >= T_MAX_E)
+	if (t_taster_einzieh_a <= TASTER_Debounce)
 	    {
-	    status_putzen_a = 6;
-	    }
-	//Stopp bei drücken des Putzen Pins
-	if (t_taster_putzen_a >= TASTER_Debounce)
-	    {
-	    status_putzen_a = 6;
-	    }
-	// Stopp bei erreichen des Fest-Tasters
-	if (t_taster_fest_a >= TASTER_Debounce)
-	    {
-	    status_putzen_a = 5;
+	    // maximale Einziehzeit erreicht
+	    if (t_p_start_a >= T_MAX_E)
+		{
+		status_putzen_a = 6;
+		}
+	    //Stopp bei drücken des Putzen Pins
+	    if (t_taster_putzen_a >= TASTER_Debounce)
+		{
+		status_putzen_a = 6;
+		}
+	    // Stopp bei erreichen des Fest-Tasters
+	    if (t_taster_fest_a >= TASTER_Debounce)
+		{
+		status_putzen_a = 5;
+		}
+	    if (t_taster_lose_a <= 5)
+		{
+		motorpower_a = 0;
+		}
 	    }
 	// LED Blinken
 	if (t_led_a >= LED_T_E)
@@ -642,62 +654,64 @@ void loop()
 	    digitalWrite(LED_A_PIN, !digitalRead(LED_A_PIN));
 	    t_led_a = 0;
 	    }
-	if ( t_taster_lose_a <= 5)
-	    {
-	    motorpower_a = 0;
-	    }
 	}
     if (status_putzen_b == 1)
 	{
-	if (t_p_start_b >= T_MAX_P)
+	if (t_taster_putzen_b <= TASTER_Debounce)
 	    {
-	    status_putzen_b = 6;
-	    }
-	if ((t_p_start_b >= T_MIN_P) && t_taster_fest_b >= TASTER_Debounce)
-	    {
-	    status_putzen_b = 4;
+	    if (t_p_start_b >= T_MAX_P)
+		{
+		status_putzen_b = 6;
+		}
+	    if ((t_p_start_b >= T_MIN_P) && t_taster_fest_b >= TASTER_Debounce)
+		{
+		status_putzen_b = 4;
+		}
+	    if (t_taster_einzieh_b >= TASTER_Debounce)
+		{
+		status_putzen_b = 6;
+		}
+	    if (t_p_start_b >= T_MIN_P && t_taster_lose_b <= 5)
+		{
+		motorpower_b = 0;
+		pwmVerzoger_B = VERZOGER_E;
+		}
 	    }
 	if (t_led_b == LED_T_P)
 	    {
 	    digitalWrite(LED_B_PIN, !digitalRead(LED_B_PIN));
 	    t_led_b = 0;
 	    }
-	if (t_taster_einzieh_b >= TASTER_Debounce)
-	    {
-	    status_putzen_b = 6;
-	    }
-	if (t_p_start_b >= T_MIN_P &&  t_taster_lose_b <= 5)
-	    {
-	    motorpower_b = 0;
-	    pwmVerzoger_B = VERZOGER_E;
-	    }
 	}
     if (status_putzen_b == 2)
 	{
-	// maximale Einziehzeit erreicht
-	if (t_p_start_b >= T_MAX_E)
+	if (t_taster_einzieh_b <= TASTER_Debounce)
 	    {
-	    status_putzen_b = 6;
-	    }
-	//Stopp bei drücken des Putzen Pins
-	if (t_taster_putzen_b >= TASTER_Debounce)
-	    {
-	    status_putzen_b = 6;
-	    }
-	// Stopp bei erreichen des Fest-Tasters
-	if (t_taster_fest_b >= TASTER_Debounce)
-	    {
-	    status_putzen_b = 5;
+	    // maximale Einziehzeit erreicht
+	    if (t_p_start_b >= T_MAX_E)
+		{
+		status_putzen_b = 6;
+		}
+	    //Stopp bei drücken des Putzen Pins
+	    if (t_taster_putzen_b >= TASTER_Debounce)
+		{
+		status_putzen_b = 6;
+		}
+	    // Stopp bei erreichen des Fest-Tasters
+	    if (t_taster_fest_b >= TASTER_Debounce)
+		{
+		status_putzen_b = 5;
+		}
+	    if (t_p_start_b >= T_MIN_P && t_taster_lose_b <= 5)
+		{
+		motorpower_b = 0;
+		}
 	    }
 	// LED Blinken
 	if (t_led_b >= LED_T_E)
 	    {
 	    digitalWrite(LED_B_PIN, !digitalRead(LED_B_PIN));
 	    t_led_b = 0;
-	    }
-	if (t_p_start_b >= T_MIN_P &&  t_taster_lose_b <= 5)
-	    {
-	    motorpower_b = 0;
 	    }
 	}
     // Motor bremsen
