@@ -3,28 +3,28 @@ Code:;Hardware:;ein/ausgang;Arduino;Atmega328P;Pin Funktion;RJ45 Motor A;Farbe;R
 ;;;1;PD1;TXD;;;;;;;
 Putzen_B_PIN;Taster oben;ein pullup;2;PD2;INT0;;;;;;;
 Ein_Ziehen_B_PIN;Taster unten;ein pullup;3;PD3;INT1;;;;;;;
-SAVE_PIN;;ein pullup;4;PD4;;;;;;5;blau/wei�;
-Putzen_A_PIN;Taster oben;ein pullup;5;PD5;;;;;;7;braun/wei�;
+SAVE_PIN;;ein pullup;4;PD4;;;;;;5;blau/weiß;
+Putzen_A_PIN;Taster oben;ein pullup;5;PD5;;;;;;7;braun/weiß;
 Ein_Ziehen_A_PIN;Taster unten;ein pullup;6;PD6;;;;;;8;braun;
-Motor_A_IN1;In 1 H-Bridge;aus;7;PD7;;3;gr�n/wei�;;;;;IN1
+Motor_A_IN1;In 1 H-Bridge;aus;7;PD7;;3;gruen/weiss;;;;;IN1
 Motor_A_IN2;In2 H-Bridge;aus;8;PB0;;4;blau;;;;;IN2
-Motor_A_EN;PWM Pin;aus;9;PB1;OC1A;5;blau/wei�;;;;;EN
-Motor_B_EN;PWM Pin;aus;10;PB2;OC1B;;;5;blau/wei�;;;
-Motor_B_IN1;In 1 H-Bridge;aus;11;PB4;;;;3;gr�n/wei�;;;
-Motor_B_IN2;In2 H-Bridge;aus;12;PB3;OC2;;;4;blau;;;
-LED_A;;aus;13;PB5;LED;;;;;6;gr�n;
+Motor_A_EN;PWM Pin;aus;9;PB1;OC1A;5;blau/weiss;;;;;EN
+Motor_B_EN;PWM Pin;aus;10;PB2;OC1B;;;5;blau/weiss;;;
+F_Fest_A_PIN;;ein pullup;11;PB4;;6;gruen;;;;;
+F_Lose_A_PIN;;ein pullup;12;PB3;OC2;7;braun/weiss;;;;;
+LED_A;;aus;13;PB5;LED;;;;;6;gruen;
 LED_B;;aus;A0 / D14;PC0;;;;;;;;
-F_Fest_A_PIN;;ein pullup;A1 / D15;PC1;;6;gr�n;;;;;
-F_Lose_A_PIN;;ein pullup;A2 / D16;PC2;;7;braun/wei�;;;;;
-F_Fest_B_PIN;;ein pullup;A3 / D17;PC3;;;;6;gr�n;;;
-F_Lose_B_PIN;;ein pullup;A4 / D18;PC4;;;;7;braun/wei�;;;
+Motor_B_IN1;In 1 H-Bridge;aus;A1 / D15;PC1;;;;3;gruen/weiss;;;
+Motor_B_IN2;In2 H-Bridge;aus;A2 / D16;PC2;;;;4;blau;;;
+F_Fest_B_PIN;;ein pullup;A3 / D17;PC3;;;;6;gruen;;;
+F_Lose_B_PIN;;ein pullup;A4 / D18;PC4;;;;7;braun/weiss;;;
 ;;;A5 / D19;PC5;;;;;;;;
 ;;;A6;;;;;;;;;
 ;;;A7;;;;;;;;;
 ;;;;PC6;reset;;;;;;;
 ;Motortreiber;;5V;;;2;orange;2;orange;;;5V
 ;GND Boardnetzt;;GND;;;8;braun;8;braun;;;GND
-;12V Boardnetzt;;Vin;;;1;orange/wei�;1;orange/wei�;;;VCC
+;12V Boardnetzt;;Vin;;;1;orange/weiss;1;orange/weiss;;;VCC
 ;Motor A 1;;;;;;;;;;;OUT1
 ;Motor A2;;;;;;;;;;;OUT2
 ;Motor B1;;;;;;;;;;;

@@ -10,8 +10,8 @@
 #define Ein_Ziehen_A_PIN	6
 #define Putzen_B_PIN		2
 #define Ein_Ziehen_B_PIN	3
-#define F_Fest_A_PIN		A1
-#define F_Lose_A_PIN		A2
+#define F_Fest_A_PIN		11
+#define F_Lose_A_PIN		12
 #define F_Fest_B_PIN		A3
 #define F_Lose_B_PIN		A4
 #define SAVE_PIN		4	// Sicherheitsschalter deaktiviert BugWiper
@@ -24,8 +24,8 @@
 #define Motor_A_IN1		7
 #define Motor_A_IN2		8
 #define Motor_A_EN		9 	//PWM Pin
-#define Motor_B_IN1		11
-#define Motor_B_IN2		12
+#define Motor_B_IN1		A1
+#define Motor_B_IN2		A2
 #define Motor_B_EN		10 	//PWM Pin
 // Kalibrierung des Putzvorganges
 #define T_Taster_Lang		1000    // Zeit in ms für langen Tastendruck
@@ -521,7 +521,7 @@ void loop()
 	    {
 	    status_putzen_b = 6;
 	    }
-	if (t_p_start_b >= T_MIN_P && digitalRead(F_Lose_B_PIN) == 0)
+	if (t_p_start_b >= T_MIN_P && !digitalRead(F_Lose_B_PIN) == 0)
 	    {
 	    motorpower_b = 0;
 	    }
@@ -549,7 +549,7 @@ void loop()
 	    digitalWrite(LED_B_PIN, !digitalRead(LED_B_PIN));
 	    t_led_b = 0;
 	    }
-	if (digitalRead(F_Lose_B_PIN) == 0)
+	if (t_p_start_b >= T_MIN_P && !digitalRead(F_Lose_B_PIN) == 0)
 	    {
 	    motorpower_b = 0;
 	    pwmVerzoger_B = VERZOGER_E;
