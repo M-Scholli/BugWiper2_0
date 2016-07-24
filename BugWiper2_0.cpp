@@ -28,20 +28,20 @@
 #define Motor_B_IN2		A2
 #define Motor_B_EN		10 	//PWM Pin
 // Kalibrierung des Putzvorganges
-#define T_Taster_Lang		1000    // Zeit in ms für langen Tastendruck
+#define T_Taster_Lang		400    // Zeit in ms für langen Tastendruck
 #define EINZIEH_MAX_P		255	//Max Power Putzen
 #define EINZIEH_MAX_E		255	//Max Motorpower beim Einziehen
 #define EINZIEH_MAX_GND		255 	//Max Motorpower am Boden
 #define BREMSE_START		210 	//Motorpower bremsen startwert
 #define BREMSE_MAX		255	//Max Motorpower Bremsen
 #define VERZOGER_B		2  	//Wie viel bis zum erh�hen beim Bremsen in 250�s
-#define VERZOGER_P		60 	//Verz�gern Putzen
+#define VERZOGER_P		80 	//Verz�gern Putzen
 #define VERZOGER_E		20	//Verzögern Einziehen
-#define VERZOGER_L		10	//Verzögern Lose
+#define VERZOGER_L		20	//Verzögern Lose
 #define T_MIN_P			300	//Minimale Putzzeit[ms]
 #define T_MAX_P			90000	//Maximale Putzzeit
 #define T_MAX_E			50000 	//Maximale festziehzeit //erh�hen der einziehzeit
-#define START_POWER_P		40 	//Motorpower bei losfahren Putzen
+#define START_POWER_P		30 	//Motorpower bei losfahren Putzen
 #define START_POWER_F		70
 #define START_POWER_L		70 	// Start Power nach losem Seil
 #define TASTER_Debounce		50      //ms zum Taster enstoeren
@@ -732,8 +732,8 @@ void loop()
 	if( t_taster_lose_b >= TASTER_Debounce && motorpower_b < START_POWER_L )
 	    {
 	    motorpower_b = START_POWER_L;
-	    }
 	}
+	    }
     // Motor bremsen
     if (status_putzen_a == 7 && motorpower_a == 255)
 	{
