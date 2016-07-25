@@ -34,7 +34,7 @@
 #define EINZIEH_MAX_GND		255 	//Max Motorpower am Boden
 #define BREMSE_START		210 	//Motorpower bremsen startwert
 #define BREMSE_MAX		255	//Max Motorpower Bremsen
-#define BREMSE_L		180
+#define BREMSE_L		230
 #define VERZOGER_B		2  	//Wie viel bis zum erh�hen beim Bremsen in 250�s
 #define VERZOGER_P		80 	//Verz�gern Putzen
 #define VERZOGER_E		20	//Verzögern Einziehen
@@ -55,6 +55,8 @@ int8_t motorrichtung_A;
 int8_t motorrichtung_B;
 int8_t motorrichtung_A_old;
 int8_t motorrichtung_B_old;
+int8_t lose_a=0;
+int8_t lose_b=0;
 uint8_t motorpower_a = 0;
 uint8_t motorpower_b = 0;
 uint16_t t_taster_lang_a = 0;	// Zeit seit rücken des Langen Tasters
@@ -281,9 +283,15 @@ void set_einziehen_A(void)
     pwmVerzoger_A = VERZOGER_E;
     pwmMax_A = EINZIEH_MAX_E;
     if (motorrichtung_A == 1)
+	{
 	motor_a(2);
+	motorrichtung_A_old = 2;
+	}
     else
+	{
 	motor_a(1);
+	motorrichtung_A_old = 1;
+	}
     }
 
 void set_einziehen_B(void)
@@ -296,9 +304,15 @@ void set_einziehen_B(void)
     pwmVerzoger_B = VERZOGER_E;
     pwmMax_B = EINZIEH_MAX_E;
     if (motorrichtung_B == 1)
+	{
 	motor_b(2);
+	motorrichtung_B_old = 2;
+	}
     else
+	{
 	motor_b(1);
+	motorrichtung_B_old = 1;
+	}
     }
 
 void set_putzen_A(void)
@@ -312,6 +326,7 @@ void set_putzen_A(void)
     pwmMax_A = EINZIEH_MAX_P;
     motor_a(motorrichtung_A);
     t_taster_lang_a = 0;
+    motorrichtung_A_old = motorrichtung_A;
     }
 
 void set_putzen_B(void)
@@ -325,6 +340,7 @@ void set_putzen_B(void)
     pwmMax_B = EINZIEH_MAX_P;
     motor_b(motorrichtung_B);
     t_taster_lang_b = 0;
+    motorrichtung_B_old = motorrichtung_B;
     }
 
 void init_io(void)
@@ -617,12 +633,11 @@ void loop()
 		{
 		status_putzen_a = 6;
 		}
-	    if (t_p_start_a >= T_MIN_P && t_taster_lose_a <= 5)
+	    if (t_p_start_a >= T_MIN_P && t_taster_lose_a <= 5 && lose_a == 0)
 		{
 		motorpower_a = BREMSE_L;
-		motorrichtung_A_old = motorrichtung_A;
-		motorrichtung_A = 3;
-		motor_a(motorrichtung_A);
+		lose_a = 1;
+		motor_a(3);
 		pwmVerzoger_A = VERZOGER_L;
 		}
 	    }
@@ -631,12 +646,12 @@ void loop()
 	    digitalWrite(LED_A_PIN, !digitalRead(LED_A_PIN));
 	    t_led_a = 0;
 	    }
-	if (t_taster_lose_a >= TASTER_Debounce && motorrichtung_A == 3)
+	if (t_taster_lose_a >= TASTER_Debounce && lose_a == 1)
 	    {
 	    motorpower_a = START_POWER_L;
-	    motorrichtung_A = motorrichtung_A_old;
-	    motor_a(motorrichtung_A);
+	    motor_a(motorrichtung_A_old);
 	    pwmVerzoger_A = VERZOGER_L;
+	    lose_a = 0;
 	    }
 	}
     if (status_putzen_a == 2)
@@ -658,12 +673,11 @@ void loop()
 		{
 		status_putzen_a = 5;
 		}
-	    if (t_p_start_a >= T_MIN_P && t_taster_lose_a <= 5)
+	    if (t_p_start_a >= T_MIN_P && t_taster_lose_a <= 5 && lose_a == 0)
 		{
 		motorpower_a = BREMSE_L;
-		motorrichtung_A_old = motorrichtung_A;
-		motorrichtung_A = 3;
-		motor_a(motorrichtung_A);
+		lose_a = 1;
+		motor_a(3);
 		pwmVerzoger_A = VERZOGER_L;
 		}
 	    }
@@ -673,12 +687,12 @@ void loop()
 	    digitalWrite(LED_A_PIN, !digitalRead(LED_A_PIN));
 	    t_led_a = 0;
 	    }
-	if (t_taster_lose_a >= TASTER_Debounce && motorrichtung_A == 3)
+	if (t_taster_lose_a >= TASTER_Debounce && lose_a == 1)
 	    {
 	    motorpower_a = START_POWER_L;
-	    motorrichtung_A = motorrichtung_A_old;
-	    motor_a(motorrichtung_A);
+	    motor_a(motorrichtung_A_old);
 	    pwmVerzoger_A = VERZOGER_L;
+	    lose_a = 0;
 	    }
 	}
     if (status_putzen_b == 1)
@@ -697,13 +711,12 @@ void loop()
 		{
 		status_putzen_b = 6;
 		}
-	    if (t_p_start_b >= T_MIN_P && t_taster_lose_b <= 5)
+	    if (t_p_start_b >= T_MIN_P && t_taster_lose_b <= 5 && lose_b == 0)
 		{
 		motorpower_b = BREMSE_L;
-		motorrichtung_B_old = motorrichtung_B;
-		motorrichtung_B = 3;
-		motor_a(motorrichtung_B);
+		motor_a(3);
 		pwmVerzoger_B = VERZOGER_L;
+		lose_b = 1;
 		}
 	    }
 	if (t_led_b == LED_T_P)
@@ -711,9 +724,12 @@ void loop()
 	    digitalWrite(LED_B_PIN, !digitalRead(LED_B_PIN));
 	    t_led_b = 0;
 	    }
-	if (t_taster_lose_b >= TASTER_Debounce && motorpower_b < START_POWER_L)
+	if (t_taster_lose_b >= TASTER_Debounce && lose_b == 1)
 	    {
 	    motorpower_b = START_POWER_L;
+	    motor_b(motorrichtung_B_old);
+	    pwmVerzoger_B = VERZOGER_L;
+	    lose_b = 0;
 	    }
 	}
     if (status_putzen_b == 2)
@@ -735,13 +751,12 @@ void loop()
 		{
 		status_putzen_b = 5;
 		}
-	    if (t_p_start_b >= T_MIN_P && t_taster_lose_b <= 5)
+	    if (t_p_start_b >= T_MIN_P && t_taster_lose_b <= 5 && lose_b == 0)
 		{
 		motorpower_b = BREMSE_L;
-		motorrichtung_B_old = motorrichtung_B;
-		motorrichtung_B = 3;
-		motor_a(motorrichtung_B);
+		motor_a(3);
 		pwmVerzoger_B = VERZOGER_L;
+		lose_b = 1;
 		}
 	    }
 	// LED Blinken
@@ -750,12 +765,12 @@ void loop()
 	    digitalWrite(LED_B_PIN, !digitalRead(LED_B_PIN));
 	    t_led_b = 0;
 	    }
-	if (t_taster_lose_b >= TASTER_Debounce && motorrichtung_B == 3)
+	if (t_taster_lose_b >= TASTER_Debounce && lose_b == 1)
 	    {
 	    motorpower_b = START_POWER_L;
-	    motorrichtung_B = motorrichtung_B_old;
-	    motor_a(motorrichtung_B);
+	    motor_b(motorrichtung_B_old);
 	    pwmVerzoger_B = VERZOGER_L;
+	    lose_b = 0;
 	    }
 	}
     // Motor bremsen
