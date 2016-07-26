@@ -34,17 +34,17 @@
 #define EINZIEH_MAX_GND		255 	//Max Motorpower am Boden
 #define BREMSE_START		210 	//Motorpower bremsen startwert
 #define BREMSE_MAX		255	//Max Motorpower Bremsen
-#define BREMSE_L		230
+#define BREMSE_L		240
 #define VERZOGER_B		2  	//Wie viel bis zum erh�hen beim Bremsen in 250�s
 #define VERZOGER_P		80 	//Verz�gern Putzen
 #define VERZOGER_E		20	//Verzögern Einziehen
-#define VERZOGER_L		20	//Verzögern Lose
+#define VERZOGER_L		30	//Verzögern Lose
 #define T_MIN_P			300	//Minimale Putzzeit[ms]
 #define T_MAX_P			90000	//Maximale Putzzeit
 #define T_MAX_E			50000 	//Maximale festziehzeit //erh�hen der einziehzeit
 #define START_POWER_P		30 	//Motorpower bei losfahren Putzen
 #define START_POWER_F		70
-#define START_POWER_L		70 	// Start Power nach losem Seil
+#define START_POWER_L		60 	// Start Power nach losem Seil
 #define TASTER_Debounce		50      //ms zum Taster enstoeren
 //EEPROM Speicherbereich
 #define eeRichtung_A		0
@@ -714,7 +714,7 @@ void loop()
 	    if (t_p_start_b >= T_MIN_P && t_taster_lose_b <= 5 && lose_b == 0)
 		{
 		motorpower_b = BREMSE_L;
-		motor_a(3);
+		motor_b(3);
 		pwmVerzoger_B = VERZOGER_L;
 		lose_b = 1;
 		}
@@ -754,7 +754,7 @@ void loop()
 	    if (t_p_start_b >= T_MIN_P && t_taster_lose_b <= 5 && lose_b == 0)
 		{
 		motorpower_b = BREMSE_L;
-		motor_a(3);
+		motor_b(3);
 		pwmVerzoger_B = VERZOGER_L;
 		lose_b = 1;
 		}
