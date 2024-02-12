@@ -9,12 +9,14 @@
 //Button PINs
 #define BUTTON_CLEANING_A_PIN 5
 #define BUTTON_WINDING_IN_A_PIN 18
-#define BUTTON_CLEANING_B_PIN 2
-#define BUTTON_WINDING_IN_B_PIN 22
 #define SW_CABLE_TIGHT_A_PIN 13
 #define SW_CABLE_LOOSE_A_PIN 12
+#if (DUAL_MOTOR_CONTROLLER)
+#define BUTTON_CLEANING_B_PIN 2
+#define BUTTON_WINDING_IN_B_PIN 22
 #define SW_CABLE_TIGHT_B_PIN 34
 #define SW_CABLE_LOOSE_B_PIN 35
+#endif
 #define SAFETY_SWITCH_PIN 4  // Saftyswitch to deaktivate the BugWiper
 //LED configuration
 #define LED_A_PIN 14
@@ -25,9 +27,11 @@
 #define MOTOR_A_IN1_PIN 25
 #define MOTOR_A_IN2_PIN 31
 #define MOTOR_A_EN_PIN 15  //PWM Pin
+#if (DUAL_MOTOR_CONTROLLER)
 #define MOTOR_B_IN1_PIN 39
 #define MOTOR_B_IN2_PIN 32
 #define MOTOR_B_EN_PIN 26  //PWM Pin
+#endif
 // Kalibrierung des Putzvorganges
 #define TIME_LONG_PRESS 400           //time in ms for long button press
 #define MAX_POWER_CLEANING 255        //max power while cleaning
@@ -54,9 +58,9 @@
 #define PWM_FREQ 10000
 #define PWM_RESOLUTION_BITS 8
 #define PWM_CHANNEL_A 0
+#if (DUAL_MOTOR_CONTROLLER)
 #define PWM_CHANNEL_B 1
-#define PWM_PIN_A 0
-#define PWM_PIN_B 1
+#endif
 
 //Global variables
 int8_t direction_of_rotation_A;
@@ -101,7 +105,9 @@ uint8_t timer_button_start_cleaning_b = 0;
  7 = Stopp
  */
 uint8_t state_cleaning_a = 0;
+#if (DUAL_MOTOR_CONTROLLER)
 uint8_t state_cleaning_b = 0;
+#endif
 
 const int pwm_a_pin = MOTOR_A_EN_PIN;
 #if (DUAL_MOTOR_CONTROLLER)
