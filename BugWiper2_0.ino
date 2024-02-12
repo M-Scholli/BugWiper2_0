@@ -5,51 +5,51 @@
 
 #define DUAL_MOTOR_CONTROLLER 0
 
-//Taster Pins
-#define Putzen_A_PIN 5
-#define Ein_Ziehen_A_PIN 18
-#define Putzen_B_PIN 2
-#define Ein_Ziehen_B_PIN 3
-#define F_Fest_A_PIN 11
-#define F_Lose_A_PIN 12
-#define F_Fest_B_PIN 34
-#define F_Lose_B_PIN 35
-#define SAVE_PIN 4  // Sicherheitsschalter deaktiviert BugWiper
-//Status LED
+//Button PINs
+#define BUTTON_CLEANING_A_PIN 5
+#define BUTTON_WINDING_IN_A_PIN 18
+#define BUTTON_CLEANING_B_PIN 2
+#define BUTTON_WINDING_IN_B_PIN 3
+#define SW_CABLE_TIGHT_A_PIN 11
+#define SW_CABLE_LOOSE_A_PIN 12
+#define SW_CABLE_TIGHT_B_PIN 34
+#define SW_CABLE_LOOSE_B_PIN 35
+#define SAFETY_SWITCH_PIN 4  // Saftyswitch to deaktivate the BugWiper
+//LED configuration
 #define LED_A_PIN 13
 #define LED_B_PIN 36
-#define LED_T_P 500  //Zeit zum blinken
-#define LED_T_E 250
-//Motor Pins
-#define Motor_A_IN1 25
-#define Motor_A_IN2 26
-#define Motor_A_EN 27  //PWM Pin
-#define Motor_B_IN1 1
-#define Motor_B_IN2 14
-#define Motor_B_EN 10  //PWM Pin
+#define LED_TIME_CLEANING 500    //time blinking LED
+#define LED_TIME_WINDING_IN 250  //time blinking LED
+//Motor PINs
+#define MOTOR_A_IN1_PIN 25
+#define MOTOR_A_IN2_PIN 26
+#define MOTOR_A_EN_PIN 27  //PWM Pin
+#define MOTOR_B_IN1_PIN 1
+#define MOTOR_B_IN2_PIN 14
+#define MOTOR_B_EN_PIN 10  //PWM Pin
 // Kalibrierung des Putzvorganges
-#define T_Taster_Lang 400    // Zeit in ms für langen Tastendruck
-#define EINZIEH_MAX_P 255    //Max Power Putzen
-#define EINZIEH_MAX_E 255    //Max Motorpower beim Einziehen
-#define EINZIEH_MAX_GND 255  //Max Motorpower am Boden
-#define BREMSE_START 210     //Motorpower bremsen startwert
-#define BREMSE_MAX 255       //Max Motorpower Bremsen
-#define BREMSE_L 240
-#define VERZOGER_B 2      //Wie viel bis zum erh�hen beim Bremsen in 250�s
-#define VERZOGER_P 80     //Verz�gern Putzen
-#define VERZOGER_E 20     //Verzögern Einziehen
-#define VERZOGER_L 30     //Verzögern Lose
-#define T_MIN_P 300       //Minimale Putzzeit[ms]
-#define T_MAX_P 90000     //Maximale Putzzeit
-#define T_MAX_E 50000     //Maximale festziehzeit //erh�hen der einziehzeit
-#define START_POWER_P 30  //Motorpower bei losfahren Putzen
-#define START_POWER_F 70
-#define START_POWER_L 60    // Start Power nach losem Seil
-#define TASTER_Debounce 50  //ms zum Taster enstoeren
-//EEPROM Speicherbereich
-#define eeRichtung_A 0
-#define eeRichtung_B 1
-//PWM Configuration
+#define TIME_LONG_PRESS 400           //time in ms for long button press
+#define MAX_POWER_CLEANING 255        //max power while cleaning
+#define MAX_POWER_WINDING_IN 255      //max power while winding in
+#define MAX_POWER_GROUND 255          //max power on the ground
+#define START_POWER_BRAKE 210         //power on start of the motorbrake
+#define MAX_POWER_BRAKE 255           //max power of the motorbrake
+#define LOOSE_POWER_BRAKE 240         //power of the brake when loose cable detected
+#define TIME_PWM_RAMP_BRAKE 2         //time of PWM power inrements for braking ramp
+#define TIME_PWM_RAMP_CLEANING 80     //time of PWM power inrements for start cleaning ramp
+#define TIME_PWM_RAMP_WINDING_IN 20   //time of PWM power inrements for start winding in ramp
+#define TIME_PWM_RAMP_LOOSE_CABLE 30  //time of PWM power inrements after loose cable ramp
+#define TIME_MIN_CLEANING 300         //minimal cleaning time in ms
+#define TIME_MAX_CLEANING 90000       //maximale cleaning time in ms
+#define TIME_MAX_WINDING_IN 50000     //maximale winding in time in ms
+#define START_POWER_CLEANING 30       //start power cleaning
+#define START_POWER_WINDING_IN 70     //start power winding in
+#define START_POWER_LOOSE_CABLE 60    //start power after loose cable
+#define TIME_BUTTON_DEBOUNCE 50       //time in ms for button debounce
+//EEPROM storage erea
+#define EEPROM_DIRECTION_A 0
+#define EEPROM_DIRECTION_B 1
+//PWM configuration
 #define PWM_FREQ 10000
 #define PWM_RESOLUTION_BITS 8
 #define PWM_CHANNEL_A 0
@@ -68,7 +68,7 @@ uint16_t timer_LED_a = 0;                //LED
 uint32_t timer_start_cleaning_a = 0;     // T_MIN , T_MAX
 unsigned long t_timer = 0;
 uint8_t pwmMax_A = 0;
-uint8_t pwmVerzoger_A = 0;
+uint8_t time_pwm_ramp_a = 0;
 uint8_t timer_button_cable_loose_a = 0;
 uint8_t timer_cable_tight_a = 0;
 uint8_t timer_button_winding_in_a = 0;
@@ -83,7 +83,7 @@ uint8_t timer_motor_power_b = 0;         //Motor PWM
 uint16_t timer_LED_b = 0;                //LED
 uint32_t timer_start_cleaning_b = 0;     // T_MIN , T_MAX
 uint8_t pwmMax_B = 0;
-uint8_t pwmVerzoger_B = 0;
+uint8_t time_pwm_ramp_b = 0;
 uint8_t timer_button_cable_loose_b = 0;
 uint8_t timer_cable_tight_b = 0;
 uint8_t timer_button_winding_in_b = 0;
@@ -107,8 +107,8 @@ void PWM_inti(void) {
   ledcSetup(PWM_CHANNEL_B, PWM_FREQ, PWM_RESOLUTION_BITS);
   ledcWrite(PWM_CHANNEL_A, 0);
   ledcWrite(PWM_CHANNEL_B, 0);
-  ledcAttachPin(Motor_A_EN, PWM_CHANNEL_A);
-  ledcAttachPin(Motor_B_EN, PWM_CHANNEL_B);
+  ledcAttachPin(MOTOR_A_EN_PIN, PWM_CHANNEL_A);
+  ledcAttachPin(MOTOR_B_EN_PIN, PWM_CHANNEL_B);
 }
 
 
@@ -123,22 +123,22 @@ void motor_a(uint8_t a) {
   switch (a) {
     case 1:  // clockwise
       {
-        digitalWrite(Motor_A_IN2, 0);
-        digitalWrite(Motor_A_IN1, 1);
+        digitalWrite(MOTOR_A_IN2_PIN, 0);
+        digitalWrite(MOTOR_A_IN1_PIN, 1);
       }
       break;
 
     case 2:  // anticlockwise
       {
-        digitalWrite(Motor_A_IN1, 0);
-        digitalWrite(Motor_A_IN2, 1);
+        digitalWrite(MOTOR_A_IN1_PIN, 0);
+        digitalWrite(MOTOR_A_IN2_PIN, 1);
       }
       break;
 
     case 3:  // stop
       {
-        digitalWrite(Motor_A_IN2, 0);
-        digitalWrite(Motor_A_IN1, 0);
+        digitalWrite(MOTOR_A_IN2_PIN, 0);
+        digitalWrite(MOTOR_A_IN1_PIN, 0);
       }
       break;
   }
@@ -149,22 +149,22 @@ void motor_b(uint8_t a) {
   switch (a) {
     case 1:  // clockwise
       {
-        digitalWrite(Motor_B_IN2, 0);
-        digitalWrite(Motor_B_IN1, 1);
+        digitalWrite(MOTOR_B_IN2_PIN, 0);
+        digitalWrite(MOTOR_B_IN1_PIN, 1);
       }
       break;
 
     case 2:  // anticlockwise
       {
-        digitalWrite(Motor_B_IN1, 0);
-        digitalWrite(Motor_B_IN2, 1);
+        digitalWrite(MOTOR_B_IN1_PIN, 0);
+        digitalWrite(MOTOR_B_IN2_PIN, 1);
       }
       break;
 
     case 3:  // stop
       {
-        digitalWrite(Motor_B_IN2, 0);
-        digitalWrite(Motor_B_IN1, 0);
+        digitalWrite(MOTOR_B_IN2_PIN, 0);
+        digitalWrite(MOTOR_B_IN1_PIN, 0);
       }
       break;
   }
@@ -172,7 +172,7 @@ void motor_b(uint8_t a) {
 #endif
 
 void set_motorpower_a(void) {
-  if (timer_motor_power_a >= pwmVerzoger_A) {
+  if (timer_motor_power_a >= time_pwm_ramp_a) {
     if (motor_power_a < pwmMax_A) {
       motor_power_a++;
     }
@@ -183,7 +183,7 @@ void set_motorpower_a(void) {
 
 #if (DUAL_MOTOR_CONTROLLER)
 void set_motorpower_b(void) {
-  if (timer_motor_power_b >= pwmVerzoger_B) {
+  if (timer_motor_power_b >= time_pwm_ramp_b) {
     if (motor_power_b < pwmMax_B) {
       motor_power_b++;
     }
@@ -195,9 +195,9 @@ void set_motorpower_b(void) {
 
 void set_motor_brake_a(void) {
   timer_motor_power_a = 0;
-  motor_power_a = BREMSE_START;
-  pwmVerzoger_A = VERZOGER_B;
-  pwmMax_A = BREMSE_MAX;
+  motor_power_a = START_POWER_BRAKE;
+  time_pwm_ramp_a = TIME_PWM_RAMP_BRAKE;
+  pwmMax_A = MAX_POWER_BRAKE;
   motor_a(3);
   state_cleaning_a = 7;
 }
@@ -205,9 +205,9 @@ void set_motor_brake_a(void) {
 #if (DUAL_MOTOR_CONTROLLER)
 void set_motor_brake_b(void) {
   timer_motor_power_b = 0;
-  motor_power_b = BREMSE_START;
-  pwmVerzoger_B = VERZOGER_B;
-  pwmMax_B = BREMSE_MAX;
+  motor_power_b = START_POWER_BRAKE;
+  time_pwm_ramp_b = TIME_PWM_RAMP_BRAKE;
+  pwmMax_B = MAX_POWER_BRAKE;
   motor_b(3);
   state_cleaning_b = 7;
 }
@@ -218,9 +218,9 @@ void set_winding_in_a(void) {
   timer_LED_a = 0;
   timer_motor_power_a = 0;
   timer_start_cleaning_a = 0;
-  motor_power_a = START_POWER_F;
-  pwmVerzoger_A = VERZOGER_E;
-  pwmMax_A = EINZIEH_MAX_E;
+  motor_power_a = START_POWER_WINDING_IN;
+  time_pwm_ramp_a = TIME_PWM_RAMP_WINDING_IN;
+  pwmMax_A = MAX_POWER_WINDING_IN;
   if (direction_of_rotation_A == 1) {
     motor_a(2);
     direction_of_rotation_A_old = 2;
@@ -236,9 +236,9 @@ void set_winding_in_b(void) {
   timer_LED_b = 0;
   timer_motor_power_b = 0;
   timer_start_cleaning_b = 0;
-  motor_power_b = START_POWER_F;
-  pwmVerzoger_B = VERZOGER_E;
-  pwmMax_B = EINZIEH_MAX_E;
+  motor_power_b = START_POWER_WINDING_IN;
+  time_pwm_ramp_b = TIME_PWM_RAMP_WINDING_IN;
+  pwmMax_B = MAX_POWER_WINDING_IN;
   if (direction_of_rotation_B == 1) {
     motor_b(2);
     direction_of_rotation_B_old = 2;
@@ -254,9 +254,9 @@ void set_start_cleaning_a(void) {
   timer_motor_power_a = 0;
   timer_LED_a = 0;
   timer_start_cleaning_a = 0;
-  motor_power_a = START_POWER_P;
-  pwmVerzoger_A = VERZOGER_P;
-  pwmMax_A = EINZIEH_MAX_P;
+  motor_power_a = START_POWER_CLEANING;
+  time_pwm_ramp_a = TIME_PWM_RAMP_CLEANING;
+  pwmMax_A = MAX_POWER_CLEANING;
   motor_a(direction_of_rotation_A);
   timer_button_long_press_a = 0;
   direction_of_rotation_A_old = direction_of_rotation_A;
@@ -268,9 +268,9 @@ void set_start_cleaning_b(void) {
   timer_motor_power_b = 0;
   timer_LED_b = 0;
   timer_start_cleaning_b = 0;
-  motor_power_b = START_POWER_P;
-  pwmVerzoger_B = VERZOGER_P;
-  pwmMax_B = EINZIEH_MAX_P;
+  motor_power_b = START_POWER_CLEANING;
+  time_pwm_ramp_b = TIME_PWM_RAMP_CLEANING;
+  pwmMax_B = MAX_POWER_CLEANING;
   motor_b(direction_of_rotation_B);
   timer_button_long_press_b = 0;
   direction_of_rotation_B_old = direction_of_rotation_B;
@@ -278,52 +278,52 @@ void set_start_cleaning_b(void) {
 #endif
 
 void init_io(void) {
-  pinMode(F_Fest_A_PIN, INPUT_PULLUP);
-  pinMode(F_Lose_A_PIN, INPUT_PULLUP);
-  pinMode(SAVE_PIN, INPUT_PULLUP);
-  pinMode(Motor_A_EN, OUTPUT);
-  pinMode(Motor_A_IN1, OUTPUT);
-  pinMode(Motor_A_IN2, OUTPUT);
+  pinMode(SW_CABLE_TIGHT_A_PIN, INPUT_PULLUP);
+  pinMode(SW_CABLE_LOOSE_A_PIN, INPUT_PULLUP);
+  pinMode(SAFETY_SWITCH_PIN, INPUT_PULLUP);
+  pinMode(MOTOR_A_EN_PIN, OUTPUT);
+  pinMode(MOTOR_A_IN1_PIN, OUTPUT);
+  pinMode(MOTOR_A_IN2_PIN, OUTPUT);
   pinMode(LED_A_PIN, OUTPUT);
-  pinMode(Ein_Ziehen_A_PIN, INPUT_PULLUP);
-  pinMode(Putzen_A_PIN, INPUT_PULLUP);
-  digitalWrite(Motor_A_IN2, 1);
-  digitalWrite(Motor_A_IN1, 1);
+  pinMode(BUTTON_WINDING_IN_A_PIN, INPUT_PULLUP);
+  pinMode(BUTTON_CLEANING_A_PIN, INPUT_PULLUP);
+  digitalWrite(MOTOR_A_IN2_PIN, 1);
+  digitalWrite(MOTOR_A_IN1_PIN, 1);
   digitalWrite(LED_A_PIN, 0);
 #if (DUAL_MOTOR_CONTROLLER)
-  pinMode(F_Fest_B_PIN, INPUT_PULLUP);
-  pinMode(F_Lose_B_PIN, INPUT_PULLUP);
-  pinMode(Motor_B_EN, OUTPUT);
-  pinMode(Motor_B_IN1, OUTPUT);
-  pinMode(Motor_B_IN2, OUTPUT);
+  pinMode(SW_CABLE_TIGHT_B_PIN, INPUT_PULLUP);
+  pinMode(SW_CABLE_LOOSE_B_PIN, INPUT_PULLUP);
+  pinMode(MOTOR_B_EN_PIN, OUTPUT);
+  pinMode(MOTOR_B_IN1_PIN, OUTPUT);
+  pinMode(MOTOR_B_IN2_PIN, OUTPUT);
   pinMode(LED_B_PIN, OUTPUT);
-  pinMode(Ein_Ziehen_B_PIN, INPUT_PULLUP);
-  pinMode(Putzen_B_PIN, INPUT_PULLUP);
-  digitalWrite(Motor_B_IN2, 1);
-  digitalWrite(Motor_B_IN1, 1);
+  pinMode(BUTTON_WINDING_IN_B_PIN, INPUT_PULLUP);
+  pinMode(BUTTON_CLEANING_B_PIN, INPUT_PULLUP);
+  digitalWrite(MOTOR_B_IN2_PIN, 1);
+  digitalWrite(MOTOR_B_IN1_PIN, 1);
   digitalWrite(LED_B_PIN, 0);
 #endif
 }
 
 void EEPROM_read_directions(void) {
-  direction_of_rotation_A = EEPROM.read(eeRichtung_A);
+  direction_of_rotation_A = EEPROM.read(EEPROM_DIRECTION_A);
   if (direction_of_rotation_A != 1 && direction_of_rotation_A != 2) {
     direction_of_rotation_A = 1;
-    eeprom_update_byte(eeRichtung_A, direction_of_rotation_A);
+    eeprom_update_byte(EEPROM_DIRECTION_A, direction_of_rotation_A);
   }
 #if (DUAL_MOTOR_CONTROLLER)
-  direction_of_rotation_B = EEPROM.read(eeRichtung_B);
+  direction_of_rotation_B = EEPROM.read(EEPROM_DIRECTION_B);
   if (direction_of_rotation_B != 1 && direction_of_rotation_B != 2) {
     direction_of_rotation_B = 1;
-    eeprom_update_byte(eeRichtung_B, direction_of_rotation_B);
+    eeprom_update_byte(EEPROM_DIRECTION_B, direction_of_rotation_B);
   }
 #endif
 }
 
 void EEPROM_write_directions(void) {
-  eeprom_update_byte(eeRichtung_A, direction_of_rotation_A);
+  eeprom_update_byte(EEPROM_DIRECTION_A, direction_of_rotation_A);
 #if (DUAL_MOTOR_CONTROLLER)
-  eeprom_update_byte(eeRichtung_B, direction_of_rotation_B);
+  eeprom_update_byte(EEPROM_DIRECTION_B, direction_of_rotation_B);
 #endif
 }
 
@@ -348,45 +348,45 @@ void change_direction_b(void) {
 #endif
 
 void button_debounce(void) {
-  if (digitalRead(F_Lose_A_PIN) == 0 && timer_button_cable_loose_a < 255) {
+  if (digitalRead(SW_CABLE_LOOSE_A_PIN) == 0 && timer_button_cable_loose_a < 255) {
     timer_button_cable_loose_a++;
-  } else if (digitalRead(F_Lose_A_PIN) && timer_button_cable_loose_a > 0) {
+  } else if (digitalRead(SW_CABLE_LOOSE_A_PIN) && timer_button_cable_loose_a > 0) {
     timer_button_cable_loose_a--;
   }
-  if (digitalRead(F_Fest_A_PIN) == 0 && timer_cable_tight_a < 255) {
+  if (digitalRead(SW_CABLE_TIGHT_A_PIN) == 0 && timer_cable_tight_a < 255) {
     timer_cable_tight_a++;
-  } else if (digitalRead(F_Fest_A_PIN) && timer_cable_tight_a > 0) {
+  } else if (digitalRead(SW_CABLE_TIGHT_A_PIN) && timer_cable_tight_a > 0) {
     timer_cable_tight_a--;
   }
-  if (digitalRead(Ein_Ziehen_A_PIN) == 0 && timer_button_winding_in_a < 255) {
+  if (digitalRead(BUTTON_WINDING_IN_A_PIN) == 0 && timer_button_winding_in_a < 255) {
     timer_button_winding_in_a++;
-  } else if (digitalRead(Ein_Ziehen_A_PIN) && timer_button_winding_in_a > 0) {
+  } else if (digitalRead(BUTTON_WINDING_IN_A_PIN) && timer_button_winding_in_a > 0) {
     timer_button_winding_in_a--;
   }
-  if (digitalRead(Putzen_A_PIN) == 0 && timer_button_start_cleaning_a < 255) {
+  if (digitalRead(BUTTON_CLEANING_A_PIN) == 0 && timer_button_start_cleaning_a < 255) {
     timer_button_start_cleaning_a++;
-  } else if (digitalRead(Putzen_A_PIN) && timer_button_start_cleaning_a > 0) {
+  } else if (digitalRead(BUTTON_CLEANING_A_PIN) && timer_button_start_cleaning_a > 0) {
     timer_button_start_cleaning_a--;
   }
 #if (DUAL_MOTOR_CONTROLLER)
-  if (digitalRead(F_Lose_B_PIN) == 0 && timer_button_cable_loose_b < 255) {
+  if (digitalRead(SW_CABLE_LOOSE_B_PIN) == 0 && timer_button_cable_loose_b < 255) {
     timer_button_cable_loose_b++;
-  } else if (digitalRead(F_Lose_B_PIN) && timer_button_cable_loose_b > 0) {
+  } else if (digitalRead(SW_CABLE_LOOSE_B_PIN) && timer_button_cable_loose_b > 0) {
     timer_button_cable_loose_b--;
   }
-  if (digitalRead(F_Fest_B_PIN) == 0 && timer_cable_tight_b < 255) {
+  if (digitalRead(SW_CABLE_TIGHT_B_PIN) == 0 && timer_cable_tight_b < 255) {
     timer_cable_tight_b++;
-  } else if (digitalRead(F_Fest_B_PIN) && timer_cable_tight_b > 0) {
+  } else if (digitalRead(SW_CABLE_TIGHT_B_PIN) && timer_cable_tight_b > 0) {
     timer_cable_tight_b--;
   }
-  if (digitalRead(Ein_Ziehen_B_PIN) == 0 && timer_button_winding_in_b < 255) {
+  if (digitalRead(BUTTON_WINDING_IN_B_PIN) == 0 && timer_button_winding_in_b < 255) {
     timer_button_winding_in_b++;
-  } else if (digitalRead(Ein_Ziehen_B_PIN) && timer_button_winding_in_b > 0) {
+  } else if (digitalRead(BUTTON_WINDING_IN_B_PIN) && timer_button_winding_in_b > 0) {
     timer_button_winding_in_b--;
   }
-  if (digitalRead(Putzen_B_PIN) == 0 && timer_button_start_cleaning_b < 255) {
+  if (digitalRead(BUTTON_CLEANING_B_PIN) == 0 && timer_button_start_cleaning_b < 255) {
     timer_button_start_cleaning_b++;
-  } else if (digitalRead(Putzen_B_PIN) && timer_button_start_cleaning_b > 0) {
+  } else if (digitalRead(BUTTON_CLEANING_B_PIN) && timer_button_start_cleaning_b > 0) {
     timer_button_start_cleaning_b--;
   }
 #endif
@@ -398,14 +398,14 @@ void setTimer(void) {
     timer_start_cleaning_a++;
     timer_motor_power_a++;
     timer_LED_a++;
-    if (timer_button_start_cleaning_a >= TASTER_Debounce && state_cleaning_a == 0) {
+    if (timer_button_start_cleaning_a >= TIME_BUTTON_DEBOUNCE && state_cleaning_a == 0) {
       timer_button_long_press_a = timer_button_long_press_a + 1;
     }
 #if (DUAL_MOTOR_CONTROLLER)
     timer_start_cleaning_b++;
     timer_motor_power_b++;
     timer_LED_b++;
-    if (timer_button_start_cleaning_b >= TASTER_Debounce && state_cleaning_b == 0) {
+    if (timer_button_start_cleaning_b >= TIME_BUTTON_DEBOUNCE && state_cleaning_b == 0) {
       timer_button_long_press_b = timer_button_long_press_b + 1;
     }
 #endif
@@ -415,18 +415,18 @@ void setTimer(void) {
 }
 
 void read_Buttons(void) {
-  if (digitalRead(SAVE_PIN) == 0) {
-    if (timer_button_winding_in_a >= TASTER_Debounce && state_cleaning_a == 0) {
+  if (digitalRead(SAFETY_SWITCH_PIN) == 0) {
+    if (timer_button_winding_in_a >= TIME_BUTTON_DEBOUNCE && state_cleaning_a == 0) {
       set_winding_in_a();
     }
-    if (state_cleaning_a == 0 && timer_button_long_press_a >= T_Taster_Lang) {
+    if (state_cleaning_a == 0 && timer_button_long_press_a >= TIME_LONG_PRESS) {
       set_start_cleaning_a();
     }
 #if (DUAL_MOTOR_CONTROLLER)
-    if (timer_button_winding_in_b >= TASTER_Debounce && state_cleaning_b == 0) {
+    if (timer_button_winding_in_b >= TIME_BUTTON_DEBOUNCE && state_cleaning_b == 0) {
       set_winding_in_b();
     }
-    if (state_cleaning_b == 0 && timer_button_long_press_b >= T_Taster_Lang) {
+    if (state_cleaning_b == 0 && timer_button_long_press_b >= TIME_LONG_PRESS) {
       set_start_cleaning_b();
     }
 #endif
@@ -504,127 +504,127 @@ void loop() {
   }
 #endif
   if (state_cleaning_a == 1) {
-    if (timer_button_start_cleaning_a <= TASTER_Debounce) {
-      if (timer_start_cleaning_a >= T_MAX_P) {
+    if (timer_button_start_cleaning_a <= TIME_BUTTON_DEBOUNCE) {
+      if (timer_start_cleaning_a >= TIME_MAX_CLEANING) {
         state_cleaning_a = 6;
       }
-      if ((timer_start_cleaning_a >= T_MIN_P) && timer_cable_tight_a >= TASTER_Debounce) {
+      if ((timer_start_cleaning_a >= TIME_MIN_CLEANING) && timer_cable_tight_a >= TIME_BUTTON_DEBOUNCE) {
         state_cleaning_a = 4;
       }
-      if (timer_button_winding_in_a >= TASTER_Debounce) {
+      if (timer_button_winding_in_a >= TIME_BUTTON_DEBOUNCE) {
         state_cleaning_a = 6;
       }
-      if (timer_start_cleaning_a >= T_MIN_P && timer_button_cable_loose_a <= 5 && cable_loose_a == 0) {
-        motor_power_a = BREMSE_L;
+      if (timer_start_cleaning_a >= TIME_MIN_CLEANING && timer_button_cable_loose_a <= 5 && cable_loose_a == 0) {
+        motor_power_a = LOOSE_POWER_BRAKE;
         cable_loose_a = 1;
         motor_a(3);
-        pwmVerzoger_A = VERZOGER_L;
+        time_pwm_ramp_a = TIME_PWM_RAMP_LOOSE_CABLE;
       }
     }
-    if (timer_LED_a == LED_T_P) {
+    if (timer_LED_a == LED_TIME_CLEANING) {
       digitalWrite(LED_A_PIN, !digitalRead(LED_A_PIN));
       timer_LED_a = 0;
     }
-    if (timer_button_cable_loose_a >= TASTER_Debounce && cable_loose_a == 1) {
-      motor_power_a = START_POWER_L;
+    if (timer_button_cable_loose_a >= TIME_BUTTON_DEBOUNCE && cable_loose_a == 1) {
+      motor_power_a = START_POWER_LOOSE_CABLE;
       motor_a(direction_of_rotation_A_old);
-      pwmVerzoger_A = VERZOGER_L;
+      time_pwm_ramp_a = TIME_PWM_RAMP_LOOSE_CABLE;
       cable_loose_a = 0;
     }
   }
   if (state_cleaning_a == 2) {
-    if (timer_button_winding_in_a <= TASTER_Debounce) {
+    if (timer_button_winding_in_a <= TIME_BUTTON_DEBOUNCE) {
       // maximale Einziehzeit erreicht
-      if (timer_start_cleaning_a >= T_MAX_E) {
+      if (timer_start_cleaning_a >= TIME_MAX_WINDING_IN) {
         state_cleaning_a = 6;
       }
       //Stopp bei drücken des Putzen Pins
-      if (timer_button_start_cleaning_a >= TASTER_Debounce) {
+      if (timer_button_start_cleaning_a >= TIME_BUTTON_DEBOUNCE) {
         state_cleaning_a = 6;
       }
       // Stopp bei erreichen des Fest-Tasters
-      if (timer_cable_tight_a >= TASTER_Debounce) {
+      if (timer_cable_tight_a >= TIME_BUTTON_DEBOUNCE) {
         state_cleaning_a = 5;
       }
-      if (timer_start_cleaning_a >= T_MIN_P && timer_button_cable_loose_a <= 5 && cable_loose_a == 0) {
-        motor_power_a = BREMSE_L;
+      if (timer_start_cleaning_a >= TIME_MIN_CLEANING && timer_button_cable_loose_a <= 5 && cable_loose_a == 0) {
+        motor_power_a = LOOSE_POWER_BRAKE;
         cable_loose_a = 1;
         motor_a(3);
-        pwmVerzoger_A = VERZOGER_L;
+        time_pwm_ramp_a = TIME_PWM_RAMP_LOOSE_CABLE;
       }
     }
-    // LED Blinken
-    if (timer_LED_a >= LED_T_E) {
+    // LED Blink
+    if (timer_LED_a >= LED_TIME_WINDING_IN) {
       digitalWrite(LED_A_PIN, !digitalRead(LED_A_PIN));
       timer_LED_a = 0;
     }
-    if (timer_button_cable_loose_a >= TASTER_Debounce && cable_loose_a == 1) {
-      motor_power_a = START_POWER_L;
+    if (timer_button_cable_loose_a >= TIME_BUTTON_DEBOUNCE && cable_loose_a == 1) {
+      motor_power_a = START_POWER_LOOSE_CABLE;
       motor_a(direction_of_rotation_A_old);
-      pwmVerzoger_A = VERZOGER_L;
+      time_pwm_ramp_a = TIME_PWM_RAMP_LOOSE_CABLE;
       cable_loose_a = 0;
     }
   }
 #if (DUAL_MOTOR_CONTROLLER)
   if (state_cleaning_b == 1) {
-    if (timer_button_start_cleaning_b <= TASTER_Debounce) {
-      if (timer_start_cleaning_b >= T_MAX_P) {
+    if (timer_button_start_cleaning_b <= TIME_BUTTON_DEBOUNCE) {
+      if (timer_start_cleaning_b >= TIME_MAX_CLEANING) {
         state_cleaning_b = 6;
       }
-      if ((timer_start_cleaning_b >= T_MIN_P) && timer_cable_tight_b >= TASTER_Debounce) {
+      if ((timer_start_cleaning_b >= TIME_MIN_CLEANING) && timer_cable_tight_b >= TIME_BUTTON_DEBOUNCE) {
         state_cleaning_b = 4;
       }
-      if (timer_button_winding_in_b >= TASTER_Debounce) {
+      if (timer_button_winding_in_b >= TIME_BUTTON_DEBOUNCE) {
         state_cleaning_b = 6;
       }
-      if (timer_start_cleaning_b >= T_MIN_P && timer_button_cable_loose_b <= 5 && cable_loose_b == 0) {
-        motor_power_b = BREMSE_L;
+      if (timer_start_cleaning_b >= TIME_MIN_CLEANING && timer_button_cable_loose_b <= 5 && cable_loose_b == 0) {
+        motor_power_b = LOOSE_POWER_BRAKE;
         motor_b(3);
-        pwmVerzoger_B = VERZOGER_L;
+        time_pwm_ramp_b = TIME_PWM_RAMP_LOOSE_CABLE;
         cable_loose_b = 1;
       }
     }
-    if (timer_LED_b == LED_T_P) {
+    if (timer_LED_b == LED_TIME_CLEANING) {
       digitalWrite(LED_B_PIN, !digitalRead(LED_B_PIN));
       timer_LED_b = 0;
     }
-    if (timer_button_cable_loose_b >= TASTER_Debounce && cable_loose_b == 1) {
-      motor_power_b = START_POWER_L;
+    if (timer_button_cable_loose_b >= TIME_BUTTON_DEBOUNCE && cable_loose_b == 1) {
+      motor_power_b = START_POWER_LOOSE_CABLE;
       motor_b(direction_of_rotation_B_old);
-      pwmVerzoger_B = VERZOGER_L;
+      time_pwm_ramp_b = TIME_PWM_RAMP_LOOSE_CABLE;
       cable_loose_b = 0;
     }
   }
   if (state_cleaning_b == 2) {
-    if (timer_button_winding_in_b <= TASTER_Debounce) {
+    if (timer_button_winding_in_b <= TIME_BUTTON_DEBOUNCE) {
       // maximale Einziehzeit erreicht
-      if (timer_start_cleaning_b >= T_MAX_E) {
+      if (timer_start_cleaning_b >= TIME_MAX_WINDING_IN) {
         state_cleaning_b = 6;
       }
       //Stopp bei drücken des Putzen Pins
-      if (timer_button_start_cleaning_b >= TASTER_Debounce) {
+      if (timer_button_start_cleaning_b >= TIME_BUTTON_DEBOUNCE) {
         state_cleaning_b = 6;
       }
       // Stopp bei erreichen des Fest-Tasters
-      if (timer_cable_tight_b >= TASTER_Debounce) {
+      if (timer_cable_tight_b >= TIME_BUTTON_DEBOUNCE) {
         state_cleaning_b = 5;
       }
-      if (timer_start_cleaning_b >= T_MIN_P && timer_button_cable_loose_b <= 5 && cable_loose_b == 0) {
-        motor_power_b = BREMSE_L;
+      if (timer_start_cleaning_b >= TIME_MIN_CLEANING && timer_button_cable_loose_b <= 5 && cable_loose_b == 0) {
+        motor_power_b = LOOSE_POWER_BRAKE;
         motor_b(3);
-        pwmVerzoger_B = VERZOGER_L;
+        time_pwm_ramp_b = TIME_PWM_RAMP_LOOSE_CABLE;
         cable_loose_b = 1;
       }
     }
     // LED Blinken
-    if (timer_LED_b >= LED_T_E) {
+    if (timer_LED_b >= LED_TIME_WINDING_IN) {
       digitalWrite(LED_B_PIN, !digitalRead(LED_B_PIN));
       timer_LED_b = 0;
     }
-    if (timer_button_cable_loose_b >= TASTER_Debounce && cable_loose_b == 1) {
-      motor_power_b = START_POWER_L;
+    if (timer_button_cable_loose_b >= TIME_BUTTON_DEBOUNCE && cable_loose_b == 1) {
+      motor_power_b = START_POWER_LOOSE_CABLE;
       motor_b(direction_of_rotation_B_old);
-      pwmVerzoger_B = VERZOGER_L;
+      time_pwm_ramp_b = TIME_PWM_RAMP_LOOSE_CABLE;
       cable_loose_b = 0;
     }
   }
