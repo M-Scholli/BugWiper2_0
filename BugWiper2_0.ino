@@ -4,29 +4,30 @@
 #include <EEPROM.h>
 
 #define DUAL_MOTOR_CONTROLLER 0
+#define DEBUG_SERIAL_OUT 1
 
 //Button PINs
 #define BUTTON_CLEANING_A_PIN 5
 #define BUTTON_WINDING_IN_A_PIN 18
 #define BUTTON_CLEANING_B_PIN 2
-#define BUTTON_WINDING_IN_B_PIN 3
-#define SW_CABLE_TIGHT_A_PIN 11
+#define BUTTON_WINDING_IN_B_PIN 22
+#define SW_CABLE_TIGHT_A_PIN 13
 #define SW_CABLE_LOOSE_A_PIN 12
 #define SW_CABLE_TIGHT_B_PIN 34
 #define SW_CABLE_LOOSE_B_PIN 35
 #define SAFETY_SWITCH_PIN 4  // Saftyswitch to deaktivate the BugWiper
 //LED configuration
-#define LED_A_PIN 13
+#define LED_A_PIN 14
 #define LED_B_PIN 36
 #define LED_TIME_CLEANING 500    //time blinking LED
 #define LED_TIME_WINDING_IN 250  //time blinking LED
 //Motor PINs
 #define MOTOR_A_IN1_PIN 25
-#define MOTOR_A_IN2_PIN 26
-#define MOTOR_A_EN_PIN 27  //PWM Pin
-#define MOTOR_B_IN1_PIN 1
-#define MOTOR_B_IN2_PIN 14
-#define MOTOR_B_EN_PIN 10  //PWM Pin
+#define MOTOR_A_IN2_PIN 31
+#define MOTOR_A_EN_PIN 15  //PWM Pin
+#define MOTOR_B_IN1_PIN 39
+#define MOTOR_B_IN2_PIN 32
+#define MOTOR_B_EN_PIN 26  //PWM Pin
 // Kalibrierung des Putzvorganges
 #define TIME_LONG_PRESS 400           //time in ms for long button press
 #define MAX_POWER_CLEANING 255        //max power while cleaning
@@ -102,13 +103,20 @@ uint8_t timer_button_start_cleaning_b = 0;
 uint8_t state_cleaning_a = 0;
 uint8_t state_cleaning_b = 0;
 
+const int pwm_a_pin = MOTOR_A_EN_PIN;
+#if (DUAL_MOTOR_CONTROLLER)
+const int pwm_b_pin = MOTOR_B_EN_PIN;
+#endif
+
 void PWM_inti(void) {
   ledcSetup(PWM_CHANNEL_A, PWM_FREQ, PWM_RESOLUTION_BITS);
-  ledcSetup(PWM_CHANNEL_B, PWM_FREQ, PWM_RESOLUTION_BITS);
+  ledcAttachPin(pwm_a_pin, PWM_CHANNEL_A);
   ledcWrite(PWM_CHANNEL_A, 0);
+#if (DUAL_MOTOR_CONTROLLER)
   ledcWrite(PWM_CHANNEL_B, 0);
-  ledcAttachPin(MOTOR_A_EN_PIN, PWM_CHANNEL_A);
-  ledcAttachPin(MOTOR_B_EN_PIN, PWM_CHANNEL_B);
+  ledcSetup(PWM_CHANNEL_B, PWM_FREQ, PWM_RESOLUTION_BITS);
+  ledcAttachPin(pwm_b_pin, PWM_CHANNEL_B);
+#endif
 }
 
 
@@ -278,6 +286,9 @@ void set_start_cleaning_b(void) {
 #endif
 
 void init_io(void) {
+#if (DEBUG_SERIAL_OUT)
+  Serial.println("Init PINs A:");
+#endif
   pinMode(SW_CABLE_TIGHT_A_PIN, INPUT_PULLUP);
   pinMode(SW_CABLE_LOOSE_A_PIN, INPUT_PULLUP);
   pinMode(SAFETY_SWITCH_PIN, INPUT_PULLUP);
@@ -291,6 +302,9 @@ void init_io(void) {
   digitalWrite(MOTOR_A_IN1_PIN, 1);
   digitalWrite(LED_A_PIN, 0);
 #if (DUAL_MOTOR_CONTROLLER)
+#if (DEBUG_SERIAL_OUT)
+  Serial.println("Init PINs B:");
+#endif
   pinMode(SW_CABLE_TIGHT_B_PIN, INPUT_PULLUP);
   pinMode(SW_CABLE_LOOSE_B_PIN, INPUT_PULLUP);
   pinMode(MOTOR_B_EN_PIN, OUTPUT);
@@ -486,6 +500,10 @@ void check_end(void) {
 
 //The setup function is called once at startup of the sketch
 void setup() {
+#if (DEBUG_SERIAL_OUT)
+  Serial.begin(115200);
+  Serial.println("BugWiper start programm");
+#endif
   PWM_inti();
   init_io();
   EEPROM_read_directions();
