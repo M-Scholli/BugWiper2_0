@@ -3,7 +3,7 @@
 #include <stdint.h>
 #include <EEPROM.h>
 
-#define DUAL_MOTOR_CONTROLLER 1
+#define DUAL_MOTOR_CONTROLLER 0
 
 //Taster Pins
 #define Putzen_A_PIN 5
@@ -57,7 +57,7 @@
 #define PWM_PIN_A 0
 #define PWM_PIN_B 1
 
-//Globale Variablen
+//Global variables
 int8_t direction_of_rotation_A;
 int8_t direction_of_rotation_A_old;
 int8_t cable_loose_a = 0;
@@ -118,24 +118,24 @@ void eeprom_update_byte(int adresse, uint8_t wert) {
   }
 }
 
-// Schaltet den Motor 1= richtung 1;	2=richtung 2;	3=stopp;
+// switch the motor 1 = direction 1;	2 = direction 2;	3 = stop;
 void motor_a(uint8_t a) {
   switch (a) {
-    case 1:
+    case 1:  // clockwise
       {
         digitalWrite(Motor_A_IN2, 0);
         digitalWrite(Motor_A_IN1, 1);
       }
       break;
 
-    case 2:
+    case 2:  // anticlockwise
       {
         digitalWrite(Motor_A_IN1, 0);
         digitalWrite(Motor_A_IN2, 1);
       }
       break;
 
-    case 3:
+    case 3:  // stop
       {
         digitalWrite(Motor_A_IN2, 0);
         digitalWrite(Motor_A_IN1, 0);
@@ -144,23 +144,24 @@ void motor_a(uint8_t a) {
   }
 }
 
+#if (DUAL_MOTOR_CONTROLLER)
 void motor_b(uint8_t a) {
   switch (a) {
-    case 1:
+    case 1:  // clockwise
       {
         digitalWrite(Motor_B_IN2, 0);
         digitalWrite(Motor_B_IN1, 1);
       }
       break;
 
-    case 2:
+    case 2:  // anticlockwise
       {
         digitalWrite(Motor_B_IN1, 0);
         digitalWrite(Motor_B_IN2, 1);
       }
       break;
 
-    case 3:
+    case 3:  // stop
       {
         digitalWrite(Motor_B_IN2, 0);
         digitalWrite(Motor_B_IN1, 0);
@@ -168,6 +169,7 @@ void motor_b(uint8_t a) {
       break;
   }
 }
+#endif
 
 void set_motorpower_a(void) {
   if (timer_motor_power_a >= pwmVerzoger_A) {
@@ -179,6 +181,7 @@ void set_motorpower_a(void) {
   ledcWrite(PWM_CHANNEL_A, motor_power_a);
 }
 
+#if (DUAL_MOTOR_CONTROLLER)
 void set_motorpower_b(void) {
   if (timer_motor_power_b >= pwmVerzoger_B) {
     if (motor_power_b < pwmMax_B) {
@@ -188,8 +191,9 @@ void set_motorpower_b(void) {
   }
   ledcWrite(PWM_CHANNEL_B, motor_power_b);
 }
+#endif
 
-void set_bremse_a(void) {
+void set_motor_brake_a(void) {
   timer_motor_power_a = 0;
   motor_power_a = BREMSE_START;
   pwmVerzoger_A = VERZOGER_B;
@@ -198,7 +202,8 @@ void set_bremse_a(void) {
   state_cleaning_a = 7;
 }
 
-void set_bremse_b(void) {
+#if (DUAL_MOTOR_CONTROLLER)
+void set_motor_brake_b(void) {
   timer_motor_power_b = 0;
   motor_power_b = BREMSE_START;
   pwmVerzoger_B = VERZOGER_B;
@@ -206,8 +211,9 @@ void set_bremse_b(void) {
   motor_b(3);
   state_cleaning_b = 7;
 }
+#endif
 
-void set_einziehen_A(void) {
+void set_winding_in_a(void) {
   state_cleaning_a = 2;
   timer_LED_a = 0;
   timer_motor_power_a = 0;
@@ -224,7 +230,8 @@ void set_einziehen_A(void) {
   }
 }
 
-void set_einziehen_B(void) {
+#if (DUAL_MOTOR_CONTROLLER)
+void set_winding_in_b(void) {
   state_cleaning_b = 2;
   timer_LED_b = 0;
   timer_motor_power_b = 0;
@@ -240,8 +247,9 @@ void set_einziehen_B(void) {
     direction_of_rotation_B_old = 1;
   }
 }
+#endif
 
-void set_putzen_A(void) {
+void set_start_cleaning_a(void) {
   state_cleaning_a = 1;
   timer_motor_power_a = 0;
   timer_LED_a = 0;
@@ -254,7 +262,8 @@ void set_putzen_A(void) {
   direction_of_rotation_A_old = direction_of_rotation_A;
 }
 
-void set_putzen_B(void) {
+#if (DUAL_MOTOR_CONTROLLER)
+void set_start_cleaning_b(void) {
   state_cleaning_b = 1;
   timer_motor_power_b = 0;
   timer_LED_b = 0;
@@ -266,215 +275,234 @@ void set_putzen_B(void) {
   timer_button_long_press_b = 0;
   direction_of_rotation_B_old = direction_of_rotation_B;
 }
+#endif
 
 void init_io(void) {
   pinMode(F_Fest_A_PIN, INPUT_PULLUP);
   pinMode(F_Lose_A_PIN, INPUT_PULLUP);
-  pinMode(F_Fest_B_PIN, INPUT_PULLUP);
-  pinMode(F_Lose_B_PIN, INPUT_PULLUP);
   pinMode(SAVE_PIN, INPUT_PULLUP);
   pinMode(Motor_A_EN, OUTPUT);
   pinMode(Motor_A_IN1, OUTPUT);
   pinMode(Motor_A_IN2, OUTPUT);
+  pinMode(LED_A_PIN, OUTPUT);
+  pinMode(Ein_Ziehen_A_PIN, INPUT_PULLUP);
+  pinMode(Putzen_A_PIN, INPUT_PULLUP);
+  digitalWrite(Motor_A_IN2, 1);
+  digitalWrite(Motor_A_IN1, 1);
+  digitalWrite(LED_A_PIN, 0);
+#if (DUAL_MOTOR_CONTROLLER)
+  pinMode(F_Fest_B_PIN, INPUT_PULLUP);
+  pinMode(F_Lose_B_PIN, INPUT_PULLUP);
   pinMode(Motor_B_EN, OUTPUT);
   pinMode(Motor_B_IN1, OUTPUT);
   pinMode(Motor_B_IN2, OUTPUT);
-  pinMode(LED_A_PIN, OUTPUT);
   pinMode(LED_B_PIN, OUTPUT);
-  pinMode(Ein_Ziehen_A_PIN, INPUT_PULLUP);
-  pinMode(Putzen_A_PIN, INPUT_PULLUP);
   pinMode(Ein_Ziehen_B_PIN, INPUT_PULLUP);
   pinMode(Putzen_B_PIN, INPUT_PULLUP);
-  digitalWrite(Motor_A_IN2, 1);
-  digitalWrite(Motor_A_IN1, 1);
   digitalWrite(Motor_B_IN2, 1);
   digitalWrite(Motor_B_IN1, 1);
-  digitalWrite(LED_A_PIN, 0);
   digitalWrite(LED_B_PIN, 0);
+#endif
 }
 
-void lese_richtung(void) {
+void EEPROM_read_directions(void) {
   direction_of_rotation_A = EEPROM.read(eeRichtung_A);
-  direction_of_rotation_B = EEPROM.read(eeRichtung_B);
   if (direction_of_rotation_A != 1 && direction_of_rotation_A != 2) {
     direction_of_rotation_A = 1;
     eeprom_update_byte(eeRichtung_A, direction_of_rotation_A);
   }
+#if (DUAL_MOTOR_CONTROLLER)
+  direction_of_rotation_B = EEPROM.read(eeRichtung_B);
   if (direction_of_rotation_B != 1 && direction_of_rotation_B != 2) {
     direction_of_rotation_B = 1;
     eeprom_update_byte(eeRichtung_B, direction_of_rotation_B);
   }
+#endif
 }
 
-void schreibe_richtung(void) {
+void EEPROM_write_directions(void) {
   eeprom_update_byte(eeRichtung_A, direction_of_rotation_A);
+#if (DUAL_MOTOR_CONTROLLER)
   eeprom_update_byte(eeRichtung_B, direction_of_rotation_B);
+#endif
 }
 
-void aender_richtung_A(void) {
+void change_direction_a(void) {
   if (direction_of_rotation_A == 1) {
     direction_of_rotation_A = 2;
   } else if (direction_of_rotation_A == 2) {
     direction_of_rotation_A = 1;
   }
-  schreibe_richtung();
+  EEPROM_write_directions();
 }
 
-void aender_richtung_B(void) {
+#if (DUAL_MOTOR_CONTROLLER)
+void change_direction_b(void) {
   if (direction_of_rotation_B == 1) {
     direction_of_rotation_B = 2;
   } else if (direction_of_rotation_B == 2) {
     direction_of_rotation_B = 1;
   }
-  schreibe_richtung();
+  EEPROM_write_directions();
 }
+#endif
 
-void taster_debounce(void) {
+void button_debounce(void) {
   if (digitalRead(F_Lose_A_PIN) == 0 && timer_button_cable_loose_a < 255) {
     timer_button_cable_loose_a++;
   } else if (digitalRead(F_Lose_A_PIN) && timer_button_cable_loose_a > 0) {
     timer_button_cable_loose_a--;
-  }
-  if (digitalRead(F_Lose_B_PIN) == 0 && timer_button_cable_loose_b < 255) {
-    timer_button_cable_loose_b++;
-  } else if (digitalRead(F_Lose_B_PIN) && timer_button_cable_loose_b > 0) {
-    timer_button_cable_loose_b--;
   }
   if (digitalRead(F_Fest_A_PIN) == 0 && timer_cable_tight_a < 255) {
     timer_cable_tight_a++;
   } else if (digitalRead(F_Fest_A_PIN) && timer_cable_tight_a > 0) {
     timer_cable_tight_a--;
   }
-  if (digitalRead(F_Fest_B_PIN) == 0 && timer_cable_tight_b < 255) {
-    timer_cable_tight_b++;
-  } else if (digitalRead(F_Fest_B_PIN) && timer_cable_tight_b > 0) {
-    timer_cable_tight_b--;
-  }
   if (digitalRead(Ein_Ziehen_A_PIN) == 0 && timer_button_winding_in_a < 255) {
     timer_button_winding_in_a++;
   } else if (digitalRead(Ein_Ziehen_A_PIN) && timer_button_winding_in_a > 0) {
     timer_button_winding_in_a--;
-  }
-  if (digitalRead(Ein_Ziehen_B_PIN) == 0 && timer_button_winding_in_b < 255) {
-    timer_button_winding_in_b++;
-  } else if (digitalRead(Ein_Ziehen_B_PIN) && timer_button_winding_in_b > 0) {
-    timer_button_winding_in_b--;
   }
   if (digitalRead(Putzen_A_PIN) == 0 && timer_button_start_cleaning_a < 255) {
     timer_button_start_cleaning_a++;
   } else if (digitalRead(Putzen_A_PIN) && timer_button_start_cleaning_a > 0) {
     timer_button_start_cleaning_a--;
   }
+#if (DUAL_MOTOR_CONTROLLER)
+  if (digitalRead(F_Lose_B_PIN) == 0 && timer_button_cable_loose_b < 255) {
+    timer_button_cable_loose_b++;
+  } else if (digitalRead(F_Lose_B_PIN) && timer_button_cable_loose_b > 0) {
+    timer_button_cable_loose_b--;
+  }
+  if (digitalRead(F_Fest_B_PIN) == 0 && timer_cable_tight_b < 255) {
+    timer_cable_tight_b++;
+  } else if (digitalRead(F_Fest_B_PIN) && timer_cable_tight_b > 0) {
+    timer_cable_tight_b--;
+  }
+  if (digitalRead(Ein_Ziehen_B_PIN) == 0 && timer_button_winding_in_b < 255) {
+    timer_button_winding_in_b++;
+  } else if (digitalRead(Ein_Ziehen_B_PIN) && timer_button_winding_in_b > 0) {
+    timer_button_winding_in_b--;
+  }
   if (digitalRead(Putzen_B_PIN) == 0 && timer_button_start_cleaning_b < 255) {
     timer_button_start_cleaning_b++;
   } else if (digitalRead(Putzen_B_PIN) && timer_button_start_cleaning_b > 0) {
     timer_button_start_cleaning_b--;
   }
+#endif
 }
 
-//zählt jede ms die Timer hoch
+//counts every ms the timer one higher
 void setTimer(void) {
   if (micros() >= t_timer) {
     timer_start_cleaning_a++;
     timer_motor_power_a++;
     timer_LED_a++;
-    timer_start_cleaning_b++;
-    timer_motor_power_b++;
-    timer_LED_b++;
     if (timer_button_start_cleaning_a >= TASTER_Debounce && state_cleaning_a == 0) {
       timer_button_long_press_a = timer_button_long_press_a + 1;
     }
+#if (DUAL_MOTOR_CONTROLLER)
+    timer_start_cleaning_b++;
+    timer_motor_power_b++;
+    timer_LED_b++;
     if (timer_button_start_cleaning_b >= TASTER_Debounce && state_cleaning_b == 0) {
       timer_button_long_press_b = timer_button_long_press_b + 1;
     }
-    taster_debounce();
+#endif
+    button_debounce();
     t_timer = t_timer + 1000;
   }
 }
 
-void tasterAbfrage(void) {
+void read_Buttons(void) {
   if (digitalRead(SAVE_PIN) == 0) {
-    // Einziehen starten Motor A
     if (timer_button_winding_in_a >= TASTER_Debounce && state_cleaning_a == 0) {
-      set_einziehen_A();
+      set_winding_in_a();
     }
-    // Putzen starten Motor A
     if (state_cleaning_a == 0 && timer_button_long_press_a >= T_Taster_Lang) {
-      set_putzen_A();
+      set_start_cleaning_a();
     }
-    // Einziehen starten Motor B
+#if (DUAL_MOTOR_CONTROLLER)
     if (timer_button_winding_in_b >= TASTER_Debounce && state_cleaning_b == 0) {
-      set_einziehen_B();
+      set_winding_in_b();
     }
-    // Putzen starten Motor B
     if (state_cleaning_b == 0 && timer_button_long_press_b >= T_Taster_Lang) {
-      set_putzen_B();
+      set_start_cleaning_b();
     }
+#endif
   }
-  // Verhindert, dass nach einem Putzvorgang direkt ein zweiter startet
+  // prevents a imediate second start cleaning after finish the first one
   if (timer_button_winding_in_a <= 5 && timer_button_start_cleaning_a <= 5
       && state_cleaning_a == 3 && timer_start_cleaning_a >= 200) {
     state_cleaning_a = 0;
   }
+#if (DUAL_MOTOR_CONTROLLER)
   if (timer_button_winding_in_b <= 5 && timer_button_start_cleaning_b <= 5
       && state_cleaning_b == 3 && timer_start_cleaning_b >= 200) {
     state_cleaning_b = 0;
   }
-  // reset des Zählers für lange Tastendrücke
+#endif
+  // reset timer for long press of buttons
   if (timer_button_start_cleaning_a <= 5) {
     timer_button_long_press_a = 0;
   }
+#if (DUAL_MOTOR_CONTROLLER)
   if (timer_button_start_cleaning_b <= 5) {
     timer_button_long_press_b = 0;
   }
+#endif
 }
 
-void check_Ende(void) {
+void check_end(void) {
   if (state_cleaning_a == 4) {
-    set_bremse_a();
-    aender_richtung_A();
+    set_motor_brake_a();
+    change_direction_a();
     digitalWrite(LED_A_PIN, 0);
   }
   if (state_cleaning_a == 5) {
-    set_bremse_a();
+    set_motor_brake_a();
     digitalWrite(LED_A_PIN, 0);
   }
   if (state_cleaning_a == 6) {
-    set_bremse_a();
+    set_motor_brake_a();
     digitalWrite(LED_A_PIN, 1);
   }
+#if (DUAL_MOTOR_CONTROLLER)
   if (state_cleaning_b == 4) {
-    set_bremse_b();
-    aender_richtung_B();
+    set_motor_brake_b();
+    change_direction_b();
     digitalWrite(LED_B_PIN, 0);
   }
   if (state_cleaning_b == 5) {
-    set_bremse_b();
+    set_motor_brake_b();
     digitalWrite(LED_B_PIN, 0);
   }
   if (state_cleaning_b == 6) {
-    set_bremse_b();
+    set_motor_brake_b();
     digitalWrite(LED_B_PIN, 1);
   }
+#endif
 }
 
 //The setup function is called once at startup of the sketch
 void setup() {
   PWM_inti();
   init_io();
-  lese_richtung();
+  EEPROM_read_directions();
 }
 
 // The loop function is called in an endless loop
 void loop() {
   setTimer();
-  tasterAbfrage();
+  read_Buttons();
   if (state_cleaning_a == 1 || state_cleaning_a == 2 || state_cleaning_a == 7) {
     set_motorpower_a();
   }
+#if (DUAL_MOTOR_CONTROLLER)
   if (state_cleaning_b == 1 || state_cleaning_b == 2 || state_cleaning_b == 7) {
     set_motorpower_b();
   }
+#endif
   if (state_cleaning_a == 1) {
     if (timer_button_start_cleaning_a <= TASTER_Debounce) {
       if (timer_start_cleaning_a >= T_MAX_P) {
@@ -537,6 +565,7 @@ void loop() {
       cable_loose_a = 0;
     }
   }
+#if (DUAL_MOTOR_CONTROLLER)
   if (state_cleaning_b == 1) {
     if (timer_button_start_cleaning_b <= TASTER_Debounce) {
       if (timer_start_cleaning_b >= T_MAX_P) {
@@ -599,15 +628,17 @@ void loop() {
       cable_loose_b = 0;
     }
   }
+#endif
   // Motor bremsen
   if (state_cleaning_a == 7 && motor_power_a == 255) {
     state_cleaning_a = 3;
     timer_start_cleaning_a = 0;
   }
+#if (DUAL_MOTOR_CONTROLLER)
   if (state_cleaning_b == 7 && motor_power_b == 255) {
     state_cleaning_b = 3;
     timer_start_cleaning_b = 0;
   }
-  // Putzen beendet?
-  check_Ende();
+#endif
+  check_end();  // cleaning finished?
 }
