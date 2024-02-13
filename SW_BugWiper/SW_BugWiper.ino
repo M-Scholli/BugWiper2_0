@@ -19,7 +19,6 @@
 #define SAFETY_SWITCH_PIN 18  // Saftyswitch to deaktivate the BugWiper
 //LED configuration
 #define LED_A_PIN 2
-#define LED_B_PIN 36
 #define LED_TIME_CLEANING 500    //time blinking LED
 #define LED_TIME_WINDING_IN 250  //time blinking LED
 //Motor PINs
@@ -27,6 +26,7 @@
 #define MOTOR_A_IN2_PIN 13
 #define MOTOR_A_EN_PIN 14  //PWM Pin
 #if (DUAL_MOTOR_CONTROLLER)
+#define LED_B_PIN 36
 #define MOTOR_B_IN1_PIN 39
 #define MOTOR_B_IN2_PIN 32
 #define MOTOR_B_EN_PIN 26  //PWM Pin
