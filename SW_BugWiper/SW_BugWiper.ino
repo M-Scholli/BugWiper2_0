@@ -70,7 +70,6 @@ uint16_t timer_button_long_press_a = 0;  // Time since start of long pressing bu
 uint8_t timer_motor_power_a = 0;         //Motor PWM
 uint16_t timer_LED_a = 0;                //LED
 uint32_t timer_start_cleaning_a = 0;     // T_MIN , T_MAX
-unsigned long t_timer = 0;
 uint8_t pwmMax_A = 0;
 uint8_t time_pwm_ramp_a = 0;
 uint8_t timer_button_cable_loose_a = 0;
@@ -113,6 +112,24 @@ const int pwm_a_pin = MOTOR_A_EN_PIN;
 const int pwm_b_pin = MOTOR_B_EN_PIN;
 #endif
 
+hw_timer_t *Timer0_Cfg = NULL;
+uint16_t counter_timer = 0;
+
+void IRAM_ATTR Timer0_ISR(void) {
+  counter_timer++;
+  if (counter_timer == 10) {
+    counter_timer = 0;
+    setTimer();
+  }
+}
+
+void Timer_init(void) {
+  Timer0_Cfg = timerBegin(0, 80, true);
+  timerAttachInterrupt(Timer0_Cfg, &Timer0_ISR, true);
+  timerAlarmWrite(Timer0_Cfg, 100, true);
+  timerAlarmEnable(Timer0_Cfg);
+}
+
 void PWM_inti(void) {
   ledcSetup(PWM_CHANNEL_A, PWM_FREQ, PWM_RESOLUTION_BITS);
   ledcAttachPin(pwm_a_pin, PWM_CHANNEL_A);
@@ -126,7 +143,6 @@ void PWM_inti(void) {
   Serial.println("Init PWMs complete");
 #endif
 }
-
 
 void eeprom_update_byte(int adresse, uint8_t wert) {
   if (EEPROM.read(adresse) != wert) {
@@ -444,24 +460,21 @@ void button_debounce(void) {
 
 //counts every ms the timer one higher
 void setTimer(void) {
-  if (micros() >= t_timer) {
-    timer_start_cleaning_a++;
-    timer_motor_power_a++;
-    timer_LED_a++;
-    if (timer_button_start_cleaning_a >= TIME_BUTTON_DEBOUNCE && state_cleaning_a == 0) {
-      timer_button_long_press_a = timer_button_long_press_a + 1;
-    }
-#if (DUAL_MOTOR_CONTROLLER)
-    timer_start_cleaning_b++;
-    timer_motor_power_b++;
-    timer_LED_b++;
-    if (timer_button_start_cleaning_b >= TIME_BUTTON_DEBOUNCE && state_cleaning_b == 0) {
-      timer_button_long_press_b = timer_button_long_press_b + 1;
-    }
-#endif
-    button_debounce();
-    t_timer = t_timer + 1000;
+  timer_start_cleaning_a++;
+  timer_motor_power_a++;
+  timer_LED_a++;
+  if (timer_button_start_cleaning_a >= TIME_BUTTON_DEBOUNCE && state_cleaning_a == 0) {
+    timer_button_long_press_a = timer_button_long_press_a + 1;
   }
+#if (DUAL_MOTOR_CONTROLLER)
+  timer_start_cleaning_b++;
+  timer_motor_power_b++;
+  timer_LED_b++;
+  if (timer_button_start_cleaning_b >= TIME_BUTTON_DEBOUNCE && state_cleaning_b == 0) {
+    timer_button_long_press_b = timer_button_long_press_b + 1;
+  }
+#endif
+  button_debounce();
 }
 
 void read_Buttons(void) {
@@ -543,6 +556,7 @@ void setup() {
   PWM_inti();
   init_io();
   EEPROM_read_directions();
+  Timer_init();
 #if (DEBUG_SERIAL_OUT)
   if (digitalRead(SAFETY_SWITCH_PIN) == 0) {
     Serial.println("SAFETY SWITCH closed");
@@ -555,7 +569,6 @@ void setup() {
 
 // The loop function is called in an endless loop
 void loop() {
-  setTimer();
   read_Buttons();
   if (state_cleaning_a == 1 || state_cleaning_a == 2 || state_cleaning_a == 7) {
     set_motorpower_a();
