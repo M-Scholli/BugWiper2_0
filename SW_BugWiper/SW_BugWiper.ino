@@ -581,6 +581,9 @@ void loop() {
         cable_loose_a = 1;
         motor_a(3);
         time_pwm_ramp_a = TIME_PWM_RAMP_LOOSE_CABLE;
+#if (DEBUG_SERIAL_OUT)
+        Serial.println("Cable is loose");
+#endif
       }
     }
     if (timer_LED_a == LED_TIME_CLEANING) {
@@ -613,6 +616,9 @@ void loop() {
         cable_loose_a = 1;
         motor_a(3);
         time_pwm_ramp_a = TIME_PWM_RAMP_LOOSE_CABLE;
+#if (DEBUG_SERIAL_OUT)
+        Serial.println("Cable is loose");
+#endif
       }
     }
     // LED Blink
