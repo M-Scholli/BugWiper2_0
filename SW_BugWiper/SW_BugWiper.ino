@@ -216,6 +216,9 @@ void set_motor_brake_a(void) {
   pwmMax_A = MAX_POWER_BRAKE;
   motor_a(3);
   state_cleaning_a = 7;
+#if (DEBUG_SERIAL_OUT)
+  Serial.println("Start braking A");
+#endif
 }
 
 #if (DUAL_MOTOR_CONTROLLER)
@@ -226,6 +229,9 @@ void set_motor_brake_b(void) {
   pwmMax_B = MAX_POWER_BRAKE;
   motor_b(3);
   state_cleaning_b = 7;
+#if (DEBUG_SERIAL_OUT)
+  Serial.println("Start braking B");
+#endif
 }
 #endif
 
@@ -244,6 +250,9 @@ void set_winding_in_a(void) {
     motor_a(1);
     direction_of_rotation_A_old = 1;
   }
+#if (DEBUG_SERIAL_OUT)
+  Serial.println("Start winding in A");
+#endif
 }
 
 #if (DUAL_MOTOR_CONTROLLER)
@@ -262,6 +271,9 @@ void set_winding_in_b(void) {
     motor_b(1);
     direction_of_rotation_B_old = 1;
   }
+#if (DEBUG_SERIAL_OUT)
+  Serial.println("Start winding in B");
+#endif
 }
 #endif
 
@@ -276,6 +288,9 @@ void set_start_cleaning_a(void) {
   motor_a(direction_of_rotation_A);
   timer_button_long_press_a = 0;
   direction_of_rotation_A_old = direction_of_rotation_A;
+#if (DEBUG_SERIAL_OUT)
+  Serial.println("Start cleaning A");
+#endif
 }
 
 #if (DUAL_MOTOR_CONTROLLER)
@@ -290,6 +305,9 @@ void set_start_cleaning_b(void) {
   motor_b(direction_of_rotation_B);
   timer_button_long_press_b = 0;
   direction_of_rotation_B_old = direction_of_rotation_B;
+#if (DEBUG_SERIAL_OUT)
+  Serial.println("Start cleaning B");
+#endif
 }
 #endif
 
