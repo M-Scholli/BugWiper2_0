@@ -6,11 +6,12 @@
 #define DUAL_MOTOR_CONTROLLER 0
 #define DEBUG_SERIAL_OUT 1
 
+// Pindiscription, follwing pins are not allowed to use: 0 (Bootselect); 2 Board LED; 1 & 3 (UART 0 for serial debug interface); 5 ?;  6, 7, 8, 9, 10 & 11 (4 MB SPI Flash); 16-17 (PSRAM)
 //Button PINs
-#define BUTTON_CLEANING_A_PIN 5
-#define BUTTON_WINDING_IN_A_PIN 18
-#define SW_CABLE_TIGHT_A_PIN 13
-#define SW_CABLE_LOOSE_A_PIN 12
+#define BUTTON_CLEANING_A_PIN 23
+#define BUTTON_WINDING_IN_A_PIN 22
+#define SW_CABLE_TIGHT_A_PIN 21
+#define SW_CABLE_LOOSE_A_PIN 19
 #if (DUAL_MOTOR_CONTROLLER)
 #define BUTTON_CLEANING_B_PIN 2
 #define BUTTON_WINDING_IN_B_PIN 22
@@ -19,14 +20,14 @@
 #endif
 #define SAFETY_SWITCH_PIN 4  // Saftyswitch to deaktivate the BugWiper
 //LED configuration
-#define LED_A_PIN 14
+#define LED_A_PIN 2
 #define LED_B_PIN 36
 #define LED_TIME_CLEANING 500    //time blinking LED
 #define LED_TIME_WINDING_IN 250  //time blinking LED
 //Motor PINs
-#define MOTOR_A_IN1_PIN 25
-#define MOTOR_A_IN2_PIN 31
-#define MOTOR_A_EN_PIN 15  //PWM Pin
+#define MOTOR_A_IN1_PIN 12
+#define MOTOR_A_IN2_PIN 13
+#define MOTOR_A_EN_PIN 14  //PWM Pin
 #if (DUAL_MOTOR_CONTROLLER)
 #define MOTOR_B_IN1_PIN 39
 #define MOTOR_B_IN2_PIN 32
