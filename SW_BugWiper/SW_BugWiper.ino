@@ -1,6 +1,4 @@
 #include <dummy.h>
-
-#include <stdint.h>
 #include <EEPROM.h>
 
 #define DUAL_MOTOR_CONTROLLER 0
@@ -18,7 +16,7 @@
 #define SW_CABLE_TIGHT_B_PIN 34
 #define SW_CABLE_LOOSE_B_PIN 35
 #endif
-#define SAFETY_SWITCH_PIN 4  // Saftyswitch to deaktivate the BugWiper
+#define SAFETY_SWITCH_PIN 18  // Saftyswitch to deaktivate the BugWiper
 //LED configuration
 #define LED_A_PIN 2
 #define LED_B_PIN 36
@@ -123,6 +121,9 @@ void PWM_inti(void) {
   ledcWrite(PWM_CHANNEL_B, 0);
   ledcSetup(PWM_CHANNEL_B, PWM_FREQ, PWM_RESOLUTION_BITS);
   ledcAttachPin(pwm_b_pin, PWM_CHANNEL_B);
+#endif
+#if (DEBUG_SERIAL_OUT)
+  Serial.println("Init PWMs complete");
 #endif
 }
 
@@ -308,6 +309,9 @@ void init_io(void) {
   digitalWrite(MOTOR_A_IN2_PIN, 1);
   digitalWrite(MOTOR_A_IN1_PIN, 1);
   digitalWrite(LED_A_PIN, 0);
+#if (DEBUG_SERIAL_OUT)
+  Serial.println("Init PINs A complete");
+#endif
 #if (DUAL_MOTOR_CONTROLLER)
 #if (DEBUG_SERIAL_OUT)
   Serial.println("Init PINs B:");
@@ -331,13 +335,22 @@ void EEPROM_read_directions(void) {
   if (direction_of_rotation_A != 1 && direction_of_rotation_A != 2) {
     direction_of_rotation_A = 1;
     eeprom_update_byte(EEPROM_DIRECTION_A, direction_of_rotation_A);
+#if (DEBUG_SERIAL_OUT)
+    Serial.println("EEPROM Error: Reset rotation direction A to 1");
+#endif
   }
 #if (DUAL_MOTOR_CONTROLLER)
   direction_of_rotation_B = EEPROM.read(EEPROM_DIRECTION_B);
   if (direction_of_rotation_B != 1 && direction_of_rotation_B != 2) {
     direction_of_rotation_B = 1;
     eeprom_update_byte(EEPROM_DIRECTION_B, direction_of_rotation_B);
+#if (DEBUG_SERIAL_OUT)
+    Serial.println("EEPROM Error: Reset rotation direction B to 1");
+#endif
   }
+#endif
+#if (DEBUG_SERIAL_OUT)
+  Serial.println("EEPROM read direction finished");
 #endif
 }
 
@@ -514,6 +527,14 @@ void setup() {
   PWM_inti();
   init_io();
   EEPROM_read_directions();
+#if (DEBUG_SERIAL_OUT)
+  if (digitalRead(SAFETY_SWITCH_PIN) == 0) {
+    Serial.println("SAFETY SWITCH closed");
+  } else {
+    Serial.println("WARNING!!! SAFETY SWITCH open");
+    Serial.println("Close the SAFETY SWITCH to operate the BugWiper");
+  }
+#endif
 }
 
 // The loop function is called in an endless loop
