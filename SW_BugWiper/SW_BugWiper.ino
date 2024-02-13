@@ -2,7 +2,7 @@
 #include <EEPROM.h>
 
 #define DUAL_MOTOR_CONTROLLER 0
-#define DEBUG_SERIAL_OUT 1
+#define DEBUG_SERIAL_OUT 2
 
 // Pindiscription, follwing pins are not allowed to use: 0 (Bootselect); 2 Board LED; 1 & 3 (UART 0 for serial debug interface); 5 ?;  6, 7, 8, 9, 10 & 11 (4 MB SPI Flash); 16-17 (PSRAM)
 //Button PINs
@@ -25,11 +25,13 @@
 #define MOTOR_A_IN1_PIN 12
 #define MOTOR_A_IN2_PIN 13
 #define MOTOR_A_EN_PIN 14  //PWM Pin
+#define MOTOR_A_CURRENT_SENSE_PIN 32
 #if (DUAL_MOTOR_CONTROLLER)
 #define LED_B_PIN 36
 #define MOTOR_B_IN1_PIN 39
 #define MOTOR_B_IN2_PIN 32
 #define MOTOR_B_EN_PIN 26  //PWM Pin
+#define MOTOR_B_CURRENT_SENSE_PIN 34
 #endif
 // Kalibrierung des Putzvorganges
 #define TIME_LONG_PRESS 400           //time in ms for long button press
@@ -113,10 +115,12 @@ const int pwm_b_pin = MOTOR_B_EN_PIN;
 #endif
 
 hw_timer_t *Timer0_Cfg = NULL;
-uint16_t counter_timer = 0;
+volatile uint16_t counter_timer = 0;
+volatile uint16_t ADC_current_sense_a = 0;
 
 void IRAM_ATTR Timer0_ISR(void) {
   counter_timer++;
+  ADC_current_sense_a = analogRead(MOTOR_A_CURRENT_SENSE_PIN);
   if (counter_timer == 10) {
     counter_timer = 0;
     setTimer();
@@ -722,4 +726,7 @@ void loop() {
   }
 #endif
   check_end();  // cleaning finished?
+#if (DEBUG_SERIAL_OUT >= 2)
+  Serial.println(ADC_current_sense_a);
+#endif
 }
