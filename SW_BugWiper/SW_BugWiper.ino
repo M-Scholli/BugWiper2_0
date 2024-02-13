@@ -26,6 +26,7 @@
 #define MOTOR_A_IN2_PIN 13
 #define MOTOR_A_EN_PIN 14  //PWM Pin
 #define MOTOR_A_CURRENT_SENSE_PIN 32
+#define MOTOR_CURRENT_STOP 2000
 #if (DUAL_MOTOR_CONTROLLER)
 #define LED_B_PIN 36
 #define MOTOR_B_IN1_PIN 39
@@ -104,9 +105,9 @@ uint8_t timer_button_start_cleaning_b = 0;
  6 = ERROR
  7 = Stopp
  */
-uint8_t state_cleaning_a = 0;
+volatile uint8_t state_cleaning_a = 0;
 #if (DUAL_MOTOR_CONTROLLER)
-uint8_t state_cleaning_b = 0;
+volatile uint8_t state_cleaning_b = 0;
 #endif
 
 const int pwm_a_pin = MOTOR_A_EN_PIN;
@@ -121,6 +122,16 @@ volatile uint16_t ADC_current_sense_a = 0;
 void IRAM_ATTR Timer0_ISR(void) {
   counter_timer++;
   ADC_current_sense_a = analogRead(MOTOR_A_CURRENT_SENSE_PIN);
+  if (ADC_current_sense_a >= MOTOR_CURRENT_STOP) {
+    switch (state_cleaning_a) {
+      case 1:
+        state_cleaning_a = 4;
+        break;
+      case 2:
+        state_cleaning_a = 5;
+        break;
+    }
+  }
   if (counter_timer == 10) {
     counter_timer = 0;
     setTimer();
