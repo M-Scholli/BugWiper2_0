@@ -318,7 +318,6 @@ void init_io(void) {
   pinMode(SW_CABLE_TIGHT_A_PIN, INPUT_PULLUP);
   pinMode(SW_CABLE_LOOSE_A_PIN, INPUT_PULLUP);
   pinMode(SAFETY_SWITCH_PIN, INPUT_PULLUP);
-  pinMode(MOTOR_A_EN_PIN, OUTPUT);
   pinMode(MOTOR_A_IN1_PIN, OUTPUT);
   pinMode(MOTOR_A_IN2_PIN, OUTPUT);
   pinMode(LED_A_PIN, OUTPUT);
@@ -336,7 +335,6 @@ void init_io(void) {
 #endif
   pinMode(SW_CABLE_TIGHT_B_PIN, INPUT_PULLUP);
   pinMode(SW_CABLE_LOOSE_B_PIN, INPUT_PULLUP);
-  pinMode(MOTOR_B_EN_PIN, OUTPUT);
   pinMode(MOTOR_B_IN1_PIN, OUTPUT);
   pinMode(MOTOR_B_IN2_PIN, OUTPUT);
   pinMode(LED_B_PIN, OUTPUT);
