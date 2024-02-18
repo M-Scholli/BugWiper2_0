@@ -1,0 +1,31 @@
+EN;;reset button;
+GPIO36;MOTOR_A_CURRENT_SENSE_PIN;input only;no pull-up or pull-down
+GPIO39;MOTOR_B_CURRENT_SENSE_PIN;input only;no pull-up or pull-down
+GPIO34;MOTOR_B_ENCODER_1_PIN;input only;no pull-up or pull-down
+GPIO35;MOTOR_B_ENCODER_2_PIN;input only;no pull-up or pull-down
+GPIO32;MOTOR_A_ENCODER_1_PIN;
+GPIO33;MOTOR_A_ENCODER_1_PIN;
+GPIO25;MOTOR_B_EN_PIN;
+GPIO26;MOTOR_B_IN1_PIN;
+GPIO27;MOTOR_B_IN2_PIN;
+GPIO14;MOTOR_A_EN_PIN;;;;Sends a PWM signal at boot time
+GPIO12;MOTOR_A_IN1_PIN;Strapping PIN;MTDI;pull-down
+GPIO13;MOTOR_A_IN2_PIN;
+GND;
+VIN;
+
+GPIO23;SW_CABLE_LOOSE_A_PIN
+GPIO22;SW_CABLE_LOOSE_B_PIN
+GPIO1;UART 0 TX;;;;Sends the ESP32 boot logs via the UART
+GPIO3;UART o RX;;;; 3.3V voltage at boot time
+GPIO21;BUTTON_CLEANING_A_PIN;
+GPIO19;BUTTON_CLEANING_B_PIN;
+GPIO18;BUTTON_WINDING_IN_A_PIN;
+GPIO5;;Strapping PIN;;pull-up;Sends a PWM signal at boot time
+GPIO17;BUTTON_WINDING_IN_B_PIN;;(internal PSRAM);
+GPIO16;Safty_Switch;;(internal PSRAM);
+GPIO4;(Landing Gear Sensor);
+GPIO2;STATUS_LED_A;BOARD LED;Strapping PIN;Boot_Mode 1.8V;pull-dowm
+GPIO15;(STATUS_LED_B);Strapping PIN;MTDO;pull-up;Sends the ESP32 boot logs via the UART
+GND;
+3V3;

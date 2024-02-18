@@ -2,22 +2,20 @@
 #include <EEPROM.h>
 #include <ESP32Encoder.h>
 
-#define DUAL_MOTOR_CONTROLLER 0
+#define DUAL_MOTOR_CONTROLLER 1
 #define DEBUG_SERIAL_OUT 2
 
 // Pindiscription, follwing pins are not allowed to use: 0 (Bootselect); 2 Board LED; 1 & 3 (UART 0 for serial debug interface); 5 ?;  6, 7, 8, 9, 10 & 11 (4 MB SPI Flash); 16-17 (PSRAM)
 //Button PINs
-#define BUTTON_CLEANING_A_PIN 23
-#define BUTTON_WINDING_IN_A_PIN 22
-#define SW_CABLE_TIGHT_A_PIN 21
-#define SW_CABLE_LOOSE_A_PIN 19
+#define BUTTON_CLEANING_A_PIN 21
+#define BUTTON_WINDING_IN_A_PIN 18
+#define SW_CABLE_LOOSE_A_PIN 23
 #if (DUAL_MOTOR_CONTROLLER)
-#define BUTTON_CLEANING_B_PIN 2
-#define BUTTON_WINDING_IN_B_PIN 22
-#define SW_CABLE_TIGHT_B_PIN 34
-#define SW_CABLE_LOOSE_B_PIN 35
+#define BUTTON_CLEANING_B_PIN 19
+#define BUTTON_WINDING_IN_B_PIN 17
+#define SW_CABLE_LOOSE_B_PIN 22
 #endif
-#define SAFETY_SWITCH_PIN 18  // Saftyswitch to deaktivate the BugWiper
+#define SAFETY_SWITCH_PIN 16  // Saftyswitch to deaktivate the BugWiper
 //LED configuration
 #define LED_A_PIN 2
 #define LED_TIME_CLEANING 500    //time blinking LED
@@ -26,14 +24,18 @@
 #define MOTOR_A_IN1_PIN 12
 #define MOTOR_A_IN2_PIN 13
 #define MOTOR_A_EN_PIN 14  //PWM Pin
-#define MOTOR_A_CURRENT_SENSE_PIN 32
-#define MOTOR_CURRENT_STOP 3000
+#define MOTOR_A_CURRENT_SENSE_PIN 36
+#define MOTOR_A_ENCODER_1_PIN 26
+#define MOTOR_A_ENCODER_2_PIN 27
+#define MOTOR_CURRENT_STOP 2500
 #if (DUAL_MOTOR_CONTROLLER)
-#define LED_B_PIN 36
-#define MOTOR_B_IN1_PIN 39
-#define MOTOR_B_IN2_PIN 32
-#define MOTOR_B_EN_PIN 26  //PWM Pin
-#define MOTOR_B_CURRENT_SENSE_PIN 34
+#define LED_B_PIN 15
+#define MOTOR_B_IN1_PIN 26
+#define MOTOR_B_IN2_PIN 27
+#define MOTOR_B_EN_PIN 25  //PWM Pin
+#define MOTOR_B_CURRENT_SENSE_PIN 39
+#define MOTOR_B_ENCODER_1_PIN 34
+#define MOTOR_B_ENCODER_2_PIN 35
 #endif
 // Kalibrierung des Putzvorganges
 #define TIME_LONG_PRESS 400           //time in ms for long button press
@@ -77,9 +79,10 @@ uint32_t timer_start_cleaning_a = 0;     // T_MIN , T_MAX
 uint8_t pwmMax_A = 0;
 uint8_t time_pwm_ramp_a = 0;
 uint8_t timer_button_cable_loose_a = 0;
-uint8_t timer_cable_tight_a = 0;
 uint8_t timer_button_winding_in_a = 0;
 uint8_t timer_button_start_cleaning_a = 0;
+ESP32Encoder encoder_motor_a;
+
 #if (DUAL_MOTOR_CONTROLLER)
 int8_t direction_of_rotation_B;
 int8_t direction_of_rotation_B_old;
@@ -92,10 +95,11 @@ uint32_t timer_start_cleaning_b = 0;     // T_MIN , T_MAX
 uint8_t pwmMax_B = 0;
 uint8_t time_pwm_ramp_b = 0;
 uint8_t timer_button_cable_loose_b = 0;
-uint8_t timer_cable_tight_b = 0;
 uint8_t timer_button_winding_in_b = 0;
 uint8_t timer_button_start_cleaning_b = 0;
+ESP32Encoder encoder_motor_b;
 #endif
+
 /*Statusanzeige vom Putzvorgang
  0 = Warten auf Tastendruck
  1 = ganzer Putzvorgang
@@ -120,6 +124,12 @@ hw_timer_t *Timer0_Cfg = NULL;
 volatile uint16_t counter_timer = 0;
 volatile uint16_t ADC_current_sense_a = 0;
 
+#if (DUAL_MOTOR_CONTROLLER)
+volatile uint16_t ADC_current_sense_b = 0;
+#endif
+
+
+
 void IRAM_ATTR Timer0_ISR(void) {
   counter_timer++;
   ADC_current_sense_a = analogRead(MOTOR_A_CURRENT_SENSE_PIN);
@@ -133,17 +143,34 @@ void IRAM_ATTR Timer0_ISR(void) {
         break;
     }
   }
+#if (DUAL_MOTOR_CONTROLLER)
+  ADC_current_sense_b = analogRead(MOTOR_B_CURRENT_SENSE_PIN);
+  if (ADC_current_sense_b >= MOTOR_CURRENT_STOP) {
+    switch (state_cleaning_b) {
+      case 1:
+        state_cleaning_b = 4;
+        break;
+      case 2:
+        state_cleaning_b = 5;
+        break;
+    }
+  }
+#endif
   if (counter_timer == 10) {
     counter_timer = 0;
     setTimer();
   }
 }
 
-ESP32Encoder encoder;
+
 
 void Encoder_init(void) {
-  encoder.attachHalfQuad(27, 26);
-  encoder.setCount(0);
+  encoder_motor_a.attachHalfQuad(MOTOR_A_ENCODER_1_PIN, MOTOR_A_ENCODER_2_PIN);
+  encoder_motor_a.setCount(0);
+#if (DUAL_MOTOR_CONTROLLER)
+  encoder_motor_b.attachHalfQuad(MOTOR_B_ENCODER_1_PIN, MOTOR_B_ENCODER_2_PIN);
+  encoder_motor_b.setCount(0);
+#endif
 }
 
 void Timer_init(void) {
@@ -354,7 +381,6 @@ void init_io(void) {
 #if (DEBUG_SERIAL_OUT)
   Serial.println("Init PINs A:");
 #endif
-  pinMode(SW_CABLE_TIGHT_A_PIN, INPUT_PULLUP);
   pinMode(SW_CABLE_LOOSE_A_PIN, INPUT_PULLUP);
   pinMode(SAFETY_SWITCH_PIN, INPUT_PULLUP);
   pinMode(MOTOR_A_IN1_PIN, OUTPUT);
@@ -372,7 +398,6 @@ void init_io(void) {
 #if (DEBUG_SERIAL_OUT)
   Serial.println("Init PINs B:");
 #endif
-  pinMode(SW_CABLE_TIGHT_B_PIN, INPUT_PULLUP);
   pinMode(SW_CABLE_LOOSE_B_PIN, INPUT_PULLUP);
   pinMode(MOTOR_B_IN1_PIN, OUTPUT);
   pinMode(MOTOR_B_IN2_PIN, OUTPUT);
@@ -442,11 +467,6 @@ void button_debounce(void) {
   } else if (digitalRead(SW_CABLE_LOOSE_A_PIN) && timer_button_cable_loose_a > 0) {
     timer_button_cable_loose_a--;
   }
-  if (digitalRead(SW_CABLE_TIGHT_A_PIN) == 0 && timer_cable_tight_a < 255) {
-    timer_cable_tight_a++;
-  } else if (digitalRead(SW_CABLE_TIGHT_A_PIN) && timer_cable_tight_a > 0) {
-    timer_cable_tight_a--;
-  }
   if (digitalRead(BUTTON_WINDING_IN_A_PIN) == 0 && timer_button_winding_in_a < 255) {
     timer_button_winding_in_a++;
   } else if (digitalRead(BUTTON_WINDING_IN_A_PIN) && timer_button_winding_in_a > 0) {
@@ -462,11 +482,6 @@ void button_debounce(void) {
     timer_button_cable_loose_b++;
   } else if (digitalRead(SW_CABLE_LOOSE_B_PIN) && timer_button_cable_loose_b > 0) {
     timer_button_cable_loose_b--;
-  }
-  if (digitalRead(SW_CABLE_TIGHT_B_PIN) == 0 && timer_cable_tight_b < 255) {
-    timer_cable_tight_b++;
-  } else if (digitalRead(SW_CABLE_TIGHT_B_PIN) && timer_cable_tight_b > 0) {
-    timer_cable_tight_b--;
   }
   if (digitalRead(BUTTON_WINDING_IN_B_PIN) == 0 && timer_button_winding_in_b < 255) {
     timer_button_winding_in_b++;
@@ -607,9 +622,6 @@ void loop() {
       if (timer_start_cleaning_a >= TIME_MAX_CLEANING) {
         state_cleaning_a = 6;
       }
-      if ((timer_start_cleaning_a >= TIME_MIN_CLEANING) && timer_cable_tight_a >= TIME_BUTTON_DEBOUNCE) {
-        state_cleaning_a = 4;
-      }
       if (timer_button_winding_in_a >= TIME_BUTTON_DEBOUNCE) {
         state_cleaning_a = 6;
       }
@@ -644,10 +656,6 @@ void loop() {
       if (timer_button_start_cleaning_a >= TIME_BUTTON_DEBOUNCE) {
         state_cleaning_a = 6;
       }
-      // Stopp bei erreichen des Fest-Tasters
-      if (timer_cable_tight_a >= TIME_BUTTON_DEBOUNCE) {
-        state_cleaning_a = 5;
-      }
       if (timer_start_cleaning_a >= TIME_MIN_CLEANING && timer_button_cable_loose_a <= 5 && cable_loose_a == 0) {
         motor_power_a = LOOSE_POWER_BRAKE;
         cable_loose_a = 1;
@@ -675,9 +683,6 @@ void loop() {
     if (timer_button_start_cleaning_b <= TIME_BUTTON_DEBOUNCE) {
       if (timer_start_cleaning_b >= TIME_MAX_CLEANING) {
         state_cleaning_b = 6;
-      }
-      if ((timer_start_cleaning_b >= TIME_MIN_CLEANING) && timer_cable_tight_b >= TIME_BUTTON_DEBOUNCE) {
-        state_cleaning_b = 4;
       }
       if (timer_button_winding_in_b >= TIME_BUTTON_DEBOUNCE) {
         state_cleaning_b = 6;
@@ -709,10 +714,6 @@ void loop() {
       //Stopp bei drücken des Putzen Pins
       if (timer_button_start_cleaning_b >= TIME_BUTTON_DEBOUNCE) {
         state_cleaning_b = 6;
-      }
-      // Stopp bei erreichen des Fest-Tasters
-      if (timer_cable_tight_b >= TIME_BUTTON_DEBOUNCE) {
-        state_cleaning_b = 5;
       }
       if (timer_start_cleaning_b >= TIME_MIN_CLEANING && timer_button_cable_loose_b <= 5 && cable_loose_b == 0) {
         motor_power_b = LOOSE_POWER_BRAKE;
@@ -748,6 +749,10 @@ void loop() {
   check_end();  // cleaning finished?
 #if (DEBUG_SERIAL_OUT >= 2)
   Serial.println("ADC value = " + String(ADC_current_sense_a));
-  Serial.println("Encoder count = " + String((int32_t)encoder.getCount()));
+  Serial.println("Encoder count = " + String((int32_t)encoder_motor_a.getCount()));
+#if (DUAL_MOTOR_CONTROLLER)
+  Serial.println("ADC_B value = " + String(ADC_current_sense_b));
+  Serial.println("Encoder_B count = " + String((int32_t)encoder_motor_b.getCount()));
+#endif
 #endif
 }
