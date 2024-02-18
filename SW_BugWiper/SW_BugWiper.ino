@@ -1,5 +1,6 @@
 #include <dummy.h>
 #include <EEPROM.h>
+#include <ESP32Encoder.h>
 
 #define DUAL_MOTOR_CONTROLLER 0
 #define DEBUG_SERIAL_OUT 2
@@ -26,7 +27,7 @@
 #define MOTOR_A_IN2_PIN 13
 #define MOTOR_A_EN_PIN 14  //PWM Pin
 #define MOTOR_A_CURRENT_SENSE_PIN 32
-#define MOTOR_CURRENT_STOP 2000
+#define MOTOR_CURRENT_STOP 3000
 #if (DUAL_MOTOR_CONTROLLER)
 #define LED_B_PIN 36
 #define MOTOR_B_IN1_PIN 39
@@ -136,6 +137,13 @@ void IRAM_ATTR Timer0_ISR(void) {
     counter_timer = 0;
     setTimer();
   }
+}
+
+ESP32Encoder encoder;
+
+void Encoder_init(void) {
+  encoder.attachHalfQuad(27, 26);
+  encoder.setCount(0);
 }
 
 void Timer_init(void) {
@@ -568,6 +576,7 @@ void setup() {
   Serial.begin(115200);
   Serial.println("BugWiper start programm");
 #endif
+  Encoder_init();
   PWM_inti();
   init_io();
   EEPROM_read_directions();
@@ -738,6 +747,7 @@ void loop() {
 #endif
   check_end();  // cleaning finished?
 #if (DEBUG_SERIAL_OUT >= 2)
-  Serial.println(ADC_current_sense_a);
+  Serial.println("ADC value = " + String(ADC_current_sense_a));
+  Serial.println("Encoder count = " + String((int32_t)encoder.getCount()));
 #endif
 }
