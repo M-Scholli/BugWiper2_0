@@ -17,6 +17,12 @@ This project is an open source electronic bugwiper system.
 - ground modus to loosen the bugwiper just bit and no full cleaning process
 - WiFi Hotspot with webbrowser to configure the BugWiper system before flight
 
+## Used IDE and Settings:
+- Arduino IDE2.3.0
+- selected Board: uPesy ESP32 Wroom DevKit
+
+### Installed Librarys:
+- ESP32Encoder 0.10.2: https://github.com/madhephaestus/ESP32Encoder
 
 ## Used Hardware:
 - Diymore ESP32 NodeMCU Module USB C ESP32 WROOM 32: https://www.amazon.de/dp/B0C6QHLGJG 
