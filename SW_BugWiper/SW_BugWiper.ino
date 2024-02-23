@@ -585,38 +585,10 @@ void check_end(void) {
 #endif
 }
 
-//The setup function is called once at startup of the sketch
-void setup() {
-#if (DEBUG_SERIAL_OUT)
-  Serial.begin(115200);
-  Serial.println("BugWiper start programm");
-#endif
-  Encoder_init();
-  PWM_inti();
-  init_io();
-  EEPROM_read_directions();
-  Timer_init();
-#if (DEBUG_SERIAL_OUT)
-  if (digitalRead(SAFETY_SWITCH_PIN) == 0) {
-    Serial.println("SAFETY SWITCH closed");
-  } else {
-    Serial.println("WARNING!!! SAFETY SWITCH open");
-    Serial.println("Close the SAFETY SWITCH to operate the BugWiper");
-  }
-#endif
-}
-
-// The loop function is called in an endless loop
-void loop() {
-  read_Buttons();
+void state_machine_motor_a(void) {
   if (state_cleaning_a == 1 || state_cleaning_a == 2 || state_cleaning_a == 7) {
     set_motorpower_a();
   }
-#if (DUAL_MOTOR_CONTROLLER)
-  if (state_cleaning_b == 1 || state_cleaning_b == 2 || state_cleaning_b == 7) {
-    set_motorpower_b();
-  }
-#endif
   if (state_cleaning_a == 1) {
     if (timer_button_start_cleaning_a <= TIME_BUTTON_DEBOUNCE) {
       if (timer_start_cleaning_a >= TIME_MAX_CLEANING) {
@@ -678,7 +650,18 @@ void loop() {
       cable_loose_a = 0;
     }
   }
+  // Motor bremsen
+  if (state_cleaning_a == 7 && motor_power_a == 255) {
+    state_cleaning_a = 3;
+    timer_start_cleaning_a = 0;
+  }
+}
+
 #if (DUAL_MOTOR_CONTROLLER)
+void state_machine_motor_b(void) {
+  if (state_cleaning_b == 1 || state_cleaning_b == 2 || state_cleaning_b == 7) {
+    set_motorpower_b();
+  }
   if (state_cleaning_b == 1) {
     if (timer_button_start_cleaning_b <= TIME_BUTTON_DEBOUNCE) {
       if (timer_start_cleaning_b >= TIME_MAX_CLEANING) {
@@ -734,17 +717,40 @@ void loop() {
       cable_loose_b = 0;
     }
   }
-#endif
-  // Motor bremsen
-  if (state_cleaning_a == 7 && motor_power_a == 255) {
-    state_cleaning_a = 3;
-    timer_start_cleaning_a = 0;
-  }
-#if (DUAL_MOTOR_CONTROLLER)
   if (state_cleaning_b == 7 && motor_power_b == 255) {
     state_cleaning_b = 3;
     timer_start_cleaning_b = 0;
   }
+}
+#endif
+
+//The setup function is called once at startup of the sketch
+void setup() {
+#if (DEBUG_SERIAL_OUT)
+  Serial.begin(115200);
+  Serial.println("BugWiper start programm");
+#endif
+  Encoder_init();
+  PWM_inti();
+  init_io();
+  EEPROM_read_directions();
+  Timer_init();
+#if (DEBUG_SERIAL_OUT)
+  if (digitalRead(SAFETY_SWITCH_PIN) == 0) {
+    Serial.println("SAFETY SWITCH closed");
+  } else {
+    Serial.println("WARNING!!! SAFETY SWITCH open");
+    Serial.println("Close the SAFETY SWITCH to operate the BugWiper");
+  }
+#endif
+}
+
+// The loop function is called in an endless loop
+void loop() {
+  read_Buttons();
+  state_machine_motor_a();
+#if (DUAL_MOTOR_CONTROLLER)
+  state_machine_motor_b();
 #endif
   check_end();  // cleaning finished?
 #if (DEBUG_SERIAL_OUT >= 2)
