@@ -1,5 +1,4 @@
 #include <dummy.h>
-#include <EEPROM.h>
 #include <ESP32Encoder.h>
 
 #define DUAL_MOTOR_CONTROLLER 1
@@ -56,9 +55,7 @@
 #define START_POWER_WINDING_IN 70     //start power winding in
 #define START_POWER_LOOSE_CABLE 60    //start power after loose cable
 #define TIME_BUTTON_DEBOUNCE 50       //time in ms for button debounce
-//EEPROM storage erea
-#define EEPROM_DIRECTION_A 0
-#define EEPROM_DIRECTION_B 1
+
 //PWM configuration
 #define PWM_FREQ 10000
 #define PWM_RESOLUTION_BITS 8
@@ -109,6 +106,7 @@ ESP32Encoder encoder_motor_b;
  7 = Stopp
  */
 volatile uint8_t state_machine_main_state_a = 0;
+
 /* sub state machine
 0 = init
 1 = starting
@@ -140,12 +138,11 @@ volatile uint8_t state_machine_main_state_a = 0;
 44 = stopping retighten
 45 = stopping stop finished
 */
-
-volatile uint8_t state_machine_sub_state_a = 0
+volatile uint8_t state_machine_sub_state_a = 0;
 
 #if (DUAL_MOTOR_CONTROLLER)
 volatile uint8_t state_machine_state_b = 0;
-volatile uint8_t state_machine_sub_state_b = 0
+volatile uint8_t state_machine_sub_state_b = 0;
 #endif
 
 const int pwm_a_pin = MOTOR_A_EN_PIN;
@@ -167,12 +164,12 @@ void IRAM_ATTR Timer0_ISR(void) {
   counter_timer++;
   ADC_current_sense_a = analogRead(MOTOR_A_CURRENT_SENSE_PIN);
   if (ADC_current_sense_a >= MOTOR_CURRENT_STOP) {
-    switch (state_machine_state_a) {
+    switch (state_machine_main_state_a) {
       case 1:
-        state_machine_state_a = 4;
+        state_machine_main_state_a = 4;
         break;
       case 2:
-        state_machine_state_a = 5;
+        state_machine_main_state_a = 5;
         break;
     }
   }
@@ -227,11 +224,6 @@ void PWM_inti(void) {
 #endif
 }
 
-void eeprom_update_byte(int adresse, uint8_t wert) {
-  if (EEPROM.read(adresse) != wert) {
-    EEPROM.write(adresse, wert);
-  }
-}
 
 // switch the motor 1 = direction 1;	2 = direction 2;	3 = stop;
 void motor_a(uint8_t a) {
@@ -314,7 +306,7 @@ void set_motor_brake_a(void) {
   time_pwm_ramp_a = TIME_PWM_RAMP_BRAKE;
   pwmMax_A = MAX_POWER_BRAKE;
   motor_a(3);
-  state_machine_state_a = 7;
+  state_machine_main_state_a = 7;
 #if (DEBUG_SERIAL_OUT)
   Serial.println("Start braking A");
 #endif
@@ -335,7 +327,7 @@ void set_motor_brake_b(void) {
 #endif
 
 void set_winding_in_a(void) {
-  state_machine_state_a = 2;
+  state_machine_main_state_a = 2;
   timer_LED_a = 0;
   timer_motor_power_a = 0;
   timer_start_cleaning_a = 0;
@@ -377,7 +369,7 @@ void set_winding_in_b(void) {
 #endif
 
 void set_start_cleaning_a(void) {
-  state_machine_state_a = 1;
+  state_machine_main_state_a = 1;
   timer_motor_power_a = 0;
   timer_LED_a = 0;
   timer_start_cleaning_a = 0;
@@ -443,57 +435,6 @@ void init_io(void) {
 #endif
 }
 
-void EEPROM_read_directions(void) {
-  direction_of_rotation_A = EEPROM.read(EEPROM_DIRECTION_A);
-  if (direction_of_rotation_A != 1 && direction_of_rotation_A != 2) {
-    direction_of_rotation_A = 1;
-    eeprom_update_byte(EEPROM_DIRECTION_A, direction_of_rotation_A);
-#if (DEBUG_SERIAL_OUT)
-    Serial.println("EEPROM Error: Reset rotation direction A to 1");
-#endif
-  }
-#if (DUAL_MOTOR_CONTROLLER)
-  direction_of_rotation_B = EEPROM.read(EEPROM_DIRECTION_B);
-  if (direction_of_rotation_B != 1 && direction_of_rotation_B != 2) {
-    direction_of_rotation_B = 1;
-    eeprom_update_byte(EEPROM_DIRECTION_B, direction_of_rotation_B);
-#if (DEBUG_SERIAL_OUT)
-    Serial.println("EEPROM Error: Reset rotation direction B to 1");
-#endif
-  }
-#endif
-#if (DEBUG_SERIAL_OUT)
-  Serial.println("EEPROM read direction finished");
-#endif
-}
-
-void EEPROM_write_directions(void) {
-  eeprom_update_byte(EEPROM_DIRECTION_A, direction_of_rotation_A);
-#if (DUAL_MOTOR_CONTROLLER)
-  eeprom_update_byte(EEPROM_DIRECTION_B, direction_of_rotation_B);
-#endif
-}
-
-void change_direction_a(void) {
-  if (direction_of_rotation_A == 1) {
-    direction_of_rotation_A = 2;
-  } else if (direction_of_rotation_A == 2) {
-    direction_of_rotation_A = 1;
-  }
-  EEPROM_write_directions();
-}
-
-#if (DUAL_MOTOR_CONTROLLER)
-void change_direction_b(void) {
-  if (direction_of_rotation_B == 1) {
-    direction_of_rotation_B = 2;
-  } else if (direction_of_rotation_B == 2) {
-    direction_of_rotation_B = 1;
-  }
-  EEPROM_write_directions();
-}
-#endif
-
 void button_debounce(void) {
   if (digitalRead(SW_CABLE_LOOSE_A_PIN) == 0 && timer_button_cable_loose_a < 255) {
     timer_button_cable_loose_a++;
@@ -534,7 +475,7 @@ void setTimer(void) {
   timer_start_cleaning_a++;
   timer_motor_power_a++;
   timer_LED_a++;
-  if (timer_button_start_cleaning_a >= TIME_BUTTON_DEBOUNCE && state_machine_state_a == 0) {
+  if (timer_button_start_cleaning_a >= TIME_BUTTON_DEBOUNCE && state_machine_main_state_a == 0) {
     timer_button_long_press_a = timer_button_long_press_a + 1;
   }
 #if (DUAL_MOTOR_CONTROLLER)
@@ -550,10 +491,10 @@ void setTimer(void) {
 
 void read_Buttons(void) {
   if (digitalRead(SAFETY_SWITCH_PIN) == 0) {
-    if (timer_button_winding_in_a >= TIME_BUTTON_DEBOUNCE && state_machine_state_a == 0) {
+    if (timer_button_winding_in_a >= TIME_BUTTON_DEBOUNCE && state_machine_main_state_a == 0) {
       set_winding_in_a();
     }
-    if (state_machine_state_a == 0 && timer_button_long_press_a >= TIME_LONG_PRESS) {
+    if (state_machine_main_state_a == 0 && timer_button_long_press_a >= TIME_LONG_PRESS) {
       set_start_cleaning_a();
     }
 #if (DUAL_MOTOR_CONTROLLER)
@@ -567,8 +508,8 @@ void read_Buttons(void) {
   }
   // prevents a imediate second start cleaning after finish the first one
   if (timer_button_winding_in_a <= 5 && timer_button_start_cleaning_a <= 5
-      && state_machine_state_a == 3 && timer_start_cleaning_a >= 200) {
-    state_machine_state_a = 0;
+      && state_machine_main_state_a == 3 && timer_start_cleaning_a >= 200) {
+    state_machine_main_state_a = 0;
   }
 #if (DUAL_MOTOR_CONTROLLER)
   if (timer_button_winding_in_b <= 5 && timer_button_start_cleaning_b <= 5
@@ -588,23 +529,21 @@ void read_Buttons(void) {
 }
 
 void check_end(void) {
-  if (state_machine_state_a == 4) {
-    set_motor_brake_a();
-    change_direction_a();
-    digitalWrite(LED_A_PIN, 0);
-  }
-  if (state_machine_state_a == 5) {
+  if (state_machine_main_state_a == 4) {
     set_motor_brake_a();
     digitalWrite(LED_A_PIN, 0);
   }
-  if (state_machine_state_a == 6) {
+  if (state_machine_main_state_a == 5) {
+    set_motor_brake_a();
+    digitalWrite(LED_A_PIN, 0);
+  }
+  if (state_machine_main_state_a == 6) {
     set_motor_brake_a();
     digitalWrite(LED_A_PIN, 1);
   }
 #if (DUAL_MOTOR_CONTROLLER)
   if (state_machine_state_b == 4) {
     set_motor_brake_b();
-    change_direction_b();
     digitalWrite(LED_B_PIN, 0);
   }
   if (state_machine_state_b == 5) {
@@ -619,7 +558,7 @@ void check_end(void) {
 }
 
 void state_machine_motor_a(void) {
-  switch (state_machine_state_a) {
+  switch (state_machine_main_state_a) {
     case 0:  // do nothing
       break;
     case 1:  // cleaning
@@ -628,11 +567,11 @@ void state_machine_motor_a(void) {
       if (timer_button_start_cleaning_a <= TIME_BUTTON_DEBOUNCE) {
         // safty time out
         if (timer_start_cleaning_a >= TIME_MAX_CLEANING) {
-          state_machine_state_a = 6;
+          state_machine_main_state_a = 6;
         }
         // stop with pressing the other button:
         if (timer_button_winding_in_a >= TIME_BUTTON_DEBOUNCE) {
-          state_machine_state_a = 6;
+          state_machine_main_state_a = 6;
         }
         // check cable loose
         if (timer_button_cable_loose_a <= 5 && cable_loose_a == 0) {
@@ -663,11 +602,11 @@ void state_machine_motor_a(void) {
       if (timer_button_winding_in_a <= TIME_BUTTON_DEBOUNCE) {
         // maximale Einziehzeit erreicht
         if (timer_start_cleaning_a >= TIME_MAX_WINDING_IN) {
-          state_machine_state_a = 6;
+          state_machine_main_state_a = 6;
         }
         //Stopp bei drücken des Putzen Pins
         if (timer_button_start_cleaning_a >= TIME_BUTTON_DEBOUNCE) {
-          state_machine_state_a = 6;
+          state_machine_main_state_a = 6;
         }
         if (timer_start_cleaning_a >= TIME_MIN_CLEANING && timer_button_cable_loose_a <= 5 && cable_loose_a == 0) {
           motor_power_a = LOOSE_POWER_BRAKE;
@@ -687,7 +626,7 @@ void state_machine_motor_a(void) {
     case 7:  //stopping
       set_motorpower_a();
       if (motor_power_a == 255) {
-        state_machine_state_a = 3;
+        state_machine_main_state_a = 3;
         timer_start_cleaning_a = 0;
       }
       break;
@@ -778,7 +717,6 @@ void setup() {
   Encoder_init();
   PWM_inti();
   init_io();
-  EEPROM_read_directions();
   Timer_init();
 #if (DEBUG_SERIAL_OUT)
   if (digitalRead(SAFETY_SWITCH_PIN) == 0) {
