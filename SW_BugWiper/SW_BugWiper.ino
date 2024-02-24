@@ -586,75 +586,87 @@ void check_end(void) {
 }
 
 void state_machine_motor_a(void) {
-  if (state_cleaning_a == 1 || state_cleaning_a == 2 || state_cleaning_a == 7) {
-    set_motorpower_a();
-  }
-  if (state_cleaning_a == 1) {
-    if (timer_button_start_cleaning_a <= TIME_BUTTON_DEBOUNCE) {
-      if (timer_start_cleaning_a >= TIME_MAX_CLEANING) {
-        state_cleaning_a = 6;
-      }
-      if (timer_button_winding_in_a >= TIME_BUTTON_DEBOUNCE) {
-        state_cleaning_a = 6;
-      }
-      if (timer_start_cleaning_a >= TIME_MIN_CLEANING && timer_button_cable_loose_a <= 5 && cable_loose_a == 0) {
-        motor_power_a = LOOSE_POWER_BRAKE;
-        cable_loose_a = 1;
-        motor_a(3);
-        time_pwm_ramp_a = TIME_PWM_RAMP_LOOSE_CABLE;
+  switch (state_cleaning_a) {
+    case 0:  // do nothing
+      break;
+    case 1:  // cleaning
+      set_motorpower_a();
+      // override function when start cleaning is hold pressed
+      if (timer_button_start_cleaning_a <= TIME_BUTTON_DEBOUNCE) {
+        // safty time out
+        if (timer_start_cleaning_a >= TIME_MAX_CLEANING) {
+          state_cleaning_a = 6;
+        }
+        // stop with pressing the other button:
+        if (timer_button_winding_in_a >= TIME_BUTTON_DEBOUNCE) {
+          state_cleaning_a = 6;
+        }
+        // check cable loose
+        if (timer_button_cable_loose_a <= 5 && cable_loose_a == 0) {
+          motor_power_a = LOOSE_POWER_BRAKE;
+          cable_loose_a = 1;
+          motor_a(3);
+          time_pwm_ramp_a = TIME_PWM_RAMP_LOOSE_CABLE;
 #if (DEBUG_SERIAL_OUT)
-        Serial.println("Cable is loose");
+          Serial.println("Cable is loose");
 #endif
+        }
       }
-    }
-    if (timer_LED_a == LED_TIME_CLEANING) {
-      digitalWrite(LED_A_PIN, !digitalRead(LED_A_PIN));
-      timer_LED_a = 0;
-    }
-    if (timer_button_cable_loose_a >= TIME_BUTTON_DEBOUNCE && cable_loose_a == 1) {
-      motor_power_a = START_POWER_LOOSE_CABLE;
-      motor_a(direction_of_rotation_A_old);
-      time_pwm_ramp_a = TIME_PWM_RAMP_LOOSE_CABLE;
-      cable_loose_a = 0;
-    }
-  }
-  if (state_cleaning_a == 2) {
-    if (timer_button_winding_in_a <= TIME_BUTTON_DEBOUNCE) {
-      // maximale Einziehzeit erreicht
-      if (timer_start_cleaning_a >= TIME_MAX_WINDING_IN) {
-        state_cleaning_a = 6;
-      }
-      //Stopp bei drücken des Putzen Pins
-      if (timer_button_start_cleaning_a >= TIME_BUTTON_DEBOUNCE) {
-        state_cleaning_a = 6;
-      }
-      if (timer_start_cleaning_a >= TIME_MIN_CLEANING && timer_button_cable_loose_a <= 5 && cable_loose_a == 0) {
-        motor_power_a = LOOSE_POWER_BRAKE;
-        cable_loose_a = 1;
-        motor_a(3);
+      // check cable not loose anymore
+      if (timer_button_cable_loose_a >= TIME_BUTTON_DEBOUNCE && cable_loose_a == 1) {
+        motor_power_a = START_POWER_LOOSE_CABLE;
+        motor_a(direction_of_rotation_A_old);
         time_pwm_ramp_a = TIME_PWM_RAMP_LOOSE_CABLE;
-#if (DEBUG_SERIAL_OUT)
-        Serial.println("Cable is loose");
-#endif
+        cable_loose_a = 0;
       }
-    }
-    // LED Blink
-    if (timer_LED_a >= LED_TIME_WINDING_IN) {
-      digitalWrite(LED_A_PIN, !digitalRead(LED_A_PIN));
-      timer_LED_a = 0;
-    }
-    if (timer_button_cable_loose_a >= TIME_BUTTON_DEBOUNCE && cable_loose_a == 1) {
-      motor_power_a = START_POWER_LOOSE_CABLE;
-      motor_a(direction_of_rotation_A_old);
-      time_pwm_ramp_a = TIME_PWM_RAMP_LOOSE_CABLE;
-      cable_loose_a = 0;
-    }
+      // LED status blinking
+      if (timer_LED_a == LED_TIME_CLEANING) {
+        digitalWrite(LED_A_PIN, !digitalRead(LED_A_PIN));
+        timer_LED_a = 0;
+      }
+      break;
+    case 2:  // winding in
+      set_motorpower_a();
+      if (timer_button_winding_in_a <= TIME_BUTTON_DEBOUNCE) {
+        // maximale Einziehzeit erreicht
+        if (timer_start_cleaning_a >= TIME_MAX_WINDING_IN) {
+          state_cleaning_a = 6;
+        }
+        //Stopp bei drücken des Putzen Pins
+        if (timer_button_start_cleaning_a >= TIME_BUTTON_DEBOUNCE) {
+          state_cleaning_a = 6;
+        }
+        if (timer_start_cleaning_a >= TIME_MIN_CLEANING && timer_button_cable_loose_a <= 5 && cable_loose_a == 0) {
+          motor_power_a = LOOSE_POWER_BRAKE;
+          cable_loose_a = 1;
+          motor_a(3);
+          time_pwm_ramp_a = TIME_PWM_RAMP_LOOSE_CABLE;
+#if (DEBUG_SERIAL_OUT)
+          Serial.println("Cable is loose");
+#endif
+        }
+      }
+      if (timer_LED_a >= LED_TIME_WINDING_IN) {
+        digitalWrite(LED_A_PIN, !digitalRead(LED_A_PIN));
+        timer_LED_a = 0;
+      }
+      break;
+    case 7:  //stopping
+      set_motorpower_a();
+      if (motor_power_a == 255) {
+        state_cleaning_a = 3;
+        timer_start_cleaning_a = 0;
+      }
+      break;
+  }
+
+  if (timer_button_cable_loose_a >= TIME_BUTTON_DEBOUNCE && cable_loose_a == 1) {
+    motor_power_a = START_POWER_LOOSE_CABLE;
+    motor_a(direction_of_rotation_A_old);
+    time_pwm_ramp_a = TIME_PWM_RAMP_LOOSE_CABLE;
+    cable_loose_a = 0;
   }
   // Motor bremsen
-  if (state_cleaning_a == 7 && motor_power_a == 255) {
-    state_cleaning_a = 3;
-    timer_start_cleaning_a = 0;
-  }
 }
 
 #if (DUAL_MOTOR_CONTROLLER)
