@@ -102,6 +102,7 @@ ESP32Encoder encoder_motor_b;
  1 = cleaning prozess
  2 = winding in prozess
  3 = retighten
+ 5 = finished
  6 = ERROR
  7 = Stopp
  */
@@ -528,35 +529,6 @@ void read_Buttons(void) {
 #endif
 }
 
-void check_end(void) {
-  if (state_machine_main_state_a == 4) {
-    set_motor_brake_a();
-    digitalWrite(LED_A_PIN, 0);
-  }
-  if (state_machine_main_state_a == 5) {
-    set_motor_brake_a();
-    digitalWrite(LED_A_PIN, 0);
-  }
-  if (state_machine_main_state_a == 6) {
-    set_motor_brake_a();
-    digitalWrite(LED_A_PIN, 1);
-  }
-#if (DUAL_MOTOR_CONTROLLER)
-  if (state_machine_state_b == 4) {
-    set_motor_brake_b();
-    digitalWrite(LED_B_PIN, 0);
-  }
-  if (state_machine_state_b == 5) {
-    set_motor_brake_b();
-    digitalWrite(LED_B_PIN, 0);
-  }
-  if (state_machine_state_b == 6) {
-    set_motor_brake_b();
-    digitalWrite(LED_B_PIN, 1);
-  }
-#endif
-}
-
 void state_machine_motor_a(void) {
   switch (state_machine_main_state_a) {
     case 0:  // do nothing
@@ -622,6 +594,14 @@ void state_machine_motor_a(void) {
         digitalWrite(LED_A_PIN, !digitalRead(LED_A_PIN));
         timer_LED_a = 0;
       }
+      break;
+    case 5:
+      set_motor_brake_a();
+      digitalWrite(LED_A_PIN, 0);
+      break;
+    case 6:
+      set_motor_brake_a();
+      digitalWrite(LED_A_PIN, 1);
       break;
     case 7:  //stopping
       set_motorpower_a();
@@ -705,6 +685,18 @@ void state_machine_motor_b(void) {
     state_machine_state_b = 3;
     timer_start_cleaning_b = 0;
   }
+  if (state_machine_state_b == 4) {
+    set_motor_brake_b();
+    digitalWrite(LED_B_PIN, 0);
+  }
+  if (state_machine_state_b == 5) {
+    set_motor_brake_b();
+    digitalWrite(LED_B_PIN, 0);
+  }
+  if (state_machine_state_b == 6) {
+    set_motor_brake_b();
+    digitalWrite(LED_B_PIN, 1);
+  }
 }
 #endif
 
@@ -735,7 +727,6 @@ void loop() {
 #if (DUAL_MOTOR_CONTROLLER)
   state_machine_motor_b();
 #endif
-  check_end();  // cleaning finished?
 #if (DEBUG_SERIAL_OUT >= 2)
   Serial.println("ADC value = " + String(ADC_current_sense_a));
   Serial.println("Encoder count = " + String((int32_t)encoder_motor_a.getCount()));
