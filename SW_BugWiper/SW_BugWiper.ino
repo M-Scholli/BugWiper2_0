@@ -1,7 +1,7 @@
 #include <dummy.h>
 #include <ESP32Encoder.h>
 
-#define DUAL_MOTOR_CONTROLLER 1
+#define DUAL_MOTOR_CONTROLLER 2
 #define DEBUG_SERIAL_OUT 2
 
 // Pindiscription, follwing pins are not allowed to use: 0 (Bootselect); 2 Board LED; 1 & 3 (UART 0 for serial debug interface); 5 ?;  6, 7, 8, 9, 10 & 11 (4 MB SPI Flash); 16-17 (PSRAM)
@@ -142,7 +142,7 @@ volatile uint8_t state_machine_main_state_a = 0;
 volatile uint8_t state_machine_sub_state_a = 0;
 
 #if (DUAL_MOTOR_CONTROLLER)
-volatile uint8_t state_machine_state_b = 0;
+volatile uint8_t state_machine_main_state_b = 0;
 volatile uint8_t state_machine_sub_state_b = 0;
 #endif
 
@@ -164,28 +164,8 @@ volatile uint16_t ADC_current_sense_b = 0;
 void IRAM_ATTR Timer0_ISR(void) {
   counter_timer++;
   ADC_current_sense_a = analogRead(MOTOR_A_CURRENT_SENSE_PIN);
-  if (ADC_current_sense_a >= MOTOR_CURRENT_STOP) {
-    switch (state_machine_main_state_a) {
-      case 1:
-        state_machine_main_state_a = 4;
-        break;
-      case 2:
-        state_machine_main_state_a = 5;
-        break;
-    }
-  }
 #if (DUAL_MOTOR_CONTROLLER)
   ADC_current_sense_b = analogRead(MOTOR_B_CURRENT_SENSE_PIN);
-  if (ADC_current_sense_b >= MOTOR_CURRENT_STOP) {
-    switch (state_machine_state_b) {
-      case 1:
-        state_machine_state_b = 4;
-        break;
-      case 2:
-        state_machine_state_b = 5;
-        break;
-    }
-  }
 #endif
   if (counter_timer == 10) {
     counter_timer = 0;
@@ -320,7 +300,7 @@ void set_motor_brake_b(void) {
   time_pwm_ramp_b = TIME_PWM_RAMP_BRAKE;
   pwmMax_B = MAX_POWER_BRAKE;
   motor_b(3);
-  state_machine_state_b = 7;
+  state_machine_main_state_b = 7;
 #if (DEBUG_SERIAL_OUT)
   Serial.println("Start braking B");
 #endif
@@ -349,7 +329,7 @@ void set_winding_in_a(void) {
 
 #if (DUAL_MOTOR_CONTROLLER)
 void set_winding_in_b(void) {
-  state_machine_state_b = 2;
+  state_machine_main_state_b = 2;
   timer_LED_b = 0;
   timer_motor_power_b = 0;
   timer_start_cleaning_b = 0;
@@ -387,7 +367,7 @@ void set_start_cleaning_a(void) {
 
 #if (DUAL_MOTOR_CONTROLLER)
 void set_start_cleaning_b(void) {
-  state_machine_state_b = 1;
+  state_machine_main_state_b = 1;
   timer_motor_power_b = 0;
   timer_LED_b = 0;
   timer_start_cleaning_b = 0;
@@ -483,7 +463,7 @@ void setTimer(void) {
   timer_start_cleaning_b++;
   timer_motor_power_b++;
   timer_LED_b++;
-  if (timer_button_start_cleaning_b >= TIME_BUTTON_DEBOUNCE && state_machine_state_b == 0) {
+  if (timer_button_start_cleaning_b >= TIME_BUTTON_DEBOUNCE && state_machine_main_state_b == 0) {
     timer_button_long_press_b = timer_button_long_press_b + 1;
   }
 #endif
@@ -499,10 +479,10 @@ void read_Buttons(void) {
       set_start_cleaning_a();
     }
 #if (DUAL_MOTOR_CONTROLLER)
-    if (timer_button_winding_in_b >= TIME_BUTTON_DEBOUNCE && state_machine_state_b == 0) {
+    if (timer_button_winding_in_b >= TIME_BUTTON_DEBOUNCE && state_machine_main_state_b == 0) {
       set_winding_in_b();
     }
-    if (state_machine_state_b == 0 && timer_button_long_press_b >= TIME_LONG_PRESS) {
+    if (state_machine_main_state_b == 0 && timer_button_long_press_b >= TIME_LONG_PRESS) {
       set_start_cleaning_b();
     }
 #endif
@@ -514,8 +494,8 @@ void read_Buttons(void) {
   }
 #if (DUAL_MOTOR_CONTROLLER)
   if (timer_button_winding_in_b <= 5 && timer_button_start_cleaning_b <= 5
-      && state_machine_state_b == 3 && timer_start_cleaning_b >= 200) {
-    state_machine_state_b = 0;
+      && state_machine_main_state_b == 3 && timer_start_cleaning_b >= 200) {
+    state_machine_main_state_b = 0;
   }
 #endif
   // reset timer for long press of buttons
@@ -545,6 +525,10 @@ void state_machine_motor_a(void) {
         if (timer_button_winding_in_a >= TIME_BUTTON_DEBOUNCE) {
           state_machine_main_state_a = 6;
         }
+        // stop at high motor currents
+        if (ADC_current_sense_a >= MOTOR_CURRENT_STOP) {
+          state_machine_main_state_a = 5;
+        }
         // check cable loose
         if (timer_button_cable_loose_a <= 5 && cable_loose_a == 0) {
           motor_power_a = LOOSE_POWER_BRAKE;
@@ -571,25 +555,22 @@ void state_machine_motor_a(void) {
       break;
     case 2:  // winding in
       set_motorpower_a();
+      // override function when winding in is hold pressed
       if (timer_button_winding_in_a <= TIME_BUTTON_DEBOUNCE) {
-        // maximale Einziehzeit erreicht
+        // safty time out
         if (timer_start_cleaning_a >= TIME_MAX_WINDING_IN) {
           state_machine_main_state_a = 6;
         }
-        //Stopp bei drücken des Putzen Pins
+        // stop with pressing the other button:
         if (timer_button_start_cleaning_a >= TIME_BUTTON_DEBOUNCE) {
           state_machine_main_state_a = 6;
         }
-        if (timer_start_cleaning_a >= TIME_MIN_CLEANING && timer_button_cable_loose_a <= 5 && cable_loose_a == 0) {
-          motor_power_a = LOOSE_POWER_BRAKE;
-          cable_loose_a = 1;
-          motor_a(3);
-          time_pwm_ramp_a = TIME_PWM_RAMP_LOOSE_CABLE;
-#if (DEBUG_SERIAL_OUT)
-          Serial.println("Cable is loose");
-#endif
+        // stop at high motor currents
+        if (ADC_current_sense_a >= MOTOR_CURRENT_STOP) {
+          state_machine_main_state_a = 5;
         }
       }
+      // LED status blinking
       if (timer_LED_a >= LED_TIME_WINDING_IN) {
         digitalWrite(LED_A_PIN, !digitalRead(LED_A_PIN));
         timer_LED_a = 0;
@@ -611,91 +592,91 @@ void state_machine_motor_a(void) {
       }
       break;
   }
-
-  if (timer_button_cable_loose_a >= TIME_BUTTON_DEBOUNCE && cable_loose_a == 1) {
-    motor_power_a = START_POWER_LOOSE_CABLE;
-    motor_a(direction_of_rotation_A_old);
-    time_pwm_ramp_a = TIME_PWM_RAMP_LOOSE_CABLE;
-    cable_loose_a = 0;
-  }
-  // Motor bremsen
 }
 
 #if (DUAL_MOTOR_CONTROLLER)
 void state_machine_motor_b(void) {
-  if (state_machine_state_b == 1 || state_machine_state_b == 2 || state_machine_state_b == 7) {
-    set_motorpower_b();
-  }
-  if (state_machine_state_b == 1) {
-    if (timer_button_start_cleaning_b <= TIME_BUTTON_DEBOUNCE) {
-      if (timer_start_cleaning_b >= TIME_MAX_CLEANING) {
-        state_machine_state_b = 6;
+  switch (state_machine_main_state_a) {
+    case 0:  // do nothing
+      break;
+    case 1:  // cleaning
+      set_motorpower_b();
+      // override function when start cleaning is hold pressed
+      if (timer_button_start_cleaning_b <= TIME_BUTTON_DEBOUNCE) {
+        // safty time out
+        if (timer_start_cleaning_b >= TIME_MAX_CLEANING) {
+          state_machine_main_state_b = 6;
+        }
+        // stop with pressing the other button:
+        if (timer_button_winding_in_b >= TIME_BUTTON_DEBOUNCE) {
+          state_machine_main_state_b = 6;
+        }
+        // stop at high motor currents
+        if (ADC_current_sense_b >= MOTOR_CURRENT_STOP) {
+          state_machine_main_state_b = 5;
+        }
+        // check cable loose
+        if (timer_button_cable_loose_b <= 5 && cable_loose_b == 0) {
+          motor_power_b = LOOSE_POWER_BRAKE;
+          cable_loose_b = 1;
+          motor_b(3);
+          time_pwm_ramp_b = TIME_PWM_RAMP_LOOSE_CABLE;
+#if (DEBUG_SERIAL_OUT)
+          Serial.println("Cable is loose");
+#endif
+        }
       }
-      if (timer_button_winding_in_b >= TIME_BUTTON_DEBOUNCE) {
-        state_machine_state_b = 6;
-      }
-      if (timer_start_cleaning_b >= TIME_MIN_CLEANING && timer_button_cable_loose_b <= 5 && cable_loose_b == 0) {
-        motor_power_b = LOOSE_POWER_BRAKE;
-        motor_b(3);
+      // check cable not loose anymore
+      if (timer_button_cable_loose_b >= TIME_BUTTON_DEBOUNCE && cable_loose_b == 1) {
+        motor_power_b = START_POWER_LOOSE_CABLE;
+        motor_b(direction_of_rotation_B_old);
         time_pwm_ramp_b = TIME_PWM_RAMP_LOOSE_CABLE;
-        cable_loose_b = 1;
+        cable_loose_b = 0;
       }
-    }
-    if (timer_LED_b == LED_TIME_CLEANING) {
-      digitalWrite(LED_B_PIN, !digitalRead(LED_B_PIN));
-      timer_LED_b = 0;
-    }
-    if (timer_button_cable_loose_b >= TIME_BUTTON_DEBOUNCE && cable_loose_b == 1) {
-      motor_power_b = START_POWER_LOOSE_CABLE;
-      motor_b(direction_of_rotation_B_old);
-      time_pwm_ramp_b = TIME_PWM_RAMP_LOOSE_CABLE;
-      cable_loose_b = 0;
-    }
-  }
-  if (state_machine_state_b == 2) {
-    if (timer_button_winding_in_b <= TIME_BUTTON_DEBOUNCE) {
-      // maximale Einziehzeit erreicht
-      if (timer_start_cleaning_b >= TIME_MAX_WINDING_IN) {
-        state_machine_state_b = 6;
+      // LED status blinking
+      if (timer_LED_b == LED_TIME_CLEANING) {
+        digitalWrite(LED_B_PIN, !digitalRead(LED_B_PIN));
+        timer_LED_b = 0;
       }
-      //Stopp bei drücken des Putzen Pins
-      if (timer_button_start_cleaning_b >= TIME_BUTTON_DEBOUNCE) {
-        state_machine_state_b = 6;
+      break;
+    case 2:  // winding in
+      set_motorpower_b();
+      // override function when winding in is hold pressed
+      if (timer_button_winding_in_b <= TIME_BUTTON_DEBOUNCE) {
+        // safty time out
+        if (timer_start_cleaning_b >= TIME_MAX_WINDING_IN) {
+          state_machine_main_state_b = 6;
+        }
+        // stop with pressing the other button:
+        if (timer_button_start_cleaning_b >= TIME_BUTTON_DEBOUNCE) {
+          state_machine_main_state_b = 6;
+        }
+        // stop at high motor currents
+        if (ADC_current_sense_b >= MOTOR_CURRENT_STOP) {
+          state_machine_main_state_b = 5;
+        }
       }
-      if (timer_start_cleaning_b >= TIME_MIN_CLEANING && timer_button_cable_loose_b <= 5 && cable_loose_b == 0) {
-        motor_power_b = LOOSE_POWER_BRAKE;
-        motor_b(3);
-        time_pwm_ramp_b = TIME_PWM_RAMP_LOOSE_CABLE;
-        cable_loose_b = 1;
+      // LED status blinking
+      if (timer_LED_b >= LED_TIME_WINDING_IN) {
+        digitalWrite(LED_B_PIN, !digitalRead(LED_B_PIN));
+        timer_LED_b = 0;
       }
-    }
-    // LED Blinken
-    if (timer_LED_b >= LED_TIME_WINDING_IN) {
-      digitalWrite(LED_B_PIN, !digitalRead(LED_B_PIN));
-      timer_LED_b = 0;
-    }
-    if (timer_button_cable_loose_b >= TIME_BUTTON_DEBOUNCE && cable_loose_b == 1) {
-      motor_power_b = START_POWER_LOOSE_CABLE;
-      motor_b(direction_of_rotation_B_old);
-      time_pwm_ramp_b = TIME_PWM_RAMP_LOOSE_CABLE;
-      cable_loose_b = 0;
-    }
-  }
-  if (state_machine_state_b == 7 && motor_power_b == 255) {
-    state_machine_state_b = 3;
-    timer_start_cleaning_b = 0;
-  }
-  if (state_machine_state_b == 4) {
-    set_motor_brake_b();
-    digitalWrite(LED_B_PIN, 0);
-  }
-  if (state_machine_state_b == 5) {
-    set_motor_brake_b();
-    digitalWrite(LED_B_PIN, 0);
-  }
-  if (state_machine_state_b == 6) {
-    set_motor_brake_b();
-    digitalWrite(LED_B_PIN, 1);
+      break;
+    case 5:
+      set_motor_brake_b();
+      digitalWrite(LED_B_PIN, 0);
+      break;
+    case 6:
+      set_motor_brake_b();
+      digitalWrite(LED_B_PIN, 1);
+      break;
+    case 7:  //stopping
+      set_motorpower_b();
+      if (motor_power_b == 255) {
+        state_machine_main_state_b = 3;
+        timer_start_cleaning_b = 0;
+      }
+      break;
   }
 }
 #endif
