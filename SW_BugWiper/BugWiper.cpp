@@ -32,23 +32,23 @@ void BugWiper::set_timer() {
 }
 
 // switch the motor 1 = out;	2 = in 2;	3 = stop;
-void BugWiper::set_motor_dir(uint8_t dir) {
+void BugWiper::set_motor_dir(direction dir) {
   switch (dir) {
-    case 1:  // out
+    case direction::out :  // out
       {
         digitalWrite(motor_in2_pin, 0);
         digitalWrite(motor_in1_pin, 1);
       }
       break;
 
-    case 2:  // in
+    case direction::in :  // in
       {
         digitalWrite(motor_in1_pin, 0);
         digitalWrite(motor_in2_pin, 1);
       }
       break;
 
-    case 3:  // stop
+    case direction::stop :  // stop
       {
         digitalWrite(motor_in2_pin, 0);
         digitalWrite(motor_in1_pin, 0);
@@ -72,7 +72,7 @@ void BugWiper::set_motor_brake() {
   motor_power = START_POWER_BRAKE;
   time_pwm_ramp = TIME_PWM_RAMP_BRAKE;
   motor_power_max = MAX_POWER_BRAKE;
-  set_motor_dir(3);
+  set_motor_dir(direction::stop);
   state_machine_main_state = 7;
 #if (DEBUG_SERIAL_OUT)
   Serial.println("Start braking A");
@@ -87,11 +87,7 @@ void BugWiper::set_winding_in(void) {
   motor_power = START_POWER_WINDING_IN;
   time_pwm_ramp = TIME_PWM_RAMP_WINDING_IN;
   motor_power_max = MAX_POWER_WINDING_IN;
-  if (motor_inverted) {
-    set_motor_dir(1);
-  } else {
-    set_motor_dir(2);
-  }
+  set_motor_dir(direction::out);
 #if (DEBUG_SERIAL_OUT)
   Serial.println("Start winding in A");
 #endif
@@ -105,11 +101,7 @@ void BugWiper::set_start_cleaning(void) {
   motor_power = START_POWER_CLEANING;
   time_pwm_ramp = TIME_PWM_RAMP_CLEANING;
   motor_power_max = MAX_POWER_CLEANING;
-  if (motor_inverted) {
-    set_motor_dir(2);
-  } else {
-    set_motor_dir(1);
-  }
+  set_motor_dir(direction::out);
 #if (DEBUG_SERIAL_OUT)
   Serial.println("Start cleaning A");
 #endif
@@ -139,7 +131,7 @@ void BugWiper::state_machine(bool button_cleaning, bool button_winding_in, bool 
         if (sw_cable_loose && cable_loose_state == 0) {
           motor_power = LOOSE_POWER_BRAKE;
           cable_loose_state = 1;
-          set_motor_dir(3);
+          set_motor_dir(direction::stop);
           time_pwm_ramp = TIME_PWM_RAMP_LOOSE_CABLE;
 #if (DEBUG_SERIAL_OUT)
           Serial.println("Cable is loose");
@@ -149,7 +141,7 @@ void BugWiper::state_machine(bool button_cleaning, bool button_winding_in, bool 
       // check cable not loose anymore
       if (!sw_cable_loose && cable_loose_state == 1) {
         motor_power = START_POWER_LOOSE_CABLE;
-        set_motor_dir(1);
+        set_motor_dir(direction::out);
         time_pwm_ramp = TIME_PWM_RAMP_LOOSE_CABLE;
         cable_loose_state = 0;
       }

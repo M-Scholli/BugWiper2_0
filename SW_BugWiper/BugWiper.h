@@ -24,6 +24,9 @@
 #define START_POWER_LOOSE_CABLE 60    //start power after loose cable
 #define TIME_BUTTON_DEBOUNCE 50       //time in ms for button debounce
 
+enum class direction { out,
+                       in,
+                       stop };
 
 class BugWiper {
 public:
@@ -39,7 +42,7 @@ public:
   uint32_t timer_cleaning;
   uint16_t state_machine_main_state;
 private:
-  void set_motor_dir(uint8_t dir);
+  void set_motor_dir(direction dir);
   void set_motor_power();
   int motor_pwm_channel;
   gpio_num_t LED_pin;
@@ -54,4 +57,5 @@ private:
   uint8_t timer_motor_power;
   bool motor_inverted;
   bool cable_loose_state;
+  direction moror_direction;
 };
