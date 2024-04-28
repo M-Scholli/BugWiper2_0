@@ -1,3 +1,4 @@
+#include <sys/_stdint.h>
 #include <Arduino.h>
 #include "BugWiper.h"
 
@@ -31,24 +32,24 @@ void BugWiper::set_timer() {
   timer_LED++;
 }
 
-// switch the motor 1 = out;	2 = in 2;	3 = stop;
+// switch the motor to out, in or stops
 void BugWiper::set_motor_dir(direction dir) {
   switch (dir) {
-    case direction::out :  // out
+    case direction::out:  // out
       {
         digitalWrite(motor_in2_pin, 0);
         digitalWrite(motor_in1_pin, 1);
       }
       break;
 
-    case direction::in :  // in
+    case direction::in:  // in
       {
         digitalWrite(motor_in1_pin, 0);
         digitalWrite(motor_in2_pin, 1);
       }
       break;
 
-    case direction::stop :  // stop
+    case direction::stop:  // stop
       {
         digitalWrite(motor_in2_pin, 0);
         digitalWrite(motor_in1_pin, 0);
@@ -59,34 +60,42 @@ void BugWiper::set_motor_dir(direction dir) {
 
 void BugWiper::set_motor_power() {
   if (timer_motor_power >= time_pwm_ramp) {
-    if (motor_power < motor_power_max) {
+    if (motor_power < motor_power_dest) {
       motor_power++;
+    } else if (motor_power > motor_power_dest) {
+      motor_power--;
     }
     timer_motor_power = 0;
   }
   ledcWrite(motor_pwm_channel, motor_power);
 }
 
+void BugWiper::LED_blinking() {
+  if (timer_LED >= LED_time) {
+    digitalWrite(LED_pin, !digitalRead(LED_pin));
+    timer_LED = 0;
+  }
+}
+
 void BugWiper::set_motor_brake() {
   timer_motor_power = 0;
   motor_power = START_POWER_BRAKE;
   time_pwm_ramp = TIME_PWM_RAMP_BRAKE;
-  motor_power_max = MAX_POWER_BRAKE;
+  motor_power_dest = MAX_POWER_BRAKE;
   set_motor_dir(direction::stop);
-  state_machine_main_state = 7;
 #if (DEBUG_SERIAL_OUT)
   Serial.println("Start braking A");
 #endif
 }
 
 void BugWiper::set_winding_in(void) {
-  state_machine_main_state = 2;
+  state_machine_state = 2;
   timer_LED = 0;
   timer_motor_power = 0;
   timer_cleaning = 0;
   motor_power = START_POWER_WINDING_IN;
   time_pwm_ramp = TIME_PWM_RAMP_WINDING_IN;
-  motor_power_max = MAX_POWER_WINDING_IN;
+  motor_power_dest = MAX_POWER_WINDING_IN;
   set_motor_dir(direction::out);
 #if (DEBUG_SERIAL_OUT)
   Serial.println("Start winding in A");
@@ -94,100 +103,173 @@ void BugWiper::set_winding_in(void) {
 }
 
 void BugWiper::set_start_cleaning(void) {
-  state_machine_main_state = 1;
-  timer_motor_power = 0;
-  timer_LED = 0;
-  timer_cleaning = 0;
-  motor_power = START_POWER_CLEANING;
-  time_pwm_ramp = TIME_PWM_RAMP_CLEANING;
-  motor_power_max = MAX_POWER_CLEANING;
-  set_motor_dir(direction::out);
+  state_machine_state = 10;
 #if (DEBUG_SERIAL_OUT)
   Serial.println("Start cleaning A");
 #endif
 }
 
-void BugWiper::state_machine(bool button_cleaning, bool button_winding_in, bool sw_cable_loose) {
-  switch (state_machine_main_state) {
+/* main_state machine 
+ 0 = ready
+ 1 = cleaning prozess
+ 2 = winding in prozess
+ 3 = retighten
+ 5 = finished
+ 6 = ERROR
+ 7 = Stopp
+ */
+
+/* main state machine
+0X idling
+0 = init idling
+
+10X starting winding out
+
+20X winding out
+
+30X loose cable situation
+0 =  loose cable: init /  detected
+1 =  loose cable: stopping
+2 = lose cable: stopped
+3 = lose cable: restarting
+4 = full speed reached
+
+40x end of wing
+0 = direction change init 
+1 = direction change slow down
+2 = direction change full stop
+3 = direction cghange new direction inti
+4 = direction change restart
+5 = direction change full speed reached
+
+50x winding in
+0 = near fuselage position reached
+1 = near fuselage slow down
+2 = near fuselage slow speed reached
+3 = near fuselage no movemend detected
+4 = near fuselage stopping
+
+60x near fuselage
+0 = stopping init
+1 = stopping start
+2 = stopping full stop
+3 = stopping wait
+4 = stopping retighten
+5 = stopping stop finished
+
+70x stopping at fuselage
+
+80x retighten
+*/
+
+void BugWiper::state_machine(void) {
+  switch (state_machine_state) {
     case 0:  // do nothing
       break;
-    case 1:  // cleaning
-      set_motor_power();
-      // override function when start cleaning is hold pressed
-      if (!button_cleaning) {
-        // safty time out
-        if (timer_cleaning >= TIME_MAX_CLEANING) {
-          state_machine_main_state = 6;
-        }
-        // stop with pressing the other button:
-        if (button_winding_in) {
-          state_machine_main_state = 6;
-        }
-        // stop at high motor currents
-        if (ADC_current_sense >= MOTOR_CURRENT_STOP) {
-          state_machine_main_state = 5;
-        }
-        // check cable loose
-        if (sw_cable_loose && cable_loose_state == 0) {
-          motor_power = LOOSE_POWER_BRAKE;
-          cable_loose_state = 1;
-          set_motor_dir(direction::stop);
-          time_pwm_ramp = TIME_PWM_RAMP_LOOSE_CABLE;
+    // 1x starting winding out
+    case 10:
+      timer_motor_power = 0;
+      timer_LED = 0;
+      timer_cleaning = 0;
+      motor_power = START_POWER_CLEANING;
+      time_pwm_ramp = TIME_PWM_RAMP_START;
+      motor_power_dest = MAX_POWER_START_CLEANING;
+      set_motor_dir(direction::out);
+      state_machine_state++;
+      break;
+    case 11:
+      if (position > POSITION_STARTING) {
+        state_machine_state = 20;
+      }
+      if (cable_loose) {
+        state_machine_state = 30;
+      }
+      break;
+    case 20:
+      motor_power_dest = MAX_POWER_WINDING_OUT;
+      time_pwm_ramp = TIME_PWM_RAMP_CLEANING;
+      state_machine_state++;
+      break;
+    case 21:
+      if (position > (POSITION_WINGTIP - LENGTH_SLOW)){
+        state_machine_state = 40;
+      }
+      if (cable_loose) {
+        state_machine_state = 30;
+      }
+      break;
+    case 30:
+      set_motor_dir(direction::stop);
+      motor_power = LOOSE_POWER_BRAKE;
+      motor_power_dest = LOOSE_POWER_BRAKE;
+      state_machine_state++;
 #if (DEBUG_SERIAL_OUT)
-          Serial.println("Cable is loose");
+      Serial.println("Cable is loose");
 #endif
+      break;
+    case 31:
+      if (!cable_loose) {
+        if (position < POSITION_STARTING) {
+          state_machine_state = 10;
+        } else {
+          motor_power = START_POWER_CLEANING;
+          set_motor_dir(direction::out);
+          state_machine_state = 20;
         }
       }
-      // check cable not loose anymore
-      if (!sw_cable_loose && cable_loose_state == 1) {
-        motor_power = START_POWER_LOOSE_CABLE;
-        set_motor_dir(direction::out);
-        time_pwm_ramp = TIME_PWM_RAMP_LOOSE_CABLE;
-        cable_loose_state = 0;
-      }
-      // LED status blinking
-      if (timer_LED == LED_TIME_CLEANING) {
-        digitalWrite(LED_pin, !digitalRead(LED_pin));
-        timer_LED = 0;
+      break;
+    case 40:
+      motor_power_dest = MAX_POWER_NEAR_END;
+      time_pwm_ramp = TIME_PWN_RAMP_SLOW;
+      state_machine_state++;
+      break;
+    case 41:
+      if (position > POSITION_WINGTIP){
+        state_machine_state = 50;
       }
       break;
-    case 2:  // winding in
-      set_motor_power();
-      // override function when winding in is hold pressed
-      if (!button_winding_in) {
-        // safty time out
-        if (timer_cleaning >= TIME_MAX_WINDING_IN) {
-          state_machine_main_state = 6;
-        }
-        // stop with pressing the other button:
-        if (button_cleaning) {
-          state_machine_main_state = 6;
-        }
-        // stop at high motor currents
-        if (ADC_current_sense >= MOTOR_CURRENT_STOP) {
-          state_machine_main_state = 5;
-        }
-      }
-      // LED status blinking
-      if (timer_LED >= LED_TIME_WINDING_IN) {
-        digitalWrite(LED_pin, !digitalRead(LED_pin));
-        timer_LED = 0;
-      }
+    case 50:
+      timer_motor_power = 0;
+      timer_LED = 0;
+      motor_power = START_POWER_WINDING_IN;
+      time_pwm_ramp = TIME_PWM_RAMP_WINDING_IN;
+      motor_power_dest = MAX_POWER_WINDING_IN;
+      set_motor_dir(direction::in);
+      state_machine_state++;
       break;
-    case 5:
-      set_motor_brake();
-      digitalWrite(LED_pin, 0);
+    case 51:
+    if (position < LENGTH_SLOW){
+        state_machine_state = 60;
+    }
+    case 60:
+      motor_power_dest = MAX_POWER_NEAR_END;
+      time_pwm_ramp = TIME_PWN_RAMP_SLOW;
+      state_machine_state++;
       break;
-    case 6:
-      set_motor_brake();
-      digitalWrite(LED_pin, 1);
-      break;
-    case 7:  //stopping
-      set_motor_power();
-      if (motor_power == 255) {
-        state_machine_main_state = 3;
-        timer_cleaning = 0;
-      }
-      break;
+    case 61:
+    if(1){
+        state_machine_state = 70;
+    }
+    break;
+    case 80:
+    set_motor_brake();
+    state_machine_state++;
+    break;
   }
+}
+
+uint8_t BugWiper::calculate(int64_t count, bool button_cleaning, bool button_winding_in, bool sw_cable_loose) {
+  position = count * p_numerator / p_denominator;
+  if (state_machine_state < 10) {
+    if (button_cleaning) {
+      state_machine_state = 10;
+    }
+    if (button_winding_in) {
+      state_machine_state = 50;
+    }
+  }
+  set_timer();
+  state_machine();
+  set_motor_power();
+  LED_blinking();
 }

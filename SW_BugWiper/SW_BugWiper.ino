@@ -2,7 +2,7 @@
 #include <ESP32Encoder.h>
 #include "BugWiper.h"
 
-#define DUAL_MOTOR_CONTROLLER 2
+#define DUAL_MOTOR_CONTROLLER 0
 #define DEBUG_SERIAL_OUT 2
 
 // Pindiscription, follwing pins are not allowed to use: 0 (Bootselect); 2 Board LED; 1 & 3 (UART 0 for serial debug interface); 5 ?;  6, 7, 8, 9, 10 & 11 (4 MB SPI Flash); 16-17 (PSRAM)
@@ -84,47 +84,7 @@ BugWiper Putzi_a(LED_A_PIN, MOTOR_A_CURRENT_SENSE_PIN, MOTOR_A_IN1_PIN, MOTOR_A_
 BugWiper Putzi_b(LED_B_PIN, MOTOR_B_CURRENT_SENSE_PIN, MOTOR_B_IN1_PIN, MOTOR_B_IN2_PIN, MOTOR_B_EN_PIN, PWM_CHANNEL_B);
 #endif
 
-/* main_state machine 
- 0 = ready
- 1 = cleaning prozess
- 2 = winding in prozess
- 3 = retighten
- 5 = finished
- 6 = ERROR
- 7 = Stopp
- */
 
-/* sub state machine
-0 = init
-1 = starting
-2 = running
-
-10 =  loose cable: init /  detected
-11 =  loose cable: stopping
-12 = lose cable: stopped
-13 = lose cable: restarting
-14 = full speed reached
-
-20 = direction change init 
-21 = direction change slow down
-22 = direction change full stop
-23 = direction cghange new direction inti
-24 = direction change restart
-25 = direction change full speed reached
-
-30 = near fuselage position reached
-31 = near fuselage slow down
-32 = near fuselage slow speed reached
-33 = near fuselage no movemend detected
-34 = near fuselage stopping
-
-40 = stopping init
-41 = stopping start
-42 = stopping full stop
-43 = stopping wait
-44 = stopping retighten
-45 = stopping stop finished
-*/
 
 void IRAM_ATTR Timer0_ISR(void) {
   counter_timer++;
@@ -134,9 +94,9 @@ void IRAM_ATTR Timer0_ISR(void) {
 #endif
   if (counter_timer == 10) {
     counter_timer = 0;
-    Putzi_a.set_timer();
+    Putzi_a.calculate(encoder_motor_a.getCount(), 0, 0, 0);
 #if (DUAL_MOTOR_CONTROLLER)
-    Putzi_b.set_timer();
+    Putzi_b.calculate(encoder_motor_b.getCount(), 0, 0, 0);
 #endif
   }
 }
@@ -215,30 +175,30 @@ void button_debounce(void) {
 
 void read_Buttons(void) {
   if (digitalRead(SAFETY_SWITCH_PIN) == 0) {
-    if (timer_button_winding_in_a >= TIME_BUTTON_DEBOUNCE && Putzi_a.state_machine_main_state == 0) {
+    if (timer_button_winding_in_a >= TIME_BUTTON_DEBOUNCE && Putzi_a.state_machine_state == 0) {
       Putzi_a.set_winding_in();
     }
-    if (Putzi_a.state_machine_main_state == 0 && timer_button_long_press_a >= TIME_LONG_PRESS) {
+    if (Putzi_a.state_machine_state == 0 && timer_button_long_press_a >= TIME_LONG_PRESS) {
       Putzi_a.set_start_cleaning();
     }
 #if (DUAL_MOTOR_CONTROLLER)
-    if (timer_button_winding_in_b >= TIME_BUTTON_DEBOUNCE && Putzi_b.state_machine_main_state == 0) {
+    if (timer_button_winding_in_b >= TIME_BUTTON_DEBOUNCE && Putzi_b.state_machine_state == 0) {
       Putzi_b.set_winding_in();
     }
-    if (Putzi_b.state_machine_main_state == 0 && timer_button_long_press_b >= TIME_LONG_PRESS) {
+    if (Putzi_b.state_machine_state == 0 && timer_button_long_press_b >= TIME_LONG_PRESS) {
       Putzi_b.set_start_cleaning();
     }
 #endif
   }
   // prevents a imediate second start cleaning after finish the first one
   if (timer_button_winding_in_a <= 5 && timer_button_start_cleaning_a <= 5
-      && Putzi_a.state_machine_main_state == 3 && Putzi_a.timer_cleaning >= 200) {
-    Putzi_a.state_machine_main_state = 0;
+      && Putzi_a.state_machine_state == 3 && Putzi_a.timer_cleaning >= 200) {
+    Putzi_a.state_machine_state = 0;
   }
 #if (DUAL_MOTOR_CONTROLLER)
   if (timer_button_winding_in_b <= 5 && timer_button_start_cleaning_b <= 5
-      && Putzi_b.state_machine_main_state == 3 && Putzi_b.timer_cleaning >= 200) {
-    Putzi_b.state_machine_main_state = 0;
+      && Putzi_b.state_machine_state == 3 && Putzi_b.timer_cleaning >= 200) {
+    Putzi_b.state_machine_state = 0;
   }
 #endif
   // reset timer for long press of buttons
@@ -277,10 +237,6 @@ void setup() {
 // The loop function is called in an endless loop
 void loop() {
   read_Buttons();
-  Putzi_a.state_machine(0, 0, 0);
-#if (DUAL_MOTOR_CONTROLLER)
-  Putzi_b.state_machine(0, 0, 0);
-#endif
 #if (DEBUG_SERIAL_OUT >= 2)
   Serial.println("ADC value = " + String(Putzi_a.ADC_current_sense));
   Serial.println("Encoder count = " + String((int32_t)encoder_motor_a.getCount()));
