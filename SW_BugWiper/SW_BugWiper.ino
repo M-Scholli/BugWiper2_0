@@ -1,7 +1,15 @@
 #include <Arduino.h>
 #include <ESP32Encoder.h>
 #include "BugWiper.h"
+#include <WiFi.h>
+#include <WiFiAP.h>
+#include <AsyncTCP.h>
+#include <ESPAsyncWebServer.h>
+#include <SPIFFS.h>
+#include "webpages.h"
 
+#define Wifi_Boot_Pin 4
+#define FIRMWARE_VERSION "v0.0.1"
 #define DUAL_MOTOR_CONTROLLER 0
 #define DEBUG_SERIAL_OUT 2
 
@@ -212,37 +220,185 @@ void read_Buttons(void) {
 #endif
 }
 
+// Webserver based on https://github.com/smford/esp32-asyncwebserver-fileupload-example.git
+const String default_ssid = "yourssid";
+const String default_wifipassword = "mypassword";
+const String default_httpuser = "admin";
+const String default_httppassword = "admin";
+const int default_webserverporthttp = 80;
+
+// configuration structure
+struct Config {
+  String ssid;            // wifi ssid
+  String wifipassword;    // wifi password
+  String httpuser;        // username to access web admin
+  String httppassword;    // password to access web admin
+  int webserverporthttp;  // http port number for web admin
+};
+
+// variables
+Config config;              // configuration
+bool shouldReboot = false;  // schedule a reboot
+AsyncWebServer *server;     // initialise webserver
+
+// function defaults
+String listFiles(bool ishtml = false);
+
+bool ConfigMode = false;
 
 //The setup function is called once at startup of the sketch
 void setup() {
+  pinMode(Wifi_Boot_Pin, INPUT_PULLUP);
 #if (DEBUG_SERIAL_OUT)
   Serial.begin(115200);
-  Serial.println("BugWiper start programm");
-#endif
-  Encoder_init();
-  Putzi_a.init();
-  Putzi_a.init();
-  init_io();
-  Timer_init();
-#if (DEBUG_SERIAL_OUT)
-  if (digitalRead(SAFETY_SWITCH_PIN) == 0) {
-    Serial.println("SAFETY SWITCH closed");
-  } else {
-    Serial.println("WARNING!!! SAFETY SWITCH open");
-    Serial.println("Close the SAFETY SWITCH to operate the BugWiper");
+  Serial.print("Firmware: ");
+  Serial.println(FIRMWARE_VERSION);
+
+  Serial.println("Booting ...");
+
+  Serial.println("Mounting SPIFFS ...");
+
+  if (!SPIFFS.begin(true)) {
+    // if you have not used SPIFFS before on a ESP32, it will show this error.
+    // after a reboot SPIFFS will be configured and will happily work.
+    Serial.println("ERROR: Cannot mount SPIFFS, Rebooting");
+    rebootESP("ERROR: Cannot mount SPIFFS, Rebooting");
   }
+
+  Serial.print("SPIFFS Free: ");
+  Serial.println(humanReadableSize((SPIFFS.totalBytes() - SPIFFS.usedBytes())));
+  Serial.print("SPIFFS Used: ");
+  Serial.println(humanReadableSize(SPIFFS.usedBytes()));
+  Serial.print("SPIFFS Total: ");
+  Serial.println(humanReadableSize(SPIFFS.totalBytes()));
+
+  Serial.println(listFiles());
+  if (digitalRead(Wifi_Boot_Pin)) {
+    Serial.println("PIN Config Mode: No Wifi selected");
+    Serial.println("BugWiper start programm");
 #endif
+    Encoder_init();
+    Putzi_a.init();
+    Putzi_a.init();
+    init_io();
+    Timer_init();
+#if (DEBUG_SERIAL_OUT)
+    if (digitalRead(SAFETY_SWITCH_PIN) == 0) {
+      Serial.println("SAFETY SWITCH closed");
+    } else {
+      Serial.println("WARNING!!! SAFETY SWITCH open");
+      Serial.println("Close the SAFETY SWITCH to operate the BugWiper");
+    }
+#endif
+
+  } else {
+    ConfigMode = true;
+    digitalWrite(LED_BUILTIN, HIGH);
+    Serial.println("PIN Config Mode:: Start Wifi to enter Config Mode");
+
+    Serial.println("Loading Configuration ...");
+
+    config.ssid = default_ssid;
+    config.wifipassword = default_wifipassword;
+    config.httpuser = default_httpuser;
+    config.httppassword = default_httppassword;
+    config.webserverporthttp = default_webserverporthttp;
+
+    Serial.print("\nConnecting to Wifi: ");
+    WiFi.softAP(config.ssid.c_str(), config.wifipassword.c_str());
+    WiFi.softAPsetHostname(config.ssid.c_str());
+
+    Serial.println("\n\nNetwork Configuration:");
+    Serial.println("----------------------");
+    Serial.print("         SSID: ");
+    Serial.println(WiFi.softAPSSID());
+    //Serial.print("  Wifi Status: "); Serial.println(WiFi.softAP);
+    Serial.print("Wifi Strength: ");
+    Serial.print(WiFi.RSSI());
+    Serial.println(" dBm");
+    Serial.print("          MAC: ");
+    Serial.println(WiFi.macAddress());
+    Serial.print("           IP: ");
+    Serial.println(WiFi.softAPIP());
+    Serial.print("       Subnet: ");
+    Serial.println(WiFi.softAPSubnetMask());
+    //Serial.print("      Gateway: "); Serial.println(WiFi.gatewayIP());
+    //Serial.print("        DNS 1: "); Serial.println(WiFi.dnsIP(0));
+    //Serial.print("        DNS 2: "); Serial.println(WiFi.dnsIP(1));
+    //Serial.print("        DNS 3: "); Serial.println(WiFi.dnsIP(2));
+    Serial.println();
+
+    // configure web server
+    Serial.println("Configuring Webserver ...");
+    server = new AsyncWebServer(config.webserverporthttp);
+    configureWebServer();
+
+    // startup web server
+    Serial.println("Starting Webserver ...");
+    server->begin();
+  }
 }
 
 // The loop function is called in an endless loop
 void loop() {
-  read_Buttons();
+  if (ConfigMode) {
+    // reboot if we've told it to reboot
+    if (shouldReboot) {
+      rebootESP("Web Admin Initiated Reboot");
+    }
+  } else {
+    read_Buttons();
 #if (DEBUG_SERIAL_OUT >= 2)
-  Serial.println("ADC value = " + String(Putzi_a.ADC_current_sense));
-  Serial.println("Encoder count = " + String((int32_t)encoder_motor_a.getCount()));
+    Serial.println("ADC value = " + String(Putzi_a.ADC_current_sense));
+    Serial.println("Encoder count = " + String((int32_t)encoder_motor_a.getCount()));
 #if (DUAL_MOTOR_CONTROLLER)
-  Serial.println("ADC_B value = " + String(Putzi_b.ADC_current_sense));
-  Serial.println("Encoder_B count = " + String((int32_t)encoder_motor_b.getCount()));
+    Serial.println("ADC_B value = " + String(Putzi_b.ADC_current_sense));
+    Serial.println("Encoder_B count = " + String((int32_t)encoder_motor_b.getCount()));
 #endif
 #endif
+  }
+}
+
+// the following is based on https://github.com/smford/esp32-asyncwebserver-fileupload-example.git
+
+void rebootESP(String message) {
+  Serial.print("Rebooting ESP32: ");
+  Serial.println(message);
+  ESP.restart();
+}
+
+// list all of the files, if ishtml=true, return html rather than simple text
+String listFiles(bool ishtml) {
+  String returnText = "";
+  Serial.println("Listing files stored on SPIFFS");
+  File root = SPIFFS.open("/");
+  File foundfile = root.openNextFile();
+  if (ishtml) {
+    returnText += "<table><tr><th align='left'>Name</th><th align='left'>Size</th><th></th><th></th></tr>";
+  }
+  while (foundfile) {
+    if (ishtml) {
+      returnText += "<tr align='left'><td>" + String(foundfile.name()) + "</td><td>" + humanReadableSize(foundfile.size()) + "</td>";
+      returnText += "<td><button onclick=\"downloadDeleteButton(\'" + String(foundfile.name()) + "\', \'download\')\">Download</button>";
+      returnText += "<td><button onclick=\"downloadDeleteButton(\'" + String(foundfile.name()) + "\', \'delete\')\">Delete</button></tr>";
+    } else {
+      returnText += "File: " + String(foundfile.name()) + " Size: " + humanReadableSize(foundfile.size()) + "\n";
+    }
+    foundfile = root.openNextFile();
+  }
+  if (ishtml) {
+    returnText += "</table>";
+  }
+  root.close();
+  foundfile.close();
+  return returnText;
+}
+
+// Make size of files human readable
+// source: https://github.com/CelliesProjects/minimalUploadAuthESP32
+String humanReadableSize(const size_t bytes) {
+  if (bytes < 1024) return String(bytes) + " B";
+  else if (bytes < (1024 * 1024)) return String(bytes / 1024.0) + " KB";
+  else if (bytes < (1024 * 1024 * 1024)) return String(bytes / 1024.0 / 1024.0) + " MB";
+  else return String(bytes / 1024.0 / 1024.0 / 1024.0) + " GB";
 }

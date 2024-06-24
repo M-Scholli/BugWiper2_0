@@ -31,3 +31,6 @@ This project is an open source electronic bugwiper system.
 - A3144 Linear Hall Effect Sensor: https://www.amazon.de/dp/B0BQ2Z335H
 - Self-Adhesive Magnets 8 x 1 mm : https://www.amazon.de/dp/B0BJQ918KX
 - Micro Switch / Flipper Coin Counter: https://www.amazon.de/dp/B00X5LQMMQ
+
+## Open Source Software Declaration
+The Webserver part is based on https://github.com/smford/esp32-asyncwebserver-fileupload-example and licensed under Apache 2.0 license
