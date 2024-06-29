@@ -86,10 +86,10 @@ ESP32Encoder encoder_motor_b;
 hw_timer_t *Timer0_Cfg = NULL;
 volatile uint16_t counter_timer = 0;
 
-BugWiper Putzi_a(LED_A_PIN, MOTOR_A_CURRENT_SENSE_PIN, MOTOR_A_IN1_PIN, MOTOR_A_IN2_PIN, MOTOR_A_EN_PIN, PWM_CHANNEL_A);
+BugWiper Putzi_a(LED_A_PIN, MOTOR_A_CURRENT_SENSE_PIN, MOTOR_A_IN1_PIN, MOTOR_A_IN2_PIN, MOTOR_A_EN_PIN);
 
 #if (DUAL_MOTOR_CONTROLLER)
-BugWiper Putzi_b(LED_B_PIN, MOTOR_B_CURRENT_SENSE_PIN, MOTOR_B_IN1_PIN, MOTOR_B_IN2_PIN, MOTOR_B_EN_PIN, PWM_CHANNEL_B);
+BugWiper Putzi_b(LED_B_PIN, MOTOR_B_CURRENT_SENSE_PIN, MOTOR_B_IN1_PIN, MOTOR_B_IN2_PIN, MOTOR_B_EN_PIN);
 #endif
 
 
@@ -119,10 +119,9 @@ void Encoder_init(void) {
 }
 
 void Timer_init(void) {
-  Timer0_Cfg = timerBegin(0, 80, true);
-  timerAttachInterrupt(Timer0_Cfg, &Timer0_ISR, true);
-  timerAlarmWrite(Timer0_Cfg, 100, true);
-  timerAlarmEnable(Timer0_Cfg);
+  Timer0_Cfg = timerBegin(1000000);
+  timerAttachInterrupt(Timer0_Cfg, &Timer0_ISR);
+  timerAlarm(Timer0_Cfg, 100, true, 0);
 }
 
 void init_io(void) {
@@ -293,7 +292,7 @@ void setup() {
 
   } else {
     ConfigMode = true;
-    digitalWrite(LED_BUILTIN, HIGH);
+    digitalWrite(2, HIGH);
     Serial.println("PIN Config Mode:: Start Wifi to enter Config Mode");
 
     Serial.println("Loading Configuration ...");

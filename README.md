@@ -18,14 +18,15 @@ This project is an open source electronic bugwiper system.
 - WiFi Hotspot with webbrowser to configure the BugWiper system before flight
 
 ## Used IDE and Settings:
-- Arduino IDE2.3.0
-- selected Board: uPesy ESP32 Wroom DevKit
+- Arduino IDE2.3.2
+- selected Board: 4D-Systems gen4-Esp32 16Mb Modules
 
 ### Installed Librarys:
-- ESP32Encoder 0.10.2: https://github.com/madhephaestus/ESP32Encoder
+- ESP32Encoder 0.11.6 by Kevin Harrington: https://github.com/madhephaestus/ESP32Encoder
+- Manual Installed ESPAsyncWebServer by lacamera modified by Ed Nieuwenhuys to work with EPS32 V3: https://github.com/ednieuw/ESPAsyncWebServer
 
 ## Used Hardware:
-- Diymore ESP32 NodeMCU Module USB C ESP32 WROOM 32: https://www.amazon.de/dp/B0C6QHLGJG 
+- iHaospace 2 x ESP32-S3-DevKitC-1 N16R8 16Mb Flash, 8MB PSRAM https://www.amazon.de/dp/B0D1CBV999
 - IBT_2 BTS7960B 43 A Motor Driver: https://www.amazon.de/dp/B09HGBM5D2
 - 12V DC 200rpm High Torque Geared Electric Motor: https://www.amazon.de/gp/product/B00T48KC1Q 
 - A3144 Linear Hall Effect Sensor: https://www.amazon.de/dp/B0BQ2Z335H
