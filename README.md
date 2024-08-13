@@ -19,11 +19,17 @@ This project is an open source electronic bugwiper system.
 
 ## Used IDE and Settings:
 - Arduino IDE2.3.2
-- selected Board: 4D-Systems gen4-Esp32 16Mb Modules
+- selected Board: ESP32S3 DEV Module
+ 
+### Board Settings:
+![Image](./fotos/settings.PNG)
+ 
 
 ### Installed Librarys:
 - ESP32Encoder 0.11.6 by Kevin Harrington: https://github.com/madhephaestus/ESP32Encoder
 - Manual Installed ESPAsyncWebServer by lacamera modified by Ed Nieuwenhuys to work with EPS32 V3: https://github.com/ednieuw/ESPAsyncWebServer
+- Async TCP 3.1.4 by Me-No-Dev https://github.com/mathieucarbou/AsyncTCP
+
 
 ## Used Hardware:
 - iHaospace 2 x ESP32-S3-DevKitC-1 N16R8 16Mb Flash, 8MB PSRAM https://www.amazon.de/dp/B0D1CBV999
