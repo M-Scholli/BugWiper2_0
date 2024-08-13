@@ -2,14 +2,15 @@
 #include <ESP32Encoder.h>
 #include "BugWiper.h"
 #include <WiFi.h>
-#include <WiFiAP.h>
 #include <AsyncTCP.h>
 #include <ESPAsyncWebServer.h>
-#include <SPIFFS.h>
+#include <Update.h>
 #include "webpages.h"
+#include "FS.h"
+#include "FFat.h"
 
 #define Wifi_Boot_Pin 4
-#define FIRMWARE_VERSION "v0.0.1"
+#define FIRMWARE_VERSION "V0.0.2"
 #define DUAL_MOTOR_CONTROLLER 0
 #define DEBUG_SERIAL_OUT 2
 
@@ -220,7 +221,7 @@ void read_Buttons(void) {
 }
 
 // Webserver based on https://github.com/smford/esp32-asyncwebserver-fileupload-example.git
-const String default_ssid = "yourssid";
+const String default_ssid = "somessid";
 const String default_wifipassword = "mypassword";
 const String default_httpuser = "admin";
 const String default_httppassword = "admin";
@@ -238,6 +239,7 @@ struct Config {
 // variables
 Config config;              // configuration
 bool shouldReboot = false;  // schedule a reboot
+bool shouldUpdate = false;  // schedule a firmware update
 AsyncWebServer *server;     // initialise webserver
 
 // function defaults
@@ -255,23 +257,34 @@ void setup() {
 
   Serial.println("Booting ...");
 
-  Serial.println("Mounting SPIFFS ...");
+  Serial.println("Mounting FatFS ...");
 
-  if (!SPIFFS.begin(true)) {
-    // if you have not used SPIFFS before on a ESP32, it will show this error.
-    // after a reboot SPIFFS will be configured and will happily work.
-    Serial.println("ERROR: Cannot mount SPIFFS, Rebooting");
-    rebootESP("ERROR: Cannot mount SPIFFS, Rebooting");
+  //   Serial.println("FatFS, formatting");
+  // #warning "WARNING ALL DATA WILL BE LOST: FFat.format()"
+  //FFat.format();
+
+  if (!FFat.begin()) {
+    // Note: An error occurs when using the ESP32 for the first time, it needs to be formatted
+    //
+    //     Serial.println("ERROR: Cannot mount FatFS, Try formatting");
+    // #warning "WARNING ALL DATA WILL BE LOST: FFat.format()"
+    //     FFat.format();
+
+    if (!FFat.begin()) {
+      Serial.println("ERROR: Cannot mount FatFS, Rebooting");
+      rebootESP("ERROR: Cannot mount FatFS, Rebooting");
+    }
   }
 
-  Serial.print("SPIFFS Free: ");
-  Serial.println(humanReadableSize((SPIFFS.totalBytes() - SPIFFS.usedBytes())));
-  Serial.print("SPIFFS Used: ");
-  Serial.println(humanReadableSize(SPIFFS.usedBytes()));
-  Serial.print("SPIFFS Total: ");
-  Serial.println(humanReadableSize(SPIFFS.totalBytes()));
+  Serial.print("FatFS Free: ");
+  Serial.println(humanReadableSize(FFat.freeBytes()));
+  Serial.print("FatFS Used: ");
+  Serial.println(humanReadableSize(FFat.usedBytes()));
+  Serial.print("FatFS Total: ");
+  Serial.println(humanReadableSize(FFat.totalBytes()));
 
   Serial.println(listFiles());
+
   if (digitalRead(Wifi_Boot_Pin)) {
     Serial.println("PIN Config Mode: No Wifi selected");
     Serial.println("BugWiper start programm");
@@ -307,11 +320,11 @@ void setup() {
     WiFi.softAP(config.ssid.c_str(), config.wifipassword.c_str());
     WiFi.softAPsetHostname(config.ssid.c_str());
 
+
     Serial.println("\n\nNetwork Configuration:");
     Serial.println("----------------------");
     Serial.print("         SSID: ");
     Serial.println(WiFi.softAPSSID());
-    //Serial.print("  Wifi Status: "); Serial.println(WiFi.softAP);
     Serial.print("Wifi Strength: ");
     Serial.print(WiFi.RSSI());
     Serial.println(" dBm");
@@ -321,10 +334,6 @@ void setup() {
     Serial.println(WiFi.softAPIP());
     Serial.print("       Subnet: ");
     Serial.println(WiFi.softAPSubnetMask());
-    //Serial.print("      Gateway: "); Serial.println(WiFi.gatewayIP());
-    //Serial.print("        DNS 1: "); Serial.println(WiFi.dnsIP(0));
-    //Serial.print("        DNS 2: "); Serial.println(WiFi.dnsIP(1));
-    //Serial.print("        DNS 3: "); Serial.println(WiFi.dnsIP(2));
     Serial.println();
 
     // configure web server
@@ -344,6 +353,9 @@ void loop() {
     // reboot if we've told it to reboot
     if (shouldReboot) {
       rebootESP("Web Admin Initiated Reboot");
+    }
+    if (shouldUpdate) {
+      updateESP("Web Admin Initiated Update");
     }
   } else {
     read_Buttons();
@@ -366,11 +378,42 @@ void rebootESP(String message) {
   ESP.restart();
 }
 
+void updateESP(String message) {
+  Serial.print("Rebooting ESP32: ");
+  Serial.println(message);
+  File firmware = FFat.open("/firmware.bin");
+  if (firmware) {
+    Serial.println(F("found!"));
+    Serial.println(F("Try to update!"));
+
+    //Update.onProgress(progressHandler);
+    Update.begin(firmware.size(), U_FLASH);
+    Update.writeStream(firmware);
+    if (Update.end()) {
+      Serial.println(F("Update finished!"));
+    } else {
+      Serial.println(F("Update error!"));
+      Serial.println(Update.getError());
+    }
+
+    firmware.close();
+
+    if (FFat.rename("/firmware.bin", "/firmware.bak")) {
+      Serial.println(F("Firmware rename succesfully!"));
+    } else {
+      Serial.println(F("Firmware rename error!"));
+    }
+    delay(2000);
+
+    ESP.restart();
+  }
+}
+
 // list all of the files, if ishtml=true, return html rather than simple text
 String listFiles(bool ishtml) {
   String returnText = "";
-  Serial.println("Listing files stored on SPIFFS");
-  File root = SPIFFS.open("/");
+  Serial.println("Listing files stored on FatFS");
+  File root = FFat.open("/");
   File foundfile = root.openNextFile();
   if (ishtml) {
     returnText += "<table><tr><th align='left'>Name</th><th align='left'>Size</th><th></th><th></th></tr>";
@@ -397,7 +440,7 @@ String listFiles(bool ishtml) {
 // source: https://github.com/CelliesProjects/minimalUploadAuthESP32
 String humanReadableSize(const size_t bytes) {
   if (bytes < 1024) return String(bytes) + " B";
-  else if (bytes < (1024 * 1024)) return String(bytes / 1024.0) + " KB";
+  else if (bytes < (1024 * 1024)) return String(bytes / 1024.0) + " kB";
   else if (bytes < (1024 * 1024 * 1024)) return String(bytes / 1024.0 / 1024.0) + " MB";
   else return String(bytes / 1024.0 / 1024.0 / 1024.0) + " GB";
 }
