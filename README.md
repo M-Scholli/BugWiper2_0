@@ -2,6 +2,19 @@
 
 This project is an open source electronic bug wiper system. 
 
+## Old Version
+### Version 1
+![Image](./fotos/old_version.jpg)
+
+### Version 1.1
+![Image](./fotos/old_version2.jpg)
+
+### Panel
+ - one LED per Wing
+ - one two-way toggle-switch
+![Image](./fotos/panel.jpg)
+
+
 ## New ESP32 Version (Ideas):
 ### New mechanical design:
 - ESP32 instead of 8bit Atmel controller 
