@@ -6,8 +6,16 @@ This project is an open source electronic bug wiper system.
 ### Version 1
 ![Image](./fotos/old_version.jpg)
 
+- Modelcraft RB350018-2A723R Hochleistungsgetriebemotor 12 V 18:1 :https://www.conrad.de/de/p/modelcraft-rb350018-2a723r-hochleistungsgetriebemotor-12-v-18-1-233131.html
+- dual H-Bridge driver L298 3A
+
+
 ### Version 1.1
 ![Image](./fotos/old_version2.jpg)
+
+- MFA 919D1481 Geared Motor 12 V/DC 148:1 https://amzn.eu/d/hulJdEZ
+- Arduino Nano
+- IBT_2 BTS7960B 43 A Motor Driver: https://www.amazon.de/dp/B09HGBM5D2
 
 ### Panel
  - one LED per Wing
