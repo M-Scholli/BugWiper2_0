@@ -29,6 +29,10 @@ This project is an open source electronic bug wiper system.
 - Arduino Nano
 - IBT_2 BTS7960B 43 A Motor Driver: https://www.amazon.de/dp/B09HGBM5D2
 
+#### Problems:
+- new motor is very slow
+- still the same Problems with the cable and the GFK spring
+
 ### Panel
  - one LED per Wing
  - one two-way toggle-switch
@@ -97,7 +101,7 @@ similar to https://nfpshop.com/product/12v-24v-metal-gear-worm-gear-model-nfp-58
 
 ### Testing
 
-Cable drum with 24mm Diameter.
+Cable drum with 24mm Diameter made out of CHANCS Aluminium Alloy Double V-Groove Belt Pulley 40 mm OD 8 mm Fixed Pulley for Motor Shaft Bore 6 mm: https://www.amazon.de/gp/product/B0CRR4KS3J
 
 #### Forwards:
 | Load| Current| Speed |
@@ -113,6 +117,8 @@ Cable drum with 24mm Diameter.
 | :-- | :------: | ----: |
 | 2kg |  4.6 A  | 0.4 m/s |
 | 3kg |  6.4 A  | 0.37 m/s |
+
+--> Time for the cleaning process of one wing around 28 seconds
 
 ### Result:
 Positive:
@@ -130,7 +136,16 @@ Negative:
 ## ZGB37RH31
 https://www.amazon.de/gp/product/B00T48KC1Q
 
+https://www.zhengkemotor.com/product/Zhengk_DC_Brushed_Motor_RS555__EccentricShaft_37mm_Gearhead_RoundFlange_ZGB37RH.html
+
 ![Image](./fotos/motor2.jpg)
+
+### Motor Parameters:
+- 12 Volt
+- 30 Watt
+- 200 rpm
+- self locking worm gear
+- 31.1:1 Gear ratio
 
 ### Result:
 Positive:
