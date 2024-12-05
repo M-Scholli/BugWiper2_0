@@ -80,8 +80,13 @@ CHANCS Aluminium Alloy Double V-Groove Belt Pulley 40 mm OD 8 mm Fixed Pulley fo
 
 # Motor Tests:
 
-## 5840-555 Worm Geared Motor
-A Motor similar to https://nfpshop.com/product/12v-24v-metal-gear-worm-gear-model-nfp-5840-555-en.
+## SRA58SW-555B / 5840-555 Worm Geared Motor
+
+https://www.bringsmart.com/pd.jsp?id=110
+
+similar to https://nfpshop.com/product/12v-24v-metal-gear-worm-gear-model-nfp-5840-555-en ???
+
+![Image](./fotos/motor1.jpg)
 
 ### Motor Parameters:
 - 12 Volt
@@ -125,8 +130,14 @@ Negative:
 ## ZGB37RH31
 https://www.amazon.de/gp/product/B00T48KC1Q
 
+![Image](./fotos/motor2.jpg)
 
+### Result:
+Positive:
++ higher efficiency
 
+Negative:
+- not self locking, but could be enough resistance
 
 ## Open Source Software Declaration
 The Webserver part is based on https://github.com/smford/esp32-asyncwebserver-fileupload-example and licensed under Apache 2.0 license
