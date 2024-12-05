@@ -14,35 +14,26 @@
 #define DUAL_MOTOR_CONTROLLER 0
 #define DEBUG_SERIAL_OUT 2
 
-// Pindiscription, follwing pins are not allowed to use: 0 (Bootselect); 2 Board LED; 1 & 3 (UART 0 for serial debug interface); 5 ?;  6, 7, 8, 9, 10 & 11 (4 MB SPI Flash); 16-17 (PSRAM)
+// Pindiscription, ESP32-Wroom: follwing pins are not allowed to use: 0 (Bootselect); 2 Board LED; 1 & 3 (UART 0 for serial debug interface); 5 ?;  6, 7, 8, 9, 10 & 11 (4 MB SPI Flash); 16-17 (PSRAM)
+// Pindiscription, ESP32-S3: follwing pins are difficult to use: 0 (Bootselect); 3 (Strapping Pins Floating) ; 19 & 20 (USB); 35,36&37 (Octal PSRAM (8MB)); 39,40,41&42 (JTAG); 43 & 44 (UART 0 for serial debug interface); 45 & 46 (Strapping Pins / Pull-down)  48 Board LED
+
 //Button PINs
-#define BUTTON_CLEANING_A_PIN 21
-#define BUTTON_WINDING_IN_A_PIN 18
-#define SW_CABLE_LOOSE_A_PIN 23
-#if (DUAL_MOTOR_CONTROLLER)
-#define BUTTON_CLEANING_B_PIN 19
-#define BUTTON_WINDING_IN_B_PIN 17
-#define SW_CABLE_LOOSE_B_PIN 22
-#endif
-#define SAFETY_SWITCH_PIN 16  // Saftyswitch to deaktivate the BugWiper
+#define BUTTON_CLEANING_A_PIN 5
+#define BUTTON_WINDING_IN_A_PIN 6
+#define SW_CABLE_LOOSE_A_PIN 10
+
+#define SAFETY_SWITCH_PIN 11  // Saftyswitch to deaktivate the BugWiper
 //LED configuration
-#define LED_A_PIN 2
+#define RGB_BUILD_IN 48
+#define LED_A_PIN 48
 //Motor PINs
 #define MOTOR_A_IN1_PIN 12
 #define MOTOR_A_IN2_PIN 13
 #define MOTOR_A_EN_PIN 14  //PWM Pin
-#define MOTOR_A_CURRENT_SENSE_PIN 36
-#define MOTOR_A_ENCODER_1_PIN 26
-#define MOTOR_A_ENCODER_2_PIN 27
-#if (DUAL_MOTOR_CONTROLLER)
-#define LED_B_PIN 15
-#define MOTOR_B_IN1_PIN 26
-#define MOTOR_B_IN2_PIN 27
-#define MOTOR_B_EN_PIN 25  //PWM Pin
-#define MOTOR_B_CURRENT_SENSE_PIN 39
-#define MOTOR_B_ENCODER_1_PIN 34
-#define MOTOR_B_ENCODER_2_PIN 35
-#endif
+#define MOTOR_A_CURRENT_SENSE_PIN 16
+#define MOTOR_A_ENCODER_1_PIN 1
+#define MOTOR_A_ENCODER_2_PIN 2
+
 // Kalibrierung des Putzvorganges
 #define TIME_LONG_PRESS 400           //time in ms for long button press
 #define MAX_POWER_CLEANING 255        //max power while cleaning
@@ -65,9 +56,7 @@
 
 //PWM configuration
 #define PWM_CHANNEL_A 0
-#if (DUAL_MOTOR_CONTROLLER)
-#define PWM_CHANNEL_B 1
-#endif
+
 
 //Global variables
 uint16_t timer_button_long_press_a = 0;  // Time since start of long pressing button A
@@ -76,47 +65,29 @@ uint8_t timer_button_winding_in_a = 0;
 uint8_t timer_button_start_cleaning_a = 0;
 ESP32Encoder encoder_motor_a;
 
-#if (DUAL_MOTOR_CONTROLLER)
-uint16_t timer_button_long_press_b = 0;  // Time since start of long pressing button B
-uint8_t timer_button_cable_loose_b = 0;
-uint8_t timer_button_winding_in_b = 0;
-uint8_t timer_button_start_cleaning_b = 0;
-ESP32Encoder encoder_motor_b;
-#endif
-
 hw_timer_t *Timer0_Cfg = NULL;
 volatile uint16_t counter_timer = 0;
 
 BugWiper Putzi_a(LED_A_PIN, MOTOR_A_CURRENT_SENSE_PIN, MOTOR_A_IN1_PIN, MOTOR_A_IN2_PIN, MOTOR_A_EN_PIN);
-
-#if (DUAL_MOTOR_CONTROLLER)
-BugWiper Putzi_b(LED_B_PIN, MOTOR_B_CURRENT_SENSE_PIN, MOTOR_B_IN1_PIN, MOTOR_B_IN2_PIN, MOTOR_B_EN_PIN);
-#endif
 
 
 
 void IRAM_ATTR Timer0_ISR(void) {
   counter_timer++;
   Putzi_a.read_motor_current();
-#if (DUAL_MOTOR_CONTROLLER)
-  Putzi_b.read_motor_current();
-#endif
+
   if (counter_timer == 10) {
     counter_timer = 0;
     Putzi_a.calculate(encoder_motor_a.getCount(), 0, 0, 0);
-#if (DUAL_MOTOR_CONTROLLER)
-    Putzi_b.calculate(encoder_motor_b.getCount(), 0, 0, 0);
-#endif
   }
 }
 
 void Encoder_init(void) {
+#if (DEBUG_SERIAL_OUT)
+  Serial.println("Init Encoder A:");
+#endif
   encoder_motor_a.attachHalfQuad(MOTOR_A_ENCODER_1_PIN, MOTOR_A_ENCODER_2_PIN);
   encoder_motor_a.setCount(0);
-#if (DUAL_MOTOR_CONTROLLER)
-  encoder_motor_b.attachHalfQuad(MOTOR_B_ENCODER_1_PIN, MOTOR_B_ENCODER_2_PIN);
-  encoder_motor_b.setCount(0);
-#endif
 }
 
 void Timer_init(void) {
@@ -136,14 +107,6 @@ void init_io(void) {
 #if (DEBUG_SERIAL_OUT)
   Serial.println("Init PINs A complete");
 #endif
-#if (DUAL_MOTOR_CONTROLLER)
-#if (DEBUG_SERIAL_OUT)
-  Serial.println("Init PINs B:");
-#endif
-  pinMode(SW_CABLE_LOOSE_B_PIN, INPUT_PULLUP);
-  pinMode(BUTTON_WINDING_IN_B_PIN, INPUT_PULLUP);
-  pinMode(BUTTON_CLEANING_B_PIN, INPUT_PULLUP);
-#endif
 }
 
 void button_debounce(void) {
@@ -162,23 +125,6 @@ void button_debounce(void) {
   } else if (digitalRead(BUTTON_CLEANING_A_PIN) && timer_button_start_cleaning_a > 0) {
     timer_button_start_cleaning_a--;
   }
-#if (DUAL_MOTOR_CONTROLLER)
-  if (digitalRead(SW_CABLE_LOOSE_B_PIN) == 0 && timer_button_cable_loose_b < 255) {
-    timer_button_cable_loose_b++;
-  } else if (digitalRead(SW_CABLE_LOOSE_B_PIN) && timer_button_cable_loose_b > 0) {
-    timer_button_cable_loose_b--;
-  }
-  if (digitalRead(BUTTON_WINDING_IN_B_PIN) == 0 && timer_button_winding_in_b < 255) {
-    timer_button_winding_in_b++;
-  } else if (digitalRead(BUTTON_WINDING_IN_B_PIN) && timer_button_winding_in_b > 0) {
-    timer_button_winding_in_b--;
-  }
-  if (digitalRead(BUTTON_CLEANING_B_PIN) == 0 && timer_button_start_cleaning_b < 255) {
-    timer_button_start_cleaning_b++;
-  } else if (digitalRead(BUTTON_CLEANING_B_PIN) && timer_button_start_cleaning_b > 0) {
-    timer_button_start_cleaning_b--;
-  }
-#endif
 }
 
 void read_Buttons(void) {
@@ -189,26 +135,14 @@ void read_Buttons(void) {
     if (Putzi_a.state_machine_state == 0 && timer_button_long_press_a >= TIME_LONG_PRESS) {
       Putzi_a.set_start_cleaning();
     }
-#if (DUAL_MOTOR_CONTROLLER)
-    if (timer_button_winding_in_b >= TIME_BUTTON_DEBOUNCE && Putzi_b.state_machine_state == 0) {
-      Putzi_b.set_winding_in();
-    }
-    if (Putzi_b.state_machine_state == 0 && timer_button_long_press_b >= TIME_LONG_PRESS) {
-      Putzi_b.set_start_cleaning();
-    }
-#endif
+
   }
   // prevents a imediate second start cleaning after finish the first one
   if (timer_button_winding_in_a <= 5 && timer_button_start_cleaning_a <= 5
       && Putzi_a.state_machine_state == 3 && Putzi_a.timer_cleaning >= 200) {
     Putzi_a.state_machine_state = 0;
   }
-#if (DUAL_MOTOR_CONTROLLER)
-  if (timer_button_winding_in_b <= 5 && timer_button_start_cleaning_b <= 5
-      && Putzi_b.state_machine_state == 3 && Putzi_b.timer_cleaning >= 200) {
-    Putzi_b.state_machine_state = 0;
-  }
-#endif
+
   // reset timer for long press of buttons
   if (timer_button_start_cleaning_a <= 5) {
     timer_button_long_press_a = 0;
@@ -249,6 +183,7 @@ bool ConfigMode = false;
 
 //The setup function is called once at startup of the sketch
 void setup() {
+  neopixelWrite(RGB_BUILD_IN, 50, 25, 0);  // Orange
   pinMode(Wifi_Boot_Pin, INPUT_PULLUP);
 #if (DEBUG_SERIAL_OUT)
   Serial.begin(115200);
@@ -268,7 +203,7 @@ void setup() {
     //
     //     Serial.println("ERROR: Cannot mount FatFS, Try formatting");
     // #warning "WARNING ALL DATA WILL BE LOST: FFat.format()"
-    //     FFat.format();
+    //FFat.format();
 
     if (!FFat.begin()) {
       Serial.println("ERROR: Cannot mount FatFS, Rebooting");
@@ -289,8 +224,7 @@ void setup() {
     Serial.println("PIN Config Mode: No Wifi selected");
     Serial.println("BugWiper start programm");
 #endif
-    Encoder_init();
-    Putzi_a.init();
+    //Encoder_init();
     Putzi_a.init();
     init_io();
     Timer_init();
@@ -305,6 +239,7 @@ void setup() {
 
   } else {
     ConfigMode = true;
+    neopixelWrite(RGB_BUILD_IN, 0, 0, 250);  // Orange
     digitalWrite(2, HIGH);
     Serial.println("PIN Config Mode:: Start Wifi to enter Config Mode");
 
@@ -362,10 +297,6 @@ void loop() {
 #if (DEBUG_SERIAL_OUT >= 2)
     Serial.println("ADC value = " + String(Putzi_a.ADC_current_sense));
     Serial.println("Encoder count = " + String((int32_t)encoder_motor_a.getCount()));
-#if (DUAL_MOTOR_CONTROLLER)
-    Serial.println("ADC_B value = " + String(Putzi_b.ADC_current_sense));
-    Serial.println("Encoder_B count = " + String((int32_t)encoder_motor_b.getCount()));
-#endif
 #endif
   }
 }
