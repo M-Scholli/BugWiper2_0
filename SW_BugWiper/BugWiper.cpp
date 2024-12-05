@@ -11,6 +11,9 @@ BugWiper::BugWiper(int LED_p, int m_adc, int m_in1, int m_in2, int m_pwm)
     motor_in2_pin{ (gpio_num_t)m_in2 } {}
 
 void BugWiper::init() {
+#if (DEBUG_SERIAL_OUT)
+  Serial.println("Init BugWiperA:");
+#endif
   pinMode(LED_pin, OUTPUT);
   pinMode(motor_in1_pin, OUTPUT);
   pinMode(motor_in2_pin, OUTPUT);
