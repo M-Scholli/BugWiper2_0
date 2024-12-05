@@ -74,3 +74,4 @@ Release/Libraries/MemoryFree/MemoryFree.cpp.o
 Release/Libraries/MemoryFree/subdir.mk
 *.FCBak
 /SW_BugWiper/.vscode
+/.vscode
