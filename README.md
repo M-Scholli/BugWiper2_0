@@ -20,6 +20,9 @@ This project is an open source electronic bugwiper system.
 ## Used IDE and Settings:
 - Arduino IDE2.3.2
 - selected Board: ESP32S3 DEV Module
+
+### Board Pinout:
+![Image](./fotos/Pinout_ESP32-S3.png)
  
 ### Board Settings:
 ![Image](./fotos/settings.PNG)
