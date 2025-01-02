@@ -198,7 +198,6 @@ void setup() {
   Serial.begin(115200);
   Serial.print("Firmware: ");
   Serial.println(FIRMWARE_VERSION);
-
   Serial.println("Booting ...");
 #endif
 
@@ -206,30 +205,7 @@ void setup() {
   //   Serial.println("FatFS, formatting");
   // #warning "WARNING ALL DATA WILL BE LOST: FFat.format()"
   //FFat.format();
-  if (!FFat.begin()) {
-    // Note: An error occurs when using the ESP32 for the first time, it needs to be formatted
-    //
-    //     Serial.println("ERROR: Cannot mount FatFS, Try formatting");
-    // #warning "WARNING ALL DATA WILL BE LOST: FFat.format()"
-    //     FFat.format();
-
-    if (!FFat.begin()) {
-#if DEBUG_SERIAL_OUT
-      Serial.println("ERROR: Cannot mount FatFS, Rebooting");
-#endif
-      rebootESP("ERROR: Cannot mount FatFS, Rebooting");
-    }
-  }
-#if DEBUG_SERIAL_OUT
-  Serial.print("FatFS Free: ");
-  Serial.println(humanReadableSize(FFat.freeBytes()));
-  Serial.print("FatFS Used: ");
-  Serial.println(humanReadableSize(FFat.usedBytes()));
-  Serial.print("FatFS Total: ");
-  Serial.println(humanReadableSize(FFat.totalBytes()));
-
-  Serial.println(listFiles());
-#endif
+ init_FAT();
 
   if (digitalRead(Wifi_Boot_Pin)) {
   
@@ -258,46 +234,7 @@ Serial.println("BugWiper start programm");
 
 #if USE_WIFI
   } else {
-    ConfigMode = true;
-    digitalWrite(2, HIGH);
-    Serial.println("PIN Config Mode:: Start Wifi to enter Config Mode");
-
-    Serial.println("Loading Configuration ...");
-
-    config.ssid = default_ssid;
-    config.wifipassword = default_wifipassword;
-    config.httpuser = default_httpuser;
-    config.httppassword = default_httppassword;
-    config.webserverporthttp = default_webserverporthttp;
-
-    Serial.print("\nConnecting to Wifi: ");
-    WiFi.softAP(config.ssid.c_str(), config.wifipassword.c_str());
-    WiFi.softAPsetHostname(config.ssid.c_str());
-
-
-    Serial.println("\n\nNetwork Configuration:");
-    Serial.println("----------------------");
-    Serial.print("         SSID: ");
-    Serial.println(WiFi.softAPSSID());
-    Serial.print("Wifi Strength: ");
-    Serial.print(WiFi.RSSI());
-    Serial.println(" dBm");
-    Serial.print("          MAC: ");
-    Serial.println(WiFi.macAddress());
-    Serial.print("           IP: ");
-    Serial.println(WiFi.softAPIP());
-    Serial.print("       Subnet: ");
-    Serial.println(WiFi.softAPSubnetMask());
-    Serial.println();
-
-    // configure web server
-    Serial.println("Configuring Webserver ...");
-    server = new AsyncWebServer(config.webserverporthttp);
-    configureWebServer();
-
-    // startup web server
-    Serial.println("Starting Webserver ...");
-    server->begin();
+   init_wifi();
   }
 #endif
 }
