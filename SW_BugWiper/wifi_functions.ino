@@ -1,6 +1,16 @@
 #if USE_WIFI
 // the following is based on https://github.com/smford/esp32-asyncwebserver-fileupload-example.git
 
+void check_wifi_functions(void){
+      // reboot if we've told it to reboot
+    if (shouldReboot) {
+      rebootESP("Web Admin Initiated Reboot");
+    }
+    if (shouldUpdate) {
+      updateESP("Web Admin Initiated Update");
+    }
+}
+
 void rebootESP(String message) {
   Serial.print("Rebooting ESP32: ");
   Serial.println(message);

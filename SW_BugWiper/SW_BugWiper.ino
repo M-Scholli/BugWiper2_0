@@ -306,13 +306,7 @@ Serial.println("BugWiper start programm");
 void loop() {
 #if USE_WIFI
   if (ConfigMode) {
-    // reboot if we've told it to reboot
-    if (shouldReboot) {
-      rebootESP("Web Admin Initiated Reboot");
-    }
-    if (shouldUpdate) {
-      updateESP("Web Admin Initiated Update");
-    }
+   check_wifi_functions(); 
   } else {
 #endif    
     read_Buttons();
