@@ -14,7 +14,9 @@
 #define DUAL_MOTOR_CONTROLLER 0
 #define DEBUG_SERIAL_OUT 2
 
-// Pindiscription, follwing pins are not allowed to use: 0 (Bootselect); 2 Board LED; 1 & 3 (UART 0 for serial debug interface); 5 ?;  6, 7, 8, 9, 10 & 11 (4 MB SPI Flash); 16-17 (PSRAM)
+// Pindiscription, ESP32-Wroom: follwing pins are not allowed to use: 0 (Bootselect); 2 Board LED; 1 & 3 (UART 0 for serial debug interface); 5 ?;  6, 7, 8, 9, 10 & 11 (4 MB SPI Flash); 16-17 (PSRAM)
+// Pindiscription, ESP32-S3: follwing pins are difficult to use: 0 (Bootselect); 3 (Strapping Pins Floating) ; 19 & 20 (USB); 35,36&37 (Octal PSRAM (8MB)); 39,40,41&42 (JTAG); 43 & 44 (UART 0 for serial debug interface); 45 & 46 (Strapping Pins / Pull-down)  48 Board LED
+
 //Button PINs
 #define BUTTON_CLEANING_A_PIN 21
 #define BUTTON_WINDING_IN_A_PIN 18
