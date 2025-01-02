@@ -1,6 +1,10 @@
 #include <Arduino.h>
 #include <ESP32Encoder.h>
 #include "BugWiper.h"
+
+#define USE_WIFI 0
+
+#if USE_WIFI
 #include <WiFi.h>
 #include <AsyncTCP.h>
 #include <ESPAsyncWebServer.h>
@@ -8,10 +12,15 @@
 #include "webpages.h"
 #include "FS.h"
 #include "FFat.h"
+#endif
 
-#define Wifi_Boot_Pin 4
 #define FIRMWARE_VERSION "V0.0.2"
 #define DEBUG_SERIAL_OUT 2
+
+
+#if USE_WIFI
+#define Wifi_Boot_Pin 4
+#endif
 
 // Pindiscription, ESP32-Wroom: follwing pins are not allowed to use: 0 (Bootselect); 2 Board LED; 1 & 3 (UART 0 for serial debug interface); 5 ?;  6, 7, 8, 9, 10 & 11 (4 MB SPI Flash); 16-17 (PSRAM)
 // Pindiscription, ESP32-S3: follwing pins are difficult to use: 0 (Bootselect); 3 (Strapping Pins Floating) ; 19 & 20 (USB); 35,36&37 (Octal PSRAM (8MB)); 39,40,41&42 (JTAG); 43 & 44 (UART 0 for serial debug interface); 45 & 46 (Strapping Pins / Pull-down)  48 Board LED
@@ -140,6 +149,7 @@ void read_Buttons(void) {
   }
 }
 
+#if USE_WIFI
 // Webserver based on https://github.com/smford/esp32-asyncwebserver-fileupload-example.git
 const String default_ssid = "somessid";
 const String default_wifipassword = "mypassword";
@@ -166,23 +176,26 @@ AsyncWebServer *server;     // initialise webserver
 String listFiles(bool ishtml = false);
 
 bool ConfigMode = false;
+#endif
 
 //The setup function is called once at startup of the sketch
 void setup() {
+#if USE_WIFI
   pinMode(Wifi_Boot_Pin, INPUT_PULLUP);
-#if (DEBUG_SERIAL_OUT)
+#endif
+
+#if DEBUG_SERIAL_OUT
   Serial.begin(115200);
   Serial.print("Firmware: ");
   Serial.println(FIRMWARE_VERSION);
 
   Serial.println("Booting ...");
+#endif
 
-  Serial.println("Mounting FatFS ...");
-
+#if USE_WIFI
   //   Serial.println("FatFS, formatting");
   // #warning "WARNING ALL DATA WILL BE LOST: FFat.format()"
   //FFat.format();
-
   if (!FFat.begin()) {
     // Note: An error occurs when using the ESP32 for the first time, it needs to be formatted
     //
@@ -191,11 +204,13 @@ void setup() {
     //     FFat.format();
 
     if (!FFat.begin()) {
+#if DEBUG_SERIAL_OUT
       Serial.println("ERROR: Cannot mount FatFS, Rebooting");
+#endif
       rebootESP("ERROR: Cannot mount FatFS, Rebooting");
     }
   }
-
+#if DEBUG_SERIAL_OUT
   Serial.print("FatFS Free: ");
   Serial.println(humanReadableSize(FFat.freeBytes()));
   Serial.print("FatFS Used: ");
@@ -204,11 +219,20 @@ void setup() {
   Serial.println(humanReadableSize(FFat.totalBytes()));
 
   Serial.println(listFiles());
+#endif
 
   if (digitalRead(Wifi_Boot_Pin)) {
+  
+#if DEBUG_SERIAL_OUT
     Serial.println("PIN Config Mode: No Wifi selected");
-    Serial.println("BugWiper start programm");
+#endif 
+
 #endif
+
+#if DEBUG_SERIAL_OUT
+Serial.println("BugWiper start programm");
+#endif
+
     Encoder_init();
     Putzi_a.init();
     init_io();
@@ -222,6 +246,7 @@ void setup() {
     }
 #endif
 
+#if USE_WIFI
   } else {
     ConfigMode = true;
     digitalWrite(2, HIGH);
@@ -264,10 +289,12 @@ void setup() {
     Serial.println("Starting Webserver ...");
     server->begin();
   }
+#endif
 }
 
 // The loop function is called in an endless loop
 void loop() {
+#if USE_WIFI
   if (ConfigMode) {
     // reboot if we've told it to reboot
     if (shouldReboot) {
@@ -277,14 +304,18 @@ void loop() {
       updateESP("Web Admin Initiated Update");
     }
   } else {
+#endif    
     read_Buttons();
 #if (DEBUG_SERIAL_OUT >= 2)
     Serial.println("ADC value = " + String(Putzi_a.ADC_current_sense));
     Serial.println("Encoder count = " + String((int32_t)encoder_motor_a.getCount()));
 #endif
+#if USE_WIFI
   }
+#endif  
 }
 
+#if USE_WIFI
 // the following is based on https://github.com/smford/esp32-asyncwebserver-fileupload-example.git
 
 void rebootESP(String message) {
@@ -359,3 +390,4 @@ String humanReadableSize(const size_t bytes) {
   else if (bytes < (1024 * 1024 * 1024)) return String(bytes / 1024.0 / 1024.0) + " MB";
   else return String(bytes / 1024.0 / 1024.0 / 1024.0) + " GB";
 }
+#endif
