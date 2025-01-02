@@ -167,25 +167,11 @@ const String default_httpuser = "admin";
 const String default_httppassword = "admin";
 const int default_webserverporthttp = 80;
 
-// configuration structure
-struct Config {
-  String ssid;            // wifi ssid
-  String wifipassword;    // wifi password
-  String httpuser;        // username to access web admin
-  String httppassword;    // password to access web admin
-  int webserverporthttp;  // http port number for web admin
-};
-
-// variables
-Config config;              // configuration
 bool shouldReboot = false;  // schedule a reboot
 bool shouldUpdate = false;  // schedule a firmware update
-AsyncWebServer *server;     // initialise webserver
-
-// function defaults
-String listFiles(bool ishtml = false);
-
 bool ConfigMode = false;
+
+AsyncWebServer *server;     // initialise webserver
 #endif
 
 //The setup function is called once at startup of the sketch

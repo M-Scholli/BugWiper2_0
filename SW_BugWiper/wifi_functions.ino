@@ -1,6 +1,21 @@
 #if USE_WIFI
 // the following is based on https://github.com/smford/esp32-asyncwebserver-fileupload-example.git
 
+// configuration structure
+struct Config {
+  String ssid;            // wifi ssid
+  String wifipassword;    // wifi password
+  String httpuser;        // username to access web admin
+  String httppassword;    // password to access web admin
+  int webserverporthttp;  // http port number for web admin
+};
+
+// variables
+Config config;              // configuration
+
+// function defaults
+String listFiles(bool ishtml = false);
+
 void init_FAT(void){
 #if DEBUG_SERIAL_OUT
    Serial.println("Mounting FatFS ...");
