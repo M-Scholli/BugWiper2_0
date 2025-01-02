@@ -75,7 +75,7 @@ ESP32Encoder encoder_motor_a;
 hw_timer_t *Timer0_Cfg = NULL;
 volatile uint16_t counter_timer = 0;
 
-BugWiper Putzi_a(LED_A_PIN, MOTOR_A_CURRENT_SENSE_PIN, MOTOR_A_IN1_PIN, MOTOR_A_IN2_PIN, MOTOR_A_EN_PIN);
+BugWiper Putzi_a(LED_A_PIN, MOTOR_A_CURRENT_SENSE_PIN, MOTOR_A_IN1_PIN, MOTOR_A_IN2_PIN, MOTOR_A_EN_PIN, PWM_CHANNEL_A);
 
 
 void IRAM_ATTR Timer0_ISR(void) {
@@ -93,9 +93,19 @@ void Encoder_init(void) {
 }
 
 void Timer_init(void) {
+#if ESP_ARDUINO_VERSION >= ESP_ARDUINO_VERSION_VAL(3, 0, 0)
+  // Code for version 3.x
   Timer0_Cfg = timerBegin(1000000);
   timerAttachInterrupt(Timer0_Cfg, &Timer0_ISR);
   timerAlarm(Timer0_Cfg, 100, true, 0);
+#else
+  // Code for version 2.x
+  Timer0_Cfg = timerBegin(0, 80, true);
+  timerAttachInterrupt(Timer0_Cfg, &Timer0_ISR, true);
+  timerAlarmWrite(Timer0_Cfg, 100, true);
+  timerAlarmEnable(Timer0_Cfg);
+#endif
+  
 }
 
 void init_io(void) {

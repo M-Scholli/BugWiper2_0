@@ -3,8 +3,9 @@
 #include <Arduino.h>
 #include "BugWiper.h"
 
-BugWiper::BugWiper(int LED_p, int m_adc, int m_in1, int m_in2, int m_pwm)
-  : LED_pin{ (gpio_num_t)LED_p },
+BugWiper::BugWiper(int LED_p, int m_adc, int m_in1, int m_in2, int m_pwm, int m_pwm_chnl)
+  : motor_pwm_channel{m_pwm_chnl},
+    LED_pin{ (gpio_num_t)LED_p },
     motor_current_pin{ (gpio_num_t)m_adc },
     motor_pwm_pin{ (gpio_num_t)m_pwm },
     motor_in1_pin{ (gpio_num_t)m_in1 },
@@ -20,8 +21,17 @@ void BugWiper::init() {
   digitalWrite(LED_pin, 0);
   digitalWrite(motor_in1_pin, 1);
   digitalWrite(motor_in2_pin, 1);
+#if ESP_ARDUINO_VERSION >= ESP_ARDUINO_VERSION_VAL(3, 0, 0)
+  // Code for version 3.x
   ledcAttach(motor_pwm_pin, PWM_FREQ, PWM_RESOLUTION_BITS);
   ledcWrite(motor_pwm_pin, 0);
+#else
+  // Code for version 2.x
+  ledcSetup(motor_pwm_channel, PWM_FREQ, PWM_RESOLUTION_BITS);
+  ledcAttachPin(motor_pwm_pin, motor_pwm_channel);
+  ledcWrite(motor_pwm_channel, 0);
+#endif
+
 }
 
 void BugWiper::read_motor_current() {
@@ -69,7 +79,13 @@ void BugWiper::set_motor_power() {
     }
     timer_motor_power = 0;
   }
-  ledcWrite(motor_pwm_pin, motor_power);
+#if ESP_ARDUINO_VERSION >= ESP_ARDUINO_VERSION_VAL(3, 0, 0)
+  // Code for version 3.x
+  ledcWrite(motor_pwm_pin, motor_power);  
+#else
+  // Code for version 2.x
+  ledcWrite(motor_pwm_channel, motor_power);
+#endif
 }
 
 void BugWiper::LED_blinking() {

@@ -38,7 +38,7 @@ enum class direction { out,
 
 class BugWiper {
 public:
-  BugWiper(int LED_p, int m_adc, int m_in1, int m_in2, int m_pwm);
+  BugWiper(int LED_p, int m_adc, int m_in1, int m_in2, int m_pwm, int m_pwm_chnl);
   void init();
   void read_motor_current();
   void set_timer();
@@ -54,6 +54,7 @@ private:
   void set_motor_dir(direction dir);
   void set_motor_power();
   void LED_blinking();
+  int motor_pwm_channel;
   gpio_num_t LED_pin;
   gpio_num_t motor_current_pin;
   gpio_num_t motor_pwm_pin;
