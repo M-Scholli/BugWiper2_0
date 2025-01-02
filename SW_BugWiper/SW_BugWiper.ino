@@ -3,6 +3,7 @@
 #include "BugWiper.h"
 
 #define USE_WIFI 0
+#define ESP32_S3_DevKit 0
 
 #if USE_WIFI
 #include <WiFi.h>
@@ -22,8 +23,10 @@
 #define Wifi_Boot_Pin 4
 #endif
 
-// Pindiscription, ESP32-Wroom: follwing pins are not allowed to use: 0 (Bootselect); 2 Board LED; 1 & 3 (UART 0 for serial debug interface); 5 ?;  6, 7, 8, 9, 10 & 11 (4 MB SPI Flash); 16-17 (PSRAM)
-// Pindiscription, ESP32-S3: follwing pins are difficult to use: 0 (Bootselect); 3 (Strapping Pins Floating) ; 19 & 20 (USB); 35,36&37 (Octal PSRAM (8MB)); 39,40,41&42 (JTAG); 43 & 44 (UART 0 for serial debug interface); 45 & 46 (Strapping Pins / Pull-down)  48 Board LED
+// Pin discription, ESP32-Wroom-32: follwing pins are not allowed to use: 0 (Bootselect); 2 Board LED / must be low on boot; (1 & 3 UART USB-Serial); 
+// (5 must be high during boot);(15 Debugging Log on U0TXD During Booting);(6, 7, 8, 9, 10 & 11 connected to Flash); (16-17 PSRAM if existent)
+// Pin discription, ESP32-Wroom-32: Input Only Pins : 34,35,36,39
+// Pin discription, ESP32-S3: follwing pins are difficult to use: 0 (Bootselect); 3 (Strapping Pins Floating) ; 19 & 20 (USB); 35,36&37 (Octal PSRAM (8MB)); 39,40,41&42 (JTAG); 43 & 44 (UART 0 for serial debug interface); 45 & 46 (Strapping Pins / Pull-down)  48 Board LED
 
 //Button PINs
 #define BUTTON_CLEANING_A_PIN 21
@@ -32,7 +35,11 @@
 
 #define SAFETY_SWITCH_PIN 16  // Saftyswitch to deaktivate the BugWiper
 //LED configuration
+#if ESP32_S3_DevKit
+#define LED_A_PIN 48
+#else
 #define LED_A_PIN 2
+#endif
 //Motor PINs
 #define MOTOR_A_IN1_PIN 12
 #define MOTOR_A_IN2_PIN 13
