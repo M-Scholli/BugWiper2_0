@@ -276,7 +276,7 @@ void BugWiper::state_machine(void) {
   }
 }
 
-uint8_t BugWiper::calculate(int64_t count, bool button_cleaning, bool button_winding_in, bool sw_cable_loose) {
+void BugWiper::calculate(int64_t count, bool button_cleaning, bool button_winding_in, bool sw_cable_loose) {
   position = count * p_numerator / p_denominator;
   if (state_machine_state < 10) {
     if (button_cleaning) {

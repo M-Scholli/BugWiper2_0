@@ -46,7 +46,7 @@ public:
   void set_start_cleaning();
   void set_motor_brake();
   void state_machine();
-  uint8_t calculate(int64_t count, bool button_cleaning, bool button_winding_in, bool sw_cable_loose);
+  void calculate(int64_t count, bool button_cleaning, bool button_winding_in, bool sw_cable_loose);
   volatile uint16_t ADC_current_sense;
   uint32_t timer_cleaning;
   uint16_t state_machine_state;
