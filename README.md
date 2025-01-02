@@ -56,10 +56,13 @@ This project is an open source electronic bug wiper system.
 
 ## Used IDE and Settings:
 - Arduino IDE2.3.2
+
+### Boardmanager
+- ESP32 by Espressif Systems 3.0.2
+
 - selected Board: ESP32S3 DEV Module
 
-### Board Pinout:
-![Image](./fotos/Pinout_ESP32-S3.png)
+
  
 ### Board Settings:
 ![Image](./fotos/settings.PNG)
@@ -71,8 +74,19 @@ This project is an open source electronic bug wiper system.
 - Async TCP 3.1.4 by Me-No-Dev https://github.com/mathieucarbou/AsyncTCP
 
 
+
 ## Used Hardware:
+### Controller
+
+Simple and small solution:
+- diymore ESP32 WROOM 32 Nodemcu https://amzn.eu/d/j1bOF2C
+### Pinout SP32-S3-DevKitC-1 N16R8:
+![Image](./fotos/Pinout_ESP32.jpg)
+newer ESP-S3:
 - iHaospace 2 x ESP32-S3-DevKitC-1 N16R8 16Mb Flash, 8MB PSRAM https://www.amazon.de/dp/B0D1CBV999
+#### Pinout SP32-S3-DevKitC-1 N16R8:
+![Image](./fotos/Pinout_ESP32-S3.png)
+### Others
 - IBT_2 BTS7960B 43 A Motor Driver: https://www.amazon.de/dp/B09HGBM5D2
 - 12V DC 200rpm High Torque Geared Electric Motor: https://www.amazon.de/gp/product/B00T48KC1Q 
 - A3144 Linear Hall Effect Sensor: https://www.amazon.de/dp/B0BQ2Z335H
