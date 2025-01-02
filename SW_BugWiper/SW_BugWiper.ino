@@ -52,7 +52,6 @@
 #define TIME_LONG_PRESS 400           //time in ms for long button press
 #define MAX_POWER_CLEANING 255        //max power while cleaning
 #define MAX_POWER_WINDING_IN 255      //max power while winding in
-#define MAX_POWER_GROUND 255          //max power on the ground
 #define START_POWER_BRAKE 210         //power on start of the motorbrake
 #define MAX_POWER_BRAKE 255           //max power of the motorbrake
 #define LOOSE_POWER_BRAKE 240         //power of the brake when loose cable detected
@@ -86,7 +85,7 @@ BugWiper Putzi_a(LED_A_PIN, MOTOR_A_CURRENT_SENSE_PIN, MOTOR_A_IN1_PIN, MOTOR_A_
 
 
 void IRAM_ATTR Timer0_ISR(void) {
-  counter_timer++;
+  counter_timer = counter_timer+1;
   Putzi_a.read_motor_current();
   if (counter_timer == 10) {
     counter_timer = 0;
