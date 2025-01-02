@@ -211,7 +211,6 @@ void setup() {
 #endif
     Encoder_init();
     Putzi_a.init();
-    Putzi_a.init();
     init_io();
     Timer_init();
 #if (DEBUG_SERIAL_OUT)
