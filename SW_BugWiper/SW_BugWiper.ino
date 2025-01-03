@@ -105,7 +105,7 @@ void IRAM_ATTR Timer0_ISR(void) {
   Putzi_a.read_motor_current();
   if (counter_timer == 10) {
     counter_timer = 0;
-    Putzi_a.calculate(encoder_motor_a.getCount(), 0, 0, 0);
+    Putzi_a.set_timer();
   }
 }
 

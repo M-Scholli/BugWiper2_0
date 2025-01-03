@@ -286,7 +286,7 @@ void BugWiper::calculate(int64_t count, bool button_cleaning, bool button_windin
       state_machine_state = 50;
     }
   }
-  set_timer();
+  //set_timer();
   state_machine();
   set_motor_power();
   LED_blinking();
