@@ -31,7 +31,6 @@ void BugWiper::init() {
   ledcAttachPin(motor_pwm_pin, motor_pwm_channel);
   ledcWrite(motor_pwm_channel, 0);
 #endif
-
 }
 
 void BugWiper::read_motor_current() {

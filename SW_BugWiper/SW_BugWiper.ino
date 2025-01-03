@@ -256,8 +256,9 @@ void loop() {
   } else {
 #endif    
     read_Buttons();
+    Putzi_a.calculate(encoder_motor_a.getCount(), 0, 0, 0);
 #if (DEBUG_SERIAL_OUT >= 2)
-  if (counter_output > 40000) {
+  if (counter_output > 10000) {
     Serial.println("ADC value = " + String(Putzi_a.ADC_current_sense));
     Serial.println("Encoder count = " + String((int32_t)encoder_motor_a.getCount()));
     counter_output = 0;

@@ -68,8 +68,8 @@ private:
   uint8_t timer_motor_power;
   int64_t motor_count; // counts from encoder
   int32_t position; // position in mm converted from the encoder
-  int16_t p_numerator;
-  int16_t p_denominator;
+  int16_t p_numerator = 1;
+  int16_t p_denominator = 1;
   bool motor_inverted;
   bool cable_loose;
   direction moror_direction;
