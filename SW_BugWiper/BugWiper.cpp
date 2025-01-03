@@ -38,9 +38,9 @@ void BugWiper::read_motor_current() {
 }
 
 void BugWiper::set_timer() {
-  timer_cleaning++;
-  timer_motor_power++;
-  timer_LED++;
+  timer_cleaning = timer_cleaning + 1;
+  timer_motor_power = timer_motor_power + 1;
+  timer_LED = timer_LED + 1;
 }
 
 // switch the motor to out, in or stops

@@ -48,7 +48,7 @@ public:
   void state_machine();
   void calculate(int64_t count, bool button_cleaning, bool button_winding_in, bool sw_cable_loose);
   volatile uint16_t ADC_current_sense;
-  uint32_t timer_cleaning;
+  volatile uint32_t timer_cleaning;
   uint16_t state_machine_state;
 private:
   void set_motor_dir(direction dir);
@@ -62,10 +62,10 @@ private:
   gpio_num_t motor_in2_pin;
   uint8_t motor_power;
   uint8_t motor_power_dest;
-  uint16_t timer_LED;
+  volatile uint16_t timer_LED;
   uint16_t LED_time;
   uint8_t time_pwm_ramp;
-  uint8_t timer_motor_power;
+  volatile uint8_t timer_motor_power;
   int64_t motor_count; // counts from encoder
   int32_t position; // position in mm converted from the encoder
   int16_t p_numerator = 1;
