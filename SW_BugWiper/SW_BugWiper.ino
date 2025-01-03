@@ -247,6 +247,7 @@ Serial.println("BugWiper start programm");
 #endif
 }
 
+uint16_t counter_output=0;
 // The loop function is called in an endless loop
 void loop() {
 #if USE_WIFI
@@ -256,8 +257,12 @@ void loop() {
 #endif    
     read_Buttons();
 #if (DEBUG_SERIAL_OUT >= 2)
+  if (counter_output > 40000) {
     Serial.println("ADC value = " + String(Putzi_a.ADC_current_sense));
     Serial.println("Encoder count = " + String((int32_t)encoder_motor_a.getCount()));
+    counter_output = 0;
+  }
+  counter_output++;
 #endif
 #if USE_WIFI
   }
