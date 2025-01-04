@@ -1,17 +1,30 @@
-﻿;;;Miskallsnjfsa2;;;;;;;;;
-;;;;;;;;;;;;
-Name;max current;weight gr;RPM;Torque kg/cm;stall Tourque;Force kg r=2cm;t in s for 14m;Force kg r=1,5cm;t in s for 14m;Force kg r=1,0cm;t in s for 14m;link
-919D1481 ; 2,85 ;;90;6;10;3;74,3;4;99,0;6;148,5;
-919D1001 ;;;133;6;10;3;50,3;4;67,0;6;100,5;
-970D1561 ;;;77,2;3;6;1,5;86,6;2;115,4;3;173,2;
-VT-P-T37A-12-100 ;2,2;;80;2,5;13;1,25;83,6;1,7;111,4;2,5;167,1;
-;;;130;10;;5;51,4;6,666666667;68,6;10;102,8;
-;;;200;6,2;;3,1;33,4;4,133333333;44,6;6,2;66,8;
-Bringsmart 160rpm;;;140;2,4;;1,2;47,7;1,6;63,7;2,4;95,5;
-;1,5;350;208;5;15;2,5;32,1;3,333333333;42,8;5;64,3;https://www.amazon.de/dp/B0BGRBN5MW/?coliid=I27B9KTVWVWZOF&colid=23RGDI7NRDSEC&psc=1&ref_=list_c_wl_lv_ov_lig_dp_it
-;1,5;350;370;2;8;1;18,1;1,333333333;24,1;2;36,1;
-‎Walfrontoz6m9wr354-05 ;0,6;165;100;1,5;6,4;0,75;66,8;1;89,1;1,5;133,7;https://www.amazon.de/Hochdrehmoment-Turbo-Wurm-Getriebemotor-Geschwindigkeitsreduzierung-Selbstverriegelung/dp/B075575BJH/ref=sr_1_16?__mk_de_DE=ÅMÅŽÕÑ&crid=26OK14EIOS0W5&keywords=12v%2Bmotor%2Bselbsthemmend&qid=1706903721&sprefix=12v%2Bmotor%2Bselbsthemmend%2Caps%2C87&sr=8-16&th=1
-5840-555;2,6;410;200;4;16;2;33,4;2,666666667;44,6;4;66,8;https://nfpshop.com/product/12v-24v-metal-gear-worm-gear-model-nfp-5840-555-en
-;;;380;2,2;8,8;1,1;3038,4;1,466666667;4051,2;2,2;6076,8;
-NFP-JGB37-31ZY-1280;;;118;6,8;15;3,4;983,0;4,533333333;1310,7;6,8;1966,0;
-;;;num;;;;;;;;;
+;;;;;;;;;;;;;;;;;
+Drumm Diameter in mm;;;;;;;;;40;40;30;30;24;24;19;19;
+Name;Rated current;Stall current;weight gr;Gear Ratio n:1;RPM no load;RPM rated load;Torque kg*cm;stall Tourque kg*cm;Force kg;t in s for 14m;Force kg;t in s for 14m;Force kg ;t in s for 14m;Force kg ;t in s for 14m;link
+Modelcraft RB350018-2A723R;0,7;9,4;;18;333;317;1,6;21;0,8;20,6;1,1;27,4;1,3;34,3;1,7;43,3;https://www.conrad.de/de/p/modelcraft-rb350018-2a723r-hochleistungsgetriebemotor-12-v-18-1-233131.html
+Modelcraft RB350050-22723R;0,8;9,4;;50;120;109;3;53;1,5;58,5;2,0;78,0;2,5;97,5;3,2;123,2;https://www.conrad.de/de/p/modelcraft-rb350018-2a723r-hochleistungsgetriebemotor-12-v-18-1-233131.html
+MFA 919D1481;2,85;>8A;255;148;106;90;6;18;3;68,7;4,0;91,6;5,0;114,4;6,3;144,6;https://www.mfacomodrills.com/pdfs/919D-series.pdf
+MFA 919D1001;2,85;>8A;255;100;158;133;6;18;3;46,3;4,0;61,7;5,0;77,1;6,3;97,4;https://www.mfacomodrills.com/pdfs/919D-series.pdf
+MFA 919D501;2,85;>8A;246;50;316;267;3;9-50;1,5;23,1;2,0;30,8;2,5;38,5;3,2;48,6;https://www.mfacomodrills.com/pdfs/919D-series.pdf
+MFA 919D301LN;1.4.;10A 6V;312;30;200;175;2;9-50;1;35,8;1,3;47,7;1,7;59,7;2,1;75,4;
+MFA 950D501;1;5,5;159;50;233;197;2,6;12-25;1,3;31,3;1,7;41,7;2,2;52,2;2,7;65,9;https://www.mfacomodrills.com/pdfs/950D-series.pdf
+MFA 950D301LN;1;5;202;30;240;198;3;10-20;1,5;30,8;2,0;41,1;2,5;51,3;3,2;64,9;https://www.mfacomodrills.com/pdfs/950DLN-series.pdf
+MFA 970D1561;2,81;8,2;293;156;93;77,2;3;6;1,5;79,2;2,0;105,6;2,5;132,1;3,2;166,8;https://www.mfacomodrills.com/pdfs/970D-series.pdf
+MFA 970D471;2,81;8,2;285;47;309;256;3;20-47;1,5;23,9;2,0;31,8;2,5;39,8;3,2;50,3;https://www.mfacomodrills.com/pdfs/970D-series.pdf
+MFA 980D471;1;4,6;189;47;248;209;2,43;10-24;1,215;29,5;1,6;39,3;2,0;49,1;2,6;62,0;https://www.mfacomodrills.com/pdfs/970D-series.pdf
+VT-P-T37A-12-100;2,2;;140;65;92;70;2,5;13;1,25;84,1;1,7;112,1;2,1;140,1;2,6;177,0;https://eckstein-shop.de/V-TEC12V6mmAntriebwelleDCMotorGleichstromSchneckengetriebemotor100RPM
+PO4844;0,8;;;34;300;260;1,6;11;0,8;24,0;1,1;32,0;1,3;40,0;1,7;50,5;https://eckstein-shop.de/Pololu-341-Metal-Gearmotor-25Dx67L-mm-HP-12V-with-48-CPR-Encoder
+Pololu 4752;1,8;5,5;;30;330;210;4,4;14;2,2;26,0;2,9;34,7;3,7;43,4;4,6;54,8;https://eckstein-shop.de/Pololu-301-Metal-Gearmotor-37Dx68L-mm-12V-with-64CPR-EncoderHelical-Pinion
+Pololu 4753;1.8.;5,5;;50;200;130;7;21;3,5;42,4;4,7;56,6;5,8;70,7;7,4;89,3;https://www.pololu.com/file/0J1736/pololu-37d-metal-gearmotors-rev-1-2.pdf
+Bringsmart 160rpm;;;;;160;140;2,4;;1,2;44,8;1,6;59,7;2,0;74,6;2,5;94,2;
+Bringsmart;1,5;;350;;200;208;5;15;2,5;32,8;3,3;43,7;4,2;54,6;5,3;69,0;https://www.amazon.de/dp/B0BGRBN5MW/?coliid=I27B9KTVWVWZOF&colid=23RGDI7NRDSEC&psc=1&ref_=list_c_wl_lv_ov_lig_dp_it
+Bringsmart;1,5;;350;;400;370;2;8;1;17,4;1,3;23,2;1,7;29,0;2,1;36,6;
+Walfrontoz6m9wr354-05;0,6;;165;40;100;100;1,5;6,4;0,75;66,8;1,0;89,1;1,3;111,4;1,6;140,7;https://www.amazon.de/Hochdrehmoment-Turbo-Wurm-Getriebemotor-Geschwindigkeitsreduzierung-Selbstverriegelung/dp/B075575BJH/ref=sr_1_16?__mk_de_DE=ÅMÅŽÕÑ&crid=26OK14EIOS0W5&keywords=12v%2Bmotor%2Bselbsthemmend&qid=1706903721&sprefix=12v%2Bmotor%2Bselbsthemmend%2Caps%2C87&sr=8-16&th=1
+NFP 5840-555;2,6;;410;31;260;200;4;16;2;29,6;2,7;39,4;3,3;49,3;4,2;62,2;https://nfpshop.com/product/12v-24v-metal-gear-worm-gear-model-nfp-5840-555-en
+NFP 5840-555;2,6;;410;17;470;380;2,2;8,8;1,1;15,9;1,5;21,2;1,8;26,5;2,3;33,5;
+NFP-JGB37-31ZY-1280;;;;56;143;118;6,8;15;3,4;51,7;4,5;68,9;5,7;86,2;7,2;108,8;
+NFP-GM37-550-1240, 12V DC, 40W;6;;;30;550;360;9;;4,5;15,4;6,0;20,5;7,5;25,6;9,5;32,3;
+NFP-GM37-550-1240, 12V DC, 40W;6;;;50;330;215;15;;7,5;25,7;10,0;34,2;12,5;42,8;15,8;54,0;
+NFP-GM37-545-EN, 12V DC, 19W;1,5;;;10;570;480;0,9;;0,45;12,8;0,6;17,1;0,8;21,4;0,9;27,0;
+NFP-GM37-550-1240, 12V DC, 40W;1,5;;;18,8;300;250;0,9;;0,45;24,5;0,6;32,7;0,8;40,8;0,9;51,6;
+NFP-GM37-550-1240, 12V DC, 40W;1,5;;;30;190;160;3;;1,5;38,5;2,0;51,3;2,5;64,1;3,2;81,0;
