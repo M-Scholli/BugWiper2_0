@@ -8,6 +8,7 @@ This project is an open source electronic bug wiper system.
 
 - Modelcraft RB350018-2A723R Hochleistungsgetriebemotor 12 V 18:1 :https://www.conrad.de/de/p/modelcraft-rb350018-2a723r-hochleistungsgetriebemotor-12-v-18-1-233131.html
 - dual H-Bridge Motor driver L298 3A
+- 45mm Diameter Cable Drum
 
 #### Problems:
 - Motor Driver had a high voltage drop, which reduced the motor power
@@ -105,6 +106,8 @@ newer ESP-S3:
 CHANCS Aluminium Alloy Double V-Groove Belt Pulley 40 mm OD 8 mm Fixed Pulley for Motor Shaft Bore 6 mm: https://www.amazon.de/gp/product/B0CRR4KS3J
 
 # Motor Tests:
+
+In the Hardware folder of this repo is a EXCEL and CSV file witch lots of motors and its comparison and the calculated winding times and forces at different drum diameters. 
 
 ## SRA58SW-555B / 5840-555 Worm Geared Motor
 
