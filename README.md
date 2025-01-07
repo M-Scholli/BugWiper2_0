@@ -107,7 +107,14 @@ CHANCS Aluminium Alloy Double V-Groove Belt Pulley 40 mm OD 8 mm Fixed Pulley fo
 
 # Motor Tests:
 
-In the Hardware folder of this repo is a EXCEL and CSV file witch lots of motors and its comparison and the calculated winding times and forces at different drum diameters. 
+## Motor recommendations and comparison
+In the Hardware folder of this repo is a EXCEL and CSV file witch lots of motors and its comparison and the calculated winding times and forces at different drum diameters.
+#### Motor selection criteria:
+- Motor RPM between 250 to 450 RPM. This allows a cleaning time around 30 seconds with a spool diameter between 20 mm and 40 mm
+- Motor Torque / Motor Power high enough to reach a pulling force of 3 to 5 kg
+- high friction / high gear ratio / high no load current or self locking gear that the bug wiper wings don't pull out the rope when the motor is shut down. 
+
+![Image](./fotos/motor_excel.png)
 
 ## SRA58SW-555B / 5840-555 Worm Geared Motor
 
