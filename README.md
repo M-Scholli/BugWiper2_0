@@ -51,7 +51,7 @@ This project is an open source electronic bug wiper system.
 - programmable cable length with the motor encoder
 - direction change of the motor at the wingtip. Motor turn every time the same direction for in and out.
 - slow down the motor before reaching the fuselage to reduce the force at the stop.
-- auto retighten the bug wipers if they loosen from the fuselage in flight
+- auto retight the bug wipers if they loosen from the fuselage in flight
 - ground modus to loosen the bug wiper just bit and no full cleaning process
 - WiFi Hotspot with web browser to configure the BugWiper system before flight
 
@@ -63,11 +63,6 @@ This project is an open source electronic bug wiper system.
 
 - selected Board: ESP32S3 DEV Module
 
-
- 
-
- 
-
 ### Installed Librarys:
 - ESP32Encoder 0.11.6 by Kevin Harrington: https://github.com/madhephaestus/ESP32Encoder
 - Manual Installed ESPAsyncWebServer by lacamera modified by Ed Nieuwenhuys to work with EPS32 V3: https://github.com/ednieuw/ESPAsyncWebServer
@@ -77,24 +72,22 @@ This project is an open source electronic bug wiper system.
 
 # Hardware:
 ## Controller
+I suggest to use a ESP32-WROOM-32 or ESP32-S3-WROOM.
+
+[More infos to the controller and configuration](./Hardware/HW_Controller.md)
+
 ### ESP32-WROOM-32
 Simple and small solution:
 - diymore ESP32 WROOM 32 Nodemcu https://amzn.eu/d/j1bOF2C
 ### Pinout SP32-S3-DevKitC-1 N16R8:
 ![Image](./fotos/Pinout_ESP32.jpg)
 
-### CH340 Driver (USB-Serial)
-https://www.arduined.eu/ch340-windows-10-driver-download/
-### Board Settings:
-![Image](./fotos/settings_ESP32.PNG)
-
 ### ESP32-S3-WROOM
 newer ESP-S3:
 - iHaospace 2 x ESP32-S3-DevKitC-1 N16R8 16Mb Flash, 8MB PSRAM https://www.amazon.de/dp/B0D1CBV999
 ### Pinout SP32-S3-DevKitC-1 N16R8:
 ![Image](./fotos/Pinout_ESP32-S3.png)
-### Board Settings:
-![Image](./fotos/settings_ESP32-S3.PNG)
+
 ### Others
 - IBT_2 BTS7960B 43 A Motor Driver: https://www.amazon.de/dp/B09HGBM5D2
 - 12V DC 200rpm High Torque Geared Electric Motor: https://www.amazon.de/gp/product/B00T48KC1Q 
@@ -105,10 +98,12 @@ newer ESP-S3:
 - to make the cable drum:
 CHANCS Aluminium Alloy Double V-Groove Belt Pulley 40 mm OD 8 mm Fixed Pulley for Motor Shaft Bore 6 mm: https://www.amazon.de/gp/product/B0CRR4KS3J
 
-# Motor Tests:
+# Motor
+[More Details and Motor tests here](./Hardware/HW_Motor.md)
 
 ## Motor recommendations and comparison
-In the Hardware folder of this repo is a EXCEL and CSV file witch lots of motors and its comparison and the calculated winding times and forces at different drum diameters.
+
+In the Hardware folder of this repo is a [Excel](./Hardware/Motor_comparison.xlsx) and CSV file witch lots of motors and its comparison and the calculated winding times and forces at different drum diameters.
 #### Motor selection criteria:
 - Motor RPM between 250 to 450 RPM. This allows a cleaning time around 30 seconds with a spool diameter between 20 mm and 40 mm
 - Motor Torque / Motor Power high enough to reach a pulling force of 3 to 5 kg
@@ -116,75 +111,8 @@ In the Hardware folder of this repo is a EXCEL and CSV file witch lots of motors
 
 ![Image](./fotos/motor_excel.png)
 
-## SRA58SW-555B / 5840-555 Worm Geared Motor
-
-https://www.bringsmart.com/pd.jsp?id=110
-
-similar to https://nfpshop.com/product/12v-24v-metal-gear-worm-gear-model-nfp-5840-555-en ???
-
-![Image](./fotos/motor1.jpg)
-
-### Motor Parameters:
-- 12 Volt
-- 30 Watt
-- 470 rpm
-- self locking worm gear
-- 17:1 Gear ratio
-
-### Testing
-
-Cable drum with 24mm Diameter made out of CHANCS Aluminium Alloy Double V-Groove Belt Pulley 40 mm OD 8 mm Fixed Pulley for Motor Shaft Bore 6 mm: https://www.amazon.de/gp/product/B0CRR4KS3J
-
-#### Forwards:
-| Load| Current| Speed |
-| :-- | :------: | ----: |
-| 1kg |   2.2 A  | 0.55 m/s |
-| 2kg |   3.4 A  | 0.44 m/s |
-| 3kg |  4.6 A   | 0.39 m/s |
-| 4kg |  6.2 A   | 0.32 m/s |
-| 5kg |  8.3A    | 0.23 m/s |
-
-#### Backwards:
-| Load| Current| Speed |
-| :-- | :------: | ----: |
-| 2kg |  4.6 A  | 0.4 m/s |
-| 3kg |  6.4 A  | 0.37 m/s |
-
---> Time for the cleaning process of one wing around 28 seconds
-
-### Result:
-Positive:
-+ self locking
-+ high Torque
-+ integrated Encoder
-+ fast
-
-Negative:
-- high power consumption
-- bad efficiency
-- high noise
-- higher losses when turning backwards
-
-## ZGB37RH31
-https://www.amazon.de/gp/product/B00T48KC1Q
-
-https://www.zhengkemotor.com/product/Zhengk_DC_Brushed_Motor_RS555__EccentricShaft_37mm_Gearhead_RoundFlange_ZGB37RH.html
-
-![Image](./fotos/motor2.jpg)
-
-### Motor Parameters:
-- 12 Volt
-- 30 Watt
-- 200 rpm
-- self locking worm gear
-- 31.1:1 Gear ratio
-
-### Result:
-Positive:
-+ higher efficiency
-
-Negative:
-- not self locking, but could be enough resistance
+# Electronics / PCB Design
+[More info here](./Hardware/HW_Electronics.md)
 
 ## Open Source Software Declaration
 The Webserver part is based on https://github.com/smford/esp32-asyncwebserver-fileupload-example and licensed under Apache 2.0 license
