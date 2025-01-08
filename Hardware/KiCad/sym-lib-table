@@ -1,0 +1,4 @@
+(sym_lib_table
+  (version 7)
+  (lib (name "BugWiper_Lib")(type "KiCad")(uri "${KIPRJMOD}/BugWiper_Lib.kicad_sym")(options "")(descr ""))
+)

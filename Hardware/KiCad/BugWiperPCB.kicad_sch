@@ -1,0 +1,56 @@
+(kicad_sch (version 20230121) (generator eeschema)
+
+  (uuid d31a15bd-db02-4d4c-9593-17c596d3182c)
+
+  (paper "A4")
+
+  (lib_symbols
+  )
+
+
+  (sheet (at 142.24 73.66) (size 33.02 21.59) (fields_autoplaced)
+    (stroke (width 0.1524) (type solid))
+    (fill (color 0 0 0 0.0000))
+    (uuid c3388659-287d-4904-b92a-4db1b844f22c)
+    (property "Sheetname" "Power" (at 142.24 72.9484 0)
+      (effects (font (size 1.27 1.27)) (justify left bottom))
+    )
+    (property "Sheetfile" "Power.kicad_sch" (at 142.24 95.8346 0)
+      (effects (font (size 1.27 1.27)) (justify left top))
+    )
+    (instances
+      (project "BugWiperPCB"
+        (path "/d31a15bd-db02-4d4c-9593-17c596d3182c" (page "3"))
+      )
+    )
+  )
+
+  (sheet (at 86.36 64.77) (size 29.21 40.64) (fields_autoplaced)
+    (stroke (width 0.1524) (type solid))
+    (fill (color 0 0 0 0.0000))
+    (uuid caaad550-b4dc-4462-8f3c-cac307d6a6e2)
+    (property "Sheetname" "ESP32-S3" (at 86.36 64.0584 0)
+      (effects (font (size 1.27 1.27)) (justify left bottom))
+    )
+    (property "Sheetfile" "ESP32-S3.kicad_sch" (at 86.36 105.9946 0)
+      (effects (font (size 1.27 1.27)) (justify left top))
+    )
+    (pin "+3V3" input (at 115.57 68.58 0)
+      (effects (font (size 1.27 1.27)) (justify right))
+      (uuid f9eae721-ff32-44f8-b3f8-c80485f44f06)
+    )
+    (pin "GND" input (at 115.57 82.55 0)
+      (effects (font (size 1.27 1.27)) (justify right))
+      (uuid 4f4e4e45-64a2-4d04-87bc-facea7b3bdee)
+    )
+    (instances
+      (project "BugWiperPCB"
+        (path "/d31a15bd-db02-4d4c-9593-17c596d3182c" (page "2"))
+      )
+    )
+  )
+
+  (sheet_instances
+    (path "/" (page "1"))
+  )
+)

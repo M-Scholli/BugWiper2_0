@@ -75,3 +75,7 @@ Release/Libraries/MemoryFree/subdir.mk
 *.FCBak
 /SW_BugWiper/.vscode
 /.vscode
+*.bak
+*auto_saved_files#
+*-backups
+*-cache
