@@ -46,6 +46,13 @@ This project is an open source electronic bug wiper system.
 
 
 # Hardware:
+
+## Electronics / PCB Designs
+
+![image](./fotos/PCB_3D.png)
+[More info here](./Hardware/HW_Electronics.md)
+
+
 ## Controller
 I suggest to use a ESP32-WROOM-32 or ESP32-S3-WROOM.
 
@@ -86,8 +93,6 @@ In the Hardware folder of this repo is a [Excel](./Hardware/Motor_comparison.xls
 
 ![Image](./fotos/motor_excel.png)
 
-# Electronics / PCB Design
-[More info here](./Hardware/HW_Electronics.md)
 
 ## Open Source Software Declaration
 The Webserver part is based on https://github.com/smford/esp32-asyncwebserver-fileupload-example and licensed under Apache 2.0 license

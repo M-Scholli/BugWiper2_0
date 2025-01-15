@@ -106,4 +106,9 @@
       )
     )
   )
+  (model "${KIPRJMOD}/lib/IND_IHLP-4040DZ_VIS.step"
+    (offset (xyz 0 0 0))
+    (scale (xyz 1 1 1))
+    (rotate (xyz 0 0 0))
+  )
 )

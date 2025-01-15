@@ -77,4 +77,9 @@
     (solder_mask_margin 0.102) (tstamp 9bc20f0a-808c-4e2f-83d7-b94b2af1fc9d))
   (pad "SH4" thru_hole oval (at 4.32 -2.6) (size 1 1.8) (drill oval 0.6 1.4) (layers "*.Cu" "*.Mask")
     (solder_mask_margin 0.102) (tstamp f9557beb-86cf-4101-917e-cd7e5416e415))
+  (model "${KIPRJMOD}/lib/Same_Sky_UJ20-C-H-G-SMT-1-P16-TR.step"
+    (offset (xyz 0 0 1.6))
+    (scale (xyz 1 1 1))
+    (rotate (xyz -90 0 0))
+  )
 )
