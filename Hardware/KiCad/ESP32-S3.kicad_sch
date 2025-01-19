@@ -4625,14 +4625,14 @@
     (property "Datasheet" "~" (at 246.38 142.24 0)
       (effects (font (size 1.27 1.27)) hide)
     )
-    (pin "8" (uuid 72d0419f-2675-45e4-83c0-2e95017ddaf9))
+    (pin "8" (uuid 72d0419f-2675-45e4-83c0-2e95017ddafa))
     (pin "3" (uuid 927abb6c-f630-4ac6-ad36-f7ad7bdab0f1))
     (pin "6" (uuid 7aed7270-471f-475e-a2d8-e04819fc86c9))
     (pin "7" (uuid 3eef7c8b-65e2-4719-8392-41c0f63f01b7))
-    (pin "4" (uuid 1ebfe94c-7bf0-4502-a19b-87f3b477bbb7))
-    (pin "1" (uuid b631d8b8-5c8a-47ec-96df-c3d55e5b5786))
+    (pin "4" (uuid 1ebfe94c-7bf0-4502-a19b-87f3b477bbb8))
+    (pin "1" (uuid b631d8b8-5c8a-47ec-96df-c3d55e5b5787))
     (pin "2" (uuid d265f6fa-7676-41d9-aa1f-4a98c2b38a36))
-    (pin "5" (uuid 3ff7a312-2f49-4e7a-8960-c138920299ad))
+    (pin "5" (uuid 3ff7a312-2f49-4e7a-8960-c138920299ae))
     (instances
       (project "BugWiperPCB"
         (path "/d31a15bd-db02-4d4c-9593-17c596d3182c/caaad550-b4dc-4462-8f3c-cac307d6a6e2"
@@ -4714,12 +4714,12 @@
     (property "Datasheet" "~" (at 25.4 97.79 0)
       (effects (font (size 1.27 1.27)) hide)
     )
-    (pin "8" (uuid 72d0419f-2675-45e4-83c0-2e95017ddafa))
+    (pin "8" (uuid 72d0419f-2675-45e4-83c0-2e95017ddafb))
     (pin "3" (uuid 927abb6c-f630-4ac6-ad36-f7ad7bdab0f2))
     (pin "6" (uuid 7aed7270-471f-475e-a2d8-e04819fc86ca))
     (pin "7" (uuid a63542ae-be06-4953-9061-6f23e9c7cd87))
     (pin "4" (uuid 09f34b3f-3258-4e8d-86bd-0da78ac74bb4))
-    (pin "1" (uuid b631d8b8-5c8a-47ec-96df-c3d55e5b5787))
+    (pin "1" (uuid b631d8b8-5c8a-47ec-96df-c3d55e5b5788))
     (pin "2" (uuid 825647bd-ddb4-49b9-ab19-5e5e7224e773))
     (pin "5" (uuid 17077d59-232a-460a-8777-38d118c429bf))
     (instances
@@ -5994,13 +5994,13 @@
       (effects (font (size 1.27 1.27)) hide)
     )
     (pin "8" (uuid bdd79ba6-e043-4c4e-b39a-1286ddcd54a7))
-    (pin "3" (uuid 927abb6c-f630-4ac6-ad36-f7ad7bdab0f2))
-    (pin "6" (uuid 7aed7270-471f-475e-a2d8-e04819fc86ca))
-    (pin "7" (uuid a63542ae-be06-4953-9061-6f23e9c7cd87))
-    (pin "4" (uuid 1ebfe94c-7bf0-4502-a19b-87f3b477bbb8))
+    (pin "3" (uuid 927abb6c-f630-4ac6-ad36-f7ad7bdab0f3))
+    (pin "6" (uuid 7aed7270-471f-475e-a2d8-e04819fc86cb))
+    (pin "7" (uuid a63542ae-be06-4953-9061-6f23e9c7cd88))
+    (pin "4" (uuid 1ebfe94c-7bf0-4502-a19b-87f3b477bbb9))
     (pin "1" (uuid 69b08d5c-663c-4228-a08c-d49b99587bd6))
-    (pin "2" (uuid 825647bd-ddb4-49b9-ab19-5e5e7224e773))
-    (pin "5" (uuid 3ff7a312-2f49-4e7a-8960-c138920299ae))
+    (pin "2" (uuid 825647bd-ddb4-49b9-ab19-5e5e7224e774))
+    (pin "5" (uuid 3ff7a312-2f49-4e7a-8960-c138920299af))
     (instances
       (project "BugWiperPCB"
         (path "/d31a15bd-db02-4d4c-9593-17c596d3182c/caaad550-b4dc-4462-8f3c-cac307d6a6e2"
