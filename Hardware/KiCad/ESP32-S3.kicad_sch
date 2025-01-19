@@ -4261,8 +4261,8 @@
     )
   )
 
-  (symbol (lib_id "Device:R_Pack04") (at 267.97 92.71 90) (unit 1)
-    (in_bom yes) (on_board yes) (dnp no) (fields_autoplaced)
+  (symbol (lib_id "Device:R_Pack04") (at 267.97 92.71 270) (mirror x) (unit 1)
+    (in_bom yes) (on_board yes) (dnp no)
     (uuid 056c348e-3cac-4739-ba86-9c4dd6614252)
     (property "Reference" "RN1" (at 267.97 83.82 90)
       (effects (font (size 1.27 1.27)))
