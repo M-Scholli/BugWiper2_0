@@ -1934,6 +1934,11 @@
     (uuid fecc3cf4-50eb-4d89-8805-80bf096d8266)
   )
 
+  (label "+VBat*" (at 52.07 24.13 0) (fields_autoplaced)
+    (effects (font (size 1.27 1.27)) (justify left bottom))
+    (uuid dcbffee9-9668-4610-91f6-a803f78b0acd)
+  )
+
   (global_label "+12V_HighSide" (shape input) (at 265.43 87.63 90) (fields_autoplaced)
     (effects (font (size 1.27 1.27)) (justify left))
     (uuid 8f725816-004a-41af-8d6d-4aec06966ae8)
