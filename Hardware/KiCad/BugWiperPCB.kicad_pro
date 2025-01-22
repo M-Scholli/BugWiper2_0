@@ -55,7 +55,23 @@
           "width": 0.0
         }
       ],
-      "drc_exclusions": [],
+      "drc_exclusions": [
+        "clearance|202438000|62439600|c5a3d0a7-1d4d-4a1e-b4fb-c99b69e9b470|e07adb8e-7392-4de7-a2bf-440a70f0cf4c",
+        "clearance|203446000|62439600|a32c15af-92ed-4d50-a52c-dc05e4fc4bf3|e07adb8e-7392-4de7-a2bf-440a70f0cf4c",
+        "clearance|206298800|61474400|338a3a43-5dcc-4496-a1f0-44678e258e60|9dfeb757-6cc5-40f8-9e60-8cf0991568a2",
+        "clearance|207205200|61474400|edbc8ca8-985c-44bb-9c7f-e4946c026475|9dfeb757-6cc5-40f8-9e60-8cf0991568a2",
+        "copper_edge_clearance|116946000|60193800|24f00c5a-332c-4a33-b2e7-40c4b917686a|370ff7b8-160e-4cf4-9435-bec3dcb428eb",
+        "copper_edge_clearance|117053000|60000000|24f00c5a-332c-4a33-b2e7-40c4b917686a|27933ddf-59f5-4d2a-a4f3-001130bd13f3",
+        "copper_edge_clearance|120603000|60194800|24f00c5a-332c-4a33-b2e7-40c4b917686a|eedba410-18e3-441c-86ce-35de9f1b69ad",
+        "copper_edge_clearance|121453000|60000000|24f00c5a-332c-4a33-b2e7-40c4b917686a|e6990eb8-591d-45f8-8907-747d995afc32",
+        "copper_edge_clearance|124058000|60193800|24f00c5a-332c-4a33-b2e7-40c4b917686a|b091b2a9-af27-44eb-ab51-4ef68ecb7a3e",
+        "copper_edge_clearance|124165000|60000000|24f00c5a-332c-4a33-b2e7-40c4b917686a|17262217-5539-47ab-9fc6-a64989b21fd4",
+        "copper_edge_clearance|127715000|60194800|24f00c5a-332c-4a33-b2e7-40c4b917686a|85f73b10-9634-4cb7-918f-7c57e6ee17a7",
+        "copper_edge_clearance|128565000|60000000|24f00c5a-332c-4a33-b2e7-40c4b917686a|eb915aed-2e34-40b9-a4df-36ffa4b03991",
+        "items_not_allowed|0|0|0877be8a-640c-43d2-b6c4-9e34cf239b26|00000000-0000-0000-0000-000000000000",
+        "items_not_allowed|0|0|47714cf5-fa9a-4694-9496-40faccd624b9|00000000-0000-0000-0000-000000000000",
+        "items_not_allowed|0|0|6cec7047-2007-4ece-8940-9adcf4a03eb6|00000000-0000-0000-0000-000000000000"
+      ],
       "meta": {
         "version": 2
       },
@@ -113,8 +129,8 @@
         "max_error": 0.005,
         "min_clearance": 0.15,
         "min_connection": 0.19999999999999998,
-        "min_copper_edge_clearance": 0.0,
-        "min_hole_clearance": 0.25,
+        "min_copper_edge_clearance": 0.5,
+        "min_hole_clearance": 0.19999999999999998,
         "min_hole_to_hole": 0.25,
         "min_microvia_diameter": 0.19999999999999998,
         "min_microvia_drill": 0.09999999999999999,
