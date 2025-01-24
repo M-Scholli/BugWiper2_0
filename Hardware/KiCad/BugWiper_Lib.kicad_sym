@@ -1304,7 +1304,7 @@
       (polyline
         (pts
           (xy 15.748 -5.08)
-          (xy 24.13 -5.08)
+          (xy 19.05 -5.08)
         )
         (stroke (width 0.127) (type default))
         (fill (type none))
@@ -1312,7 +1312,7 @@
       (polyline
         (pts
           (xy 15.748 0)
-          (xy 24.13 0)
+          (xy 19.05 0)
         )
         (stroke (width 0.127) (type default))
         (fill (type none))
@@ -1656,7 +1656,7 @@
       (polyline
         (pts
           (xy 24.8437 -5.0802)
-          (xy 19.7637 -5.0802)
+          (xy 21.59 -5.08)
         )
         (stroke (width 0.127) (type default))
         (fill (type none))
@@ -1664,7 +1664,7 @@
       (polyline
         (pts
           (xy 24.9044 0.0058)
-          (xy 19.05 0)
+          (xy 21.59 0)
         )
         (stroke (width 0.127) (type default))
         (fill (type none))
@@ -1852,7 +1852,7 @@
         (name "IO_1" (effects (font (size 1.27 1.27))))
         (number "1" (effects (font (size 1.27 1.27))))
       )
-      (pin unspecified line (at 10.16 -2.54 0) (length 3.81)
+      (pin power_in line (at 10.16 -2.54 0) (length 3.81)
         (name "Vss" (effects (font (size 1.27 1.27))))
         (number "2" (effects (font (size 1.27 1.27))))
       )
@@ -1864,7 +1864,7 @@
         (name "IO_3" (effects (font (size 1.27 1.27))))
         (number "4" (effects (font (size 1.27 1.27))))
       )
-      (pin unspecified line (at 30.48 -2.54 180) (length 3.81)
+      (pin power_in line (at 30.48 -2.54 180) (length 3.81)
         (name "Vcc" (effects (font (size 1.27 1.27))))
         (number "5" (effects (font (size 1.27 1.27))))
       )

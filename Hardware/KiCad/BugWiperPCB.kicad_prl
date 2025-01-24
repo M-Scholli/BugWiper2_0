@@ -12,20 +12,20 @@
       "pads": 0.6800000071525574,
       "tracks": 0.8399999737739563,
       "vias": 1.0,
-      "zones": 0.550000011920929
+      "zones": 0.8399999737739563
     },
     "selection_filter": {
-      "dimensions": false,
+      "dimensions": true,
       "footprints": true,
-      "graphics": false,
-      "keepouts": false,
+      "graphics": true,
+      "keepouts": true,
       "lockedItems": true,
-      "otherItems": false,
-      "pads": false,
-      "text": false,
+      "otherItems": true,
+      "pads": true,
+      "text": true,
       "tracks": true,
       "vias": true,
-      "zones": false
+      "zones": true
     },
     "visible_items": [
       0,
