@@ -56,8 +56,8 @@
   (pad "6" thru_hole circle (at 6.35 -2.54) (size 1.27 1.27) (drill 0.762) (layers "*.Cu" "*.Mask") (tstamp 13f7dd8b-101e-4251-a696-b85aa0aa700e))
   (pad "7" thru_hole circle (at 7.62 0) (size 1.27 1.27) (drill 0.762) (layers "*.Cu" "*.Mask") (tstamp b9f65b56-f3e3-4cac-8a45-6645506c82f5))
   (pad "8" thru_hole circle (at 8.89 -2.54) (size 1.27 1.27) (drill 0.762) (layers "*.Cu" "*.Mask") (tstamp c7959a7c-2b46-4d65-b372-1dc58c620cce))
-  (pad "9" thru_hole circle (at -1.27 6.35 90) (size 3.81 3.81) (drill 3.302) (layers "*.Cu" "*.Mask") (tstamp 54b4aa70-51c2-492b-afaf-4ef2612cceb5))
-  (pad "10" thru_hole circle (at 10.16 6.35 90) (size 3.81 3.81) (drill 3.302) (layers "*.Cu" "*.Mask") (tstamp ea168b01-36d4-4e43-90b0-6776a7f16aa6))
+  (pad "SH" thru_hole circle (at -1.27 6.35 90) (size 3.81 3.81) (drill 3.302) (layers "*.Cu" "*.Mask") (tstamp 54b4aa70-51c2-492b-afaf-4ef2612cceb5))
+  (pad "SH" thru_hole circle (at 10.16 6.35 90) (size 3.81 3.81) (drill 3.302) (layers "*.Cu" "*.Mask") (tstamp ea168b01-36d4-4e43-90b0-6776a7f16aa6))
   (model "${KIPRJMOD}/lib/54602-908LF.stp"
     (offset (xyz 4.44 3.8 10.5))
     (scale (xyz 1 1 1))

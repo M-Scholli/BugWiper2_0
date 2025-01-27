@@ -2274,7 +2274,7 @@
       (effects (font (size 1.27 1.27)) (justify right))
       (uuid 41bebff3-6958-4817-a870-7823928c82df)
     )
-    (pin "M_IHN2" input (at 116.84 76.2 0)
+    (pin "M_INH2" input (at 116.84 76.2 0)
       (effects (font (size 1.27 1.27)) (justify right))
       (uuid 083000ee-b68a-4e29-9116-e85a32302cbf)
     )
