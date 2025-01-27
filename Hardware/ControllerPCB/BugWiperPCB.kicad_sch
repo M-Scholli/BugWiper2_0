@@ -4,6 +4,12 @@
 
   (paper "A4")
 
+  (title_block
+    (title "BugWiper 2.0 Controller PCB")
+    (date "2025-01-27")
+    (company "M. Scholjegerdes")
+  )
+
   (lib_symbols
     (symbol "BugWiper_Lib:1770924" (pin_names (offset 0.254)) (in_bom yes) (on_board yes)
       (property "Reference" "J" (at 8.89 6.35 0)

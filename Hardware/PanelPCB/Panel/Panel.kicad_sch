@@ -4,6 +4,12 @@
 
   (paper "A4")
 
+  (title_block
+    (title "BugWiper 2.0 Control Panel PCB")
+    (date "2025-01-27")
+    (company "M. Scholjegerdes")
+  )
+
   (lib_symbols
     (symbol "BugWiper_Lib:100SP4T1B4M2QE" (in_bom yes) (on_board yes)
       (property "Reference" "S" (at 19.05 7.62 0)
