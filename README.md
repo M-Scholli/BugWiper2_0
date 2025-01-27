@@ -48,11 +48,12 @@ This project is an open source electronic bug wiper system.
 # Hardware:
 
 ## Electronics / PCB Designs
-
+### Motor Controller PCB
 ![image](./fotos/PCB_3D.png)
 [More info here](./Hardware/HW_Electronics.md)
-
-
+### ControlPanel PCB
+![image](./fotos/Controlpanel1.png)
+![image](./fotos/Controlpanel2.png)
 ## Controller
 I suggest to use a ESP32-WROOM-32 or ESP32-S3-WROOM.
 
