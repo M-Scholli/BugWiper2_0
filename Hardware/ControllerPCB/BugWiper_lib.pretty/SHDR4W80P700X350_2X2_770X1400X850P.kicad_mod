@@ -43,7 +43,7 @@
   (pad "2" thru_hole circle (at 0 -7) (size 2.025 2.025) (drill 1.35) (layers "*.Cu" "*.Mask") (tstamp e35080ed-f3d1-4476-8385-5c6fc5f99bb1))
   (pad "3" thru_hole circle (at 3.5 0) (size 2.025 2.025) (drill 1.35) (layers "*.Cu" "*.Mask") (tstamp d49781d8-5b9e-482a-900d-e19e4b032410))
   (pad "4" thru_hole circle (at 3.5 -7) (size 2.025 2.025) (drill 1.35) (layers "*.Cu" "*.Mask") (tstamp 5e77ac7b-1b47-48af-a481-0478c2158abd))
-  (model "C:\\Users\\MoritzScholjegerdes\\Documents\\KiCad\\7.0\\symbols\\SamacSys_Parts.3dshapes\\1824420000.stp"
+  (model "${KIPRJMOD}/lib/1824420000.stp"
     (offset (xyz -2.099999873 -5.449999727 -3.499999947))
     (scale (xyz 1 1 1))
     (rotate (xyz 0 0 0))
