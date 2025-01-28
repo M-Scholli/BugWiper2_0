@@ -44,7 +44,7 @@
   (pad "1" smd rect (at -1.6 0) (size 0.8 1) (layers "F.Cu" "F.Mask") (tstamp 76e20376-ce9f-4c8b-bfa9-ef69f9308c49))
   (pad "2" smd rect (at 0 0) (size 0.8 1) (layers "F.Cu" "F.Mask") (tstamp 43905401-9a94-4e05-833b-972db32526d6))
   (pad "3" smd rect (at 1.6 0) (size 0.8 1) (layers "F.Cu" "F.Mask") (tstamp c19b83d9-d059-4994-9584-79555a1bdd47))
-  (model "${KIPRJMOD}/lib/RC0603.step"
+  (model "${KIPRJMOD}/lib/RC0603.step" hide
     (offset (xyz -0.8 0 0))
     (scale (xyz 1 1 1))
     (rotate (xyz 0 0 0))
