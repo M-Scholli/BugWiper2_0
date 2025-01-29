@@ -1842,7 +1842,7 @@
     (property "Value" "Conn_01x02_Pin" (at 252.73 102.87 0)
       (effects (font (size 1.27 1.27)) (justify right))
     )
-    (property "Footprint" "Connector_JST:JST_XH_B2B-XH-AM_1x02_P2.50mm_Vertical" (at 251.46 102.87 0)
+    (property "Footprint" "BugWiper_lib:JST_XH_B2B-XH-AM_1x02_P2.50mm_Vertical" (at 251.46 102.87 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Datasheet" "~" (at 251.46 102.87 0)
