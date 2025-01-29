@@ -26,8 +26,8 @@ are similar to the BTS7960B that is no longer in production.
 
 # PCB Design
 
-![image](../fotos/PCB_3D.png)
-
+![image](../fotos/PCB_3D_TOP.png)
+![image](../fotos/PCB_3D_Bottom.png)
 ## BOM
 
 | Nr | Name | Manufacturer|Type | Link |
