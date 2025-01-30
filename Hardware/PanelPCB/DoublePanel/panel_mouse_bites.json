@@ -1,0 +1,16 @@
+{
+    "layout": {
+        "hspace": "1mm",
+        "cols": "2"
+    },
+    "tabs": {
+        "hwidth": "5mm",
+        "spacing": "6mm"
+    },
+    "cuts": {
+        "type": "mousebites"
+    },
+    "post": {
+        "millradius": "0.5mm"
+    }
+}
