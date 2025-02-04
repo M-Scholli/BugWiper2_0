@@ -1,0 +1,8 @@
+### Footprint positions - created on Tue Feb  4 14:49:09 2025 ###
+### Printed by KiCad version 7.0.10
+## Unit = mm, Angle = deg.
+## Side : bottom
+# Ref     Val            Package                                           PosX       PosY       Rot  Side
+C41       1nF            C_0805_2012Metric_Pad1.18x1.45mm_HandSolder    59.8498    36.2714    0.0000  bottom
+J8        Micro_SD_Card  microSD_HC_Molex_104031-0811                    6.5000    27.0000  -90.0000  bottom
+## End
