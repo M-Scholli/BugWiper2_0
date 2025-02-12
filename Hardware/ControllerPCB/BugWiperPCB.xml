@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <export version="E">
   <design>
-    <source>C:\Git\BugWiper2_0\Hardware\ControllerPCB\BugWiperPCB.kicad_sch</source>
-    <date>04.02.2025 15:34:06</date>
+    <source>/Users/scholli/Git/BugWiper2_0/Hardware/ControllerPCB/BugWiperPCB.kicad_sch</source>
+    <date>Thursday, February 13, 2025 at 12:04:14 AM</date>
     <tool>Eeschema 7.0.10</tool>
     <sheet number="1" name="/" tstamps="/">
       <title_block>
@@ -98,13 +98,11 @@
         <field name="Manufacturer_Part_Number">PTS120630V012</field>
         <field name="Mouser Part Number">504-PTS120630V012</field>
         <field name="Mouser Price/Stock">0,108€</field>
-        <field name="Price">0,108€</field>
       </fields>
       <libsource lib="Device" part="Polyfuse" description="Resettable fuse, polymeric positive temperature coefficient"/>
       <property name="Description" value="100mA resettable FUSE"/>
       <property name="Manufacturer_Name" value="Eaton Electronics"/>
       <property name="Manufacturer_Part_Number" value="PTS120630V012"/>
-      <property name="Price" value="0,108€"/>
       <property name="Alternative MF" value=""/>
       <property name="Alternative PN" value=""/>
       <property name="Alternative Price" value=""/>
@@ -129,13 +127,11 @@
         <field name="Manufacturer_Part_Number">PTS120630V012</field>
         <field name="Mouser Part Number">504-PTS120630V012</field>
         <field name="Mouser Price/Stock">0,108€</field>
-        <field name="Price">0,108€</field>
       </fields>
       <libsource lib="Device" part="Polyfuse" description="Resettable fuse, polymeric positive temperature coefficient"/>
       <property name="Description" value="100mA resettable FUSE"/>
       <property name="Manufacturer_Name" value="Eaton Electronics"/>
       <property name="Manufacturer_Part_Number" value="PTS120630V012"/>
-      <property name="Price" value="0,108€"/>
       <property name="Alternative MF" value=""/>
       <property name="Alternative PN" value=""/>
       <property name="Alternative Price" value=""/>
@@ -181,7 +177,6 @@
       <footprint>BugWiper_lib:PHOENIX_1776508</footprint>
       <fields>
         <field name="Description"> 2 Pos 5.08mm pitch Through Hole Header</field>
-        <field name="MANUFACTURER">Phoenix Contact</field>
         <field name="MAXIMUM_PACKAGE_HEIGHT">8.75mm</field>
         <field name="Manufacturer_Name">Phoenix Contact</field>
         <field name="Manufacturer_Part_Number">1776508</field>
@@ -189,10 +184,7 @@
         <field name="Mouser Price/Stock">1,83 €</field>
       </fields>
       <libsource lib="BugWiper_Lib" part="Phoenix_1776508" description=""/>
-      <property name="PARTREV" value=""/>
-      <property name="STANDARD" value=""/>
       <property name="MAXIMUM_PACKAGE_HEIGHT" value="8.75mm"/>
-      <property name="MANUFACTURER" value="Phoenix Contact"/>
       <property name="Manufacturer_Name" value="Phoenix Contact"/>
       <property name="Alternative MF" value=""/>
       <property name="Alternative PN" value=""/>
@@ -213,14 +205,12 @@
       <footprint>BugWiper_lib:SHDR4W80P700X350_2X2_770X1400X850P</footprint>
       <datasheet>http://catalog.weidmueller.com/createDatasheetForMobile.do?ordernumber=1824420000&amp;scope1=1&amp;scope2=1&amp;localeId=en</datasheet>
       <fields>
-        <field name="Height">8.5</field>
         <field name="Manufacturer_Name">Weidmuller</field>
         <field name="Manufacturer_Part_Number">1824420000</field>
         <field name="Mouser Part Number">470-1824420000</field>
         <field name="Mouser Price/Stock">1,11 €</field>
       </fields>
       <libsource lib="BugWiper_Lib" part="1824420000" description="Printed circuit board terminals, 3.50 mm, Number of poles: 2, 90, Solder pin length: 3.5 mm, black, PUSH IN with actuator, Clamping range, max. [rated connection]: 1.5 mm, Tube"/>
-      <property name="Height" value="8.5"/>
       <property name="Mouser Part Number" value="470-1824420000"/>
       <property name="Mouser Price/Stock" value="1,11 €"/>
       <property name="Manufacturer_Name" value="Weidmuller"/>
@@ -236,33 +226,26 @@
       <sheetpath names="/" tstamps="/"/>
       <tstamps>d9810405-528a-43c8-8749-c3ecec0a7008</tstamps>
     </comp>
-    <comp ref="J7">
-      <value>B2B-XH-AM(LF)(SN)</value>
-      <footprint>BugWiper_lib:JST_XH_B2B-XH-AM_1x02_P2.50mm_Vertical</footprint>
+    <comp ref="J9">
+      <value>1873207</value>
       <fields>
-        <field name="Description">B2B-XH-AM JST</field>
-        <field name="Manufacturer_Name">JST</field>
-        <field name="Manufacturer_Part_Number">B2B-XH-AM(LF)(SN)</field>
-        <field name="Mouser Part Number">306-B2B-XH-AMLFSNP</field>
-        <field name="Mouser Price/Stock">0,152 €</field>
+        <field name="Manufacturer_Name">Phoenix Contact</field>
+        <field name="Manufacturer_Part_Number">1873207</field>
+        <field name="Mouser Part Number">651-1873207</field>
+        <field name="Mouser Price/Stock">2,51€</field>
       </fields>
-      <libsource lib="Connector" part="Conn_01x02_Pin" description="Generic connector, single row, 01x02, script generated"/>
-      <property name="Alternative MF" value=""/>
-      <property name="Alternative PN" value=""/>
-      <property name="Alternative Price" value=""/>
-      <property name="Manufacturer_Name" value="JST"/>
-      <property name="Manufacturer_Part_Number" value="B2B-XH-AM(LF)(SN)"/>
-      <property name="Mouser Part Number" value="306-B2B-XH-AMLFSNP"/>
-      <property name="Mouser Price/Stock" value="0,152 €"/>
-      <property name="Description" value="B2B-XH-AM JST"/>
-      <property name="JLCPCB Part #" value=""/>
-      <property name="JLCPCB Price" value=""/>
+      <libsource lib="Connector" part="Conn_01x02_Socket" description="Generic connector, single row, 01x02, script generated"/>
+      <property name="Manufacturer_Name" value="Phoenix Contact"/>
+      <property name="Manufacturer_Part_Number" value="1873207"/>
+      <property name="Mouser Part Number" value="651-1873207"/>
+      <property name="Mouser Price/Stock" value="2,51€"/>
       <property name="Sheetname" value=""/>
       <property name="Sheetfile" value="BugWiperPCB.kicad_sch"/>
+      <property name="exclude_from_board"/>
       <property name="ki_description" value="Generic connector, single row, 01x02, script generated"/>
       <property name="ki_keywords" value="connector"/>
       <sheetpath names="/" tstamps="/"/>
-      <tstamps>4443b290-f010-43f0-9959-079e9c4c1836</tstamps>
+      <tstamps>1db86399-b7ea-4a26-8d00-7001aa85c6e4</tstamps>
     </comp>
     <comp ref="R27">
       <value>1k</value>
@@ -659,12 +642,24 @@
     <comp ref="C40">
       <value>1uF 50V</value>
       <footprint>Capacitor_SMD:C_0805_2012Metric</footprint>
+      <fields>
+        <field name="Description">1uF 50V X7R 0805</field>
+        <field name="Manufacturer_Name">Samsung</field>
+        <field name="Manufacturer_Part_Number">CL21B105MBFNNNE</field>
+        <field name="Mouser Part Number">187-CL21B105MBFNNNE</field>
+        <field name="Mouser Price/Stock">0,026€</field>
+      </fields>
       <libsource lib="Device" part="C" description="Unpolarized capacitor"/>
       <property name="Alternative MF" value=""/>
       <property name="Alternative PN" value=""/>
       <property name="Alternative Price" value=""/>
       <property name="JLCPCB Part #" value=""/>
       <property name="JLCPCB Price" value=""/>
+      <property name="Description" value="1uF 50V X7R 0805"/>
+      <property name="Manufacturer_Name" value="Samsung"/>
+      <property name="Manufacturer_Part_Number" value="CL21B105MBFNNNE"/>
+      <property name="Mouser Part Number" value="187-CL21B105MBFNNNE"/>
+      <property name="Mouser Price/Stock" value="0,026€"/>
       <property name="Sheetname" value="ESP32-S3"/>
       <property name="Sheetfile" value="ESP32-S3.kicad_sch"/>
       <property name="ki_description" value="Unpolarized capacitor"/>
@@ -684,7 +679,6 @@
         <field name="Mouser Part Number">621-D5V0P4UR6SO-7</field>
         <field name="Mouser Price/Stock">0,233€</field>
         <field name="Package">SOT26</field>
-        <field name="Price">0,233</field>
       </fields>
       <libsource lib="BugWiper_Lib" part="D5V0P4UR6SO-7" description=""/>
       <property name="Alternative MF" value=""/>
@@ -695,7 +689,6 @@
       <property name="Manufacturer_Part_Number" value="D5V0P4UR6SO-7"/>
       <property name="Mouser Part Number" value="621-D5V0P4UR6SO-7"/>
       <property name="Package" value="SOT26"/>
-      <property name="Price" value="0,233"/>
       <property name="Mouser Price/Stock" value="0,233€"/>
       <property name="JLCPCB Part #" value=""/>
       <property name="JLCPCB Price" value=""/>
@@ -717,7 +710,6 @@
         <field name="Mouser Part Number">621-D5V0P4UR6SO-7</field>
         <field name="Mouser Price/Stock">0,233€</field>
         <field name="Package">SOT26</field>
-        <field name="Price">0,233</field>
       </fields>
       <libsource lib="BugWiper_Lib" part="D5V0P4UR6SO-7" description=""/>
       <property name="Alternative MF" value=""/>
@@ -728,7 +720,6 @@
       <property name="Manufacturer_Part_Number" value="D5V0P4UR6SO-7"/>
       <property name="Mouser Part Number" value="621-D5V0P4UR6SO-7"/>
       <property name="Package" value="SOT26"/>
-      <property name="Price" value="0,233"/>
       <property name="Mouser Price/Stock" value="0,233€"/>
       <property name="JLCPCB Part #" value=""/>
       <property name="JLCPCB Price" value=""/>
@@ -750,7 +741,6 @@
         <field name="Mouser Part Number">621-D5V0P4UR6SO-7</field>
         <field name="Mouser Price/Stock">0,233€</field>
         <field name="Package">SOT26</field>
-        <field name="Price">0,233</field>
       </fields>
       <libsource lib="BugWiper_Lib" part="D5V0P4UR6SO-7" description=""/>
       <property name="Alternative MF" value=""/>
@@ -761,7 +751,6 @@
       <property name="Manufacturer_Part_Number" value="D5V0P4UR6SO-7"/>
       <property name="Mouser Part Number" value="621-D5V0P4UR6SO-7"/>
       <property name="Package" value="SOT26"/>
-      <property name="Price" value="0,233"/>
       <property name="Mouser Price/Stock" value="0,233€"/>
       <property name="JLCPCB Part #" value=""/>
       <property name="JLCPCB Price" value=""/>
@@ -783,7 +772,6 @@
         <field name="Mouser Part Number">621-D5V0P4UR6SO-7</field>
         <field name="Mouser Price/Stock">0,233€</field>
         <field name="Package">SOT26</field>
-        <field name="Price">0,233</field>
       </fields>
       <libsource lib="BugWiper_Lib" part="D5V0P4UR6SO-7" description=""/>
       <property name="Alternative MF" value=""/>
@@ -794,7 +782,6 @@
       <property name="Manufacturer_Part_Number" value="D5V0P4UR6SO-7"/>
       <property name="Mouser Part Number" value="621-D5V0P4UR6SO-7"/>
       <property name="Package" value="SOT26"/>
-      <property name="Price" value="0,233"/>
       <property name="Mouser Price/Stock" value="0,233€"/>
       <property name="JLCPCB Part #" value=""/>
       <property name="JLCPCB Price" value=""/>
@@ -814,7 +801,6 @@
         <field name="Mouser Part Number">757-CUS15S30H3F</field>
         <field name="Mouser Price/Stock">0,209€</field>
         <field name="Package">SOD-323-2</field>
-        <field name="Price">0,21</field>
       </fields>
       <libsource lib="Diode" part="1N5819WS" description="40V 600mV@1A 1A SOD-323 Schottky Barrier Diodes, SOD-323"/>
       <property name="Alternative MF" value=""/>
@@ -825,7 +811,6 @@
       <property name="Manufacturer_Part_Number" value="CUS15S30,H3F"/>
       <property name="Mouser Part Number" value="757-CUS15S30H3F"/>
       <property name="Package" value="SOD-323-2"/>
-      <property name="Price" value="0,21"/>
       <property name="Mouser Price/Stock" value="0,209€"/>
       <property name="JLCPCB Part #" value=""/>
       <property name="JLCPCB Price" value=""/>
@@ -842,19 +827,15 @@
       <datasheet>https://eu.mouser.com/datasheet/2/87/eaton_pts1206_6_60_volt_dc_surface_mount_resettabl-1608737.pdf</datasheet>
       <fields>
         <field name="Description">100mA resettable FUSE</field>
-        <field name="MP">PTS120630V012</field>
         <field name="Manufacturer_Name">Eaton Electronics</field>
         <field name="Manufacturer_Part_Number">PTS120630V012</field>
         <field name="Mouser Part Number">504-PTS120630V012</field>
         <field name="Mouser Price/Stock">0,108€</field>
-        <field name="Price">0,108€</field>
       </fields>
       <libsource lib="Device" part="Polyfuse" description="Resettable fuse, polymeric positive temperature coefficient"/>
       <property name="Description" value="100mA resettable FUSE"/>
-      <property name="MP" value="PTS120630V012"/>
       <property name="Manufacturer_Name" value="Eaton Electronics"/>
       <property name="Manufacturer_Part_Number" value="PTS120630V012"/>
-      <property name="Price" value="0,108€"/>
       <property name="Alternative MF" value=""/>
       <property name="Alternative PN" value=""/>
       <property name="Alternative Price" value=""/>
@@ -875,19 +856,15 @@
       <datasheet>https://eu.mouser.com/datasheet/2/87/eaton_pts1206_6_60_volt_dc_surface_mount_resettabl-1608737.pdf</datasheet>
       <fields>
         <field name="Description">100mA resettable FUSE</field>
-        <field name="MP">PTS120630V012</field>
         <field name="Manufacturer_Name">Eaton Electronics</field>
         <field name="Manufacturer_Part_Number">PTS120630V012</field>
         <field name="Mouser Part Number">504-PTS120630V012</field>
         <field name="Mouser Price/Stock">0,108€</field>
-        <field name="Price">0,108€</field>
       </fields>
       <libsource lib="Device" part="Polyfuse" description="Resettable fuse, polymeric positive temperature coefficient"/>
       <property name="Description" value="100mA resettable FUSE"/>
-      <property name="MP" value="PTS120630V012"/>
       <property name="Manufacturer_Name" value="Eaton Electronics"/>
       <property name="Manufacturer_Part_Number" value="PTS120630V012"/>
-      <property name="Price" value="0,108€"/>
       <property name="Alternative MF" value=""/>
       <property name="Alternative PN" value=""/>
       <property name="Alternative Price" value=""/>
@@ -906,37 +883,22 @@
       <value>UJ20-C-H-G-SMT-1-P16-TR</value>
       <footprint>BugWiper_lib:SAMESKY_UJ20-C-H-G-SMT-1-P16-TR</footprint>
       <fields>
-        <field name="Availability">In Stock</field>
-        <field name="Check_prices">https://www.snapeda.com/parts/UJ20-C-H-G-SMT-1-P16-TR/Same+Sky/view-part/?ref=eda</field>
         <field name="Description">
                         
                             USB-C (USB TYPE-C) USB 2.0 Receptacle Connector 24 (16+8 Dummy) Position Surface Mount, Right Angle; Through Hole
                         
 </field>
-        <field name="MANUFACTURER">Same Sky</field>
         <field name="MAXIMUM_PACKAGE_HEIGHT">3.46mm</field>
-        <field name="MF">Same Sky</field>
-        <field name="MP">UJ20-C-H-G-SMT-1-P16-TR</field>
         <field name="Manufacturer_Name">Same Sky</field>
         <field name="Manufacturer_Part_Number">UJ20-C-H-G-SMT-1-P16-TR</field>
         <field name="Mouser Part Number">179-UJ20CHGSMT1P16TR</field>
         <field name="Mouser Price/Stock">0,494 €</field>
         <field name="Package">None</field>
-        <field name="Price">None</field>
       </fields>
       <libsource lib="BugWiper_Lib" part="UJ20-C-H-G-SMT-1-P16-TR" description=""/>
-      <property name="MF" value="Same Sky"/>
       <property name="MAXIMUM_PACKAGE_HEIGHT" value="3.46mm"/>
       <property name="Package" value="None"/>
-      <property name="Price" value="None"/>
-      <property name="Check_prices" value="https://www.snapeda.com/parts/UJ20-C-H-G-SMT-1-P16-TR/Same+Sky/view-part/?ref=eda"/>
-      <property name="STANDARD" value=""/>
-      <property name="PARTREV" value=""/>
-      <property name="SnapEDA_Link" value=""/>
-      <property name="MP" value="UJ20-C-H-G-SMT-1-P16-TR"/>
       <property name="Description" value="&#xA;                        &#xA;                            USB-C (USB TYPE-C) USB 2.0 Receptacle Connector 24 (16+8 Dummy) Position Surface Mount, Right Angle; Through Hole&#xA;                        &#xA;"/>
-      <property name="Availability" value="In Stock"/>
-      <property name="MANUFACTURER" value="Same Sky"/>
       <property name="Manufacturer_Name" value="Same Sky"/>
       <property name="Manufacturer_Part_Number" value="UJ20-C-H-G-SMT-1-P16-TR"/>
       <property name="Alternative MF" value=""/>
@@ -1005,38 +967,6 @@
       <property name="ki_keywords" value="connector SD microsd"/>
       <sheetpath names="/ESP32-S3/" tstamps="/caaad550-b4dc-4462-8f3c-cac307d6a6e2/"/>
       <tstamps>2ef0b4c3-227a-49c5-b132-ef551cd5cead</tstamps>
-    </comp>
-    <comp ref="JP2">
-      <value>Bridged 12</value>
-      <footprint>BugWiper_lib:SolderJumper_2P_R_SMD_0603_Bridged</footprint>
-      <libsource lib="BugWiper_Lib" part="SolderJumper_2_Bridged" description="Solder Jumper, 2-pole, closed/bridged"/>
-      <property name="Alternative MF" value=""/>
-      <property name="Alternative PN" value=""/>
-      <property name="Alternative Price" value=""/>
-      <property name="JLCPCB Part #" value=""/>
-      <property name="JLCPCB Price" value=""/>
-      <property name="Sheetname" value="ESP32-S3"/>
-      <property name="Sheetfile" value="ESP32-S3.kicad_sch"/>
-      <property name="ki_description" value="Solder Jumper, 2-pole, closed/bridged"/>
-      <property name="ki_keywords" value="solder jumper SPST"/>
-      <sheetpath names="/ESP32-S3/" tstamps="/caaad550-b4dc-4462-8f3c-cac307d6a6e2/"/>
-      <tstamps>97de2cb9-fb9d-4d52-bc37-1131fe47aee3</tstamps>
-    </comp>
-    <comp ref="JP3">
-      <value>Bridged 12</value>
-      <footprint>BugWiper_lib:SolderJumper_2P_R_SMD_0603_Bridged</footprint>
-      <libsource lib="BugWiper_Lib" part="SolderJumper_2_Bridged" description="Solder Jumper, 2-pole, closed/bridged"/>
-      <property name="Alternative MF" value=""/>
-      <property name="Alternative PN" value=""/>
-      <property name="Alternative Price" value=""/>
-      <property name="JLCPCB Part #" value=""/>
-      <property name="JLCPCB Price" value=""/>
-      <property name="Sheetname" value="ESP32-S3"/>
-      <property name="Sheetfile" value="ESP32-S3.kicad_sch"/>
-      <property name="ki_description" value="Solder Jumper, 2-pole, closed/bridged"/>
-      <property name="ki_keywords" value="solder jumper SPST"/>
-      <sheetpath names="/ESP32-S3/" tstamps="/caaad550-b4dc-4462-8f3c-cac307d6a6e2/"/>
-      <tstamps>11e8b3ca-473f-4bf3-a48d-24fce00cea4e</tstamps>
     </comp>
     <comp ref="R2">
       <value>5k1</value>
@@ -1262,40 +1192,6 @@
       <sheetpath names="/ESP32-S3/" tstamps="/caaad550-b4dc-4462-8f3c-cac307d6a6e2/"/>
       <tstamps>2b007acb-ba78-4a06-a427-48a76458cc45</tstamps>
     </comp>
-    <comp ref="R16">
-      <value>~</value>
-      <footprint>Resistor_SMD:R_0603_1608Metric</footprint>
-      <libsource lib="Device" part="R" description="Resistor"/>
-      <property name="Alternative MF" value=""/>
-      <property name="Alternative PN" value=""/>
-      <property name="Alternative Price" value=""/>
-      <property name="JLCPCB Part #" value=""/>
-      <property name="JLCPCB Price" value=""/>
-      <property name="Sheetname" value="ESP32-S3"/>
-      <property name="Sheetfile" value="ESP32-S3.kicad_sch"/>
-      <property name="dnp"/>
-      <property name="ki_description" value="Resistor"/>
-      <property name="ki_keywords" value="R res resistor"/>
-      <sheetpath names="/ESP32-S3/" tstamps="/caaad550-b4dc-4462-8f3c-cac307d6a6e2/"/>
-      <tstamps>01a7af46-30df-48d1-b0ea-cb95cd7ca205</tstamps>
-    </comp>
-    <comp ref="R17">
-      <value>~</value>
-      <footprint>Resistor_SMD:R_0603_1608Metric</footprint>
-      <libsource lib="Device" part="R" description="Resistor"/>
-      <property name="Alternative MF" value=""/>
-      <property name="Alternative PN" value=""/>
-      <property name="Alternative Price" value=""/>
-      <property name="JLCPCB Part #" value=""/>
-      <property name="JLCPCB Price" value=""/>
-      <property name="Sheetname" value="ESP32-S3"/>
-      <property name="Sheetfile" value="ESP32-S3.kicad_sch"/>
-      <property name="dnp"/>
-      <property name="ki_description" value="Resistor"/>
-      <property name="ki_keywords" value="R res resistor"/>
-      <sheetpath names="/ESP32-S3/" tstamps="/caaad550-b4dc-4462-8f3c-cac307d6a6e2/"/>
-      <tstamps>6806a0ba-1d9a-4849-90e6-f5f1c7012494</tstamps>
-    </comp>
     <comp ref="R18">
       <value>10k</value>
       <footprint>Resistor_SMD:R_0603_1608Metric</footprint>
@@ -1364,7 +1260,6 @@
         <field name="Manufacturer_Part_Number">CAY16-1001F4LF</field>
         <field name="Mouser Part Number">652-CAY16-1001F4LF</field>
         <field name="Mouser Price/Stock"> 0,034 € </field>
-        <field name="Price">0,04€</field>
       </fields>
       <libsource lib="Device" part="R_Pack04" description="4 resistor network, parallel topology"/>
       <property name="Alternative MF" value=""/>
@@ -1374,7 +1269,6 @@
       <property name="Manufacturer_Name" value="Bourns"/>
       <property name="Manufacturer_Part_Number" value="CAY16-1001F4LF"/>
       <property name="Mouser Part Number" value="652-CAY16-1001F4LF"/>
-      <property name="Price" value="0,04€"/>
       <property name="Mouser Price/Stock" value=" 0,034 € "/>
       <property name="JLCPCB Part #" value="C600863"/>
       <property name="JLCPCB Price" value="0.0138 "/>
@@ -1397,7 +1291,6 @@
         <field name="Manufacturer_Part_Number">CAY16-1001F4LF</field>
         <field name="Mouser Part Number">652-CAY16-1001F4LF</field>
         <field name="Mouser Price/Stock"> 0,034 € </field>
-        <field name="Price">0,04€</field>
       </fields>
       <libsource lib="Device" part="R_Pack04" description="4 resistor network, parallel topology"/>
       <property name="Alternative MF" value=""/>
@@ -1407,7 +1300,6 @@
       <property name="Manufacturer_Name" value="Bourns"/>
       <property name="Manufacturer_Part_Number" value="CAY16-1001F4LF"/>
       <property name="Mouser Part Number" value="652-CAY16-1001F4LF"/>
-      <property name="Price" value="0,04€"/>
       <property name="Mouser Price/Stock" value=" 0,034 € "/>
       <property name="JLCPCB Part #" value="C600863"/>
       <property name="JLCPCB Price" value="0.0138 "/>
@@ -1430,7 +1322,6 @@
         <field name="Manufacturer_Part_Number">CAT16A-1000F4LF</field>
         <field name="Mouser Part Number">652-CAT16A-1000F4LF</field>
         <field name="Mouser Price/Stock"> 0,098 € </field>
-        <field name="Price">0,10€</field>
       </fields>
       <libsource lib="Device" part="R_Pack04_Split" description="4 resistor network, parallel topology, split"/>
       <property name="Alternative MF" value=""/>
@@ -1440,7 +1331,6 @@
       <property name="Manufacturer_Name" value="Bourns"/>
       <property name="Manufacturer_Part_Number" value="CAT16A-1000F4LF"/>
       <property name="Mouser Part Number" value="652-CAT16A-1000F4LF"/>
-      <property name="Price" value="0,10€"/>
       <property name="Mouser Price/Stock" value=" 0,098 € "/>
       <property name="JLCPCB Part #" value="C25506 "/>
       <property name="JLCPCB Price" value="0.0051 "/>
@@ -1449,7 +1339,7 @@
       <property name="ki_description" value="4 resistor network, parallel topology, split"/>
       <property name="ki_keywords" value="R network parallel topology isolated"/>
       <sheetpath names="/ESP32-S3/" tstamps="/caaad550-b4dc-4462-8f3c-cac307d6a6e2/"/>
-      <tstamps>fb9584cc-937b-492e-bbf3-0221f1007fdd cc975b91-42f7-45f3-b38a-251f9b35e820 f01cb8a9-53bc-4ffd-aa00-35cac37d3899 c459d73e-e804-4701-a6e3-e7e05527ee5d</tstamps>
+      <tstamps>f01cb8a9-53bc-4ffd-aa00-35cac37d3899 cc975b91-42f7-45f3-b38a-251f9b35e820 fb9584cc-937b-492e-bbf3-0221f1007fdd c459d73e-e804-4701-a6e3-e7e05527ee5d</tstamps>
     </comp>
     <comp ref="RN4">
       <value>10k x 4</value>
@@ -1463,7 +1353,6 @@
         <field name="Manufacturer_Part_Number">CAT16A-1002F4LF</field>
         <field name="Mouser Part Number">652-CAT16A-1002F4LF</field>
         <field name="Mouser Price/Stock"> 0,085 € </field>
-        <field name="Price">0,10€</field>
       </fields>
       <libsource lib="Device" part="R_Pack04" description="4 resistor network, parallel topology"/>
       <property name="Alternative MF" value=""/>
@@ -1473,7 +1362,6 @@
       <property name="Manufacturer_Name" value="Bourns"/>
       <property name="Manufacturer_Part_Number" value="CAT16A-1002F4LF"/>
       <property name="Mouser Part Number" value="652-CAT16A-1002F4LF"/>
-      <property name="Price" value="0,10€"/>
       <property name="Mouser Price/Stock" value=" 0,085 € "/>
       <property name="JLCPCB Part #" value="C29718"/>
       <property name="JLCPCB Price" value="0.0053 "/>
@@ -1496,7 +1384,6 @@
         <field name="Manufacturer_Part_Number">CAY16-1001F4LF</field>
         <field name="Mouser Part Number">652-CAY16-1001F4LF</field>
         <field name="Mouser Price/Stock"> 0,034 € </field>
-        <field name="Price">0,04€</field>
       </fields>
       <libsource lib="Device" part="R_Pack04" description="4 resistor network, parallel topology"/>
       <property name="Alternative MF" value=""/>
@@ -1506,7 +1393,6 @@
       <property name="Manufacturer_Name" value="Bourns"/>
       <property name="Manufacturer_Part_Number" value="CAY16-1001F4LF"/>
       <property name="Mouser Part Number" value="652-CAY16-1001F4LF"/>
-      <property name="Price" value="0,04€"/>
       <property name="Mouser Price/Stock" value=" 0,034 € "/>
       <property name="JLCPCB Part #" value="C600863"/>
       <property name="JLCPCB Price" value="0.0138 "/>
@@ -1529,7 +1415,6 @@
         <field name="Manufacturer_Part_Number">CAT16A-1000F4LF</field>
         <field name="Mouser Part Number">652-CAT16A-1000F4LF</field>
         <field name="Mouser Price/Stock"> 0,098 € </field>
-        <field name="Price">0,10€</field>
       </fields>
       <libsource lib="Device" part="R_Pack04" description="4 resistor network, parallel topology"/>
       <property name="Alternative MF" value=""/>
@@ -1539,7 +1424,6 @@
       <property name="Manufacturer_Name" value="Bourns"/>
       <property name="Manufacturer_Part_Number" value="CAT16A-1000F4LF"/>
       <property name="Mouser Part Number" value="652-CAT16A-1000F4LF"/>
-      <property name="Price" value="0,10€"/>
       <property name="Mouser Price/Stock" value=" 0,098 € "/>
       <property name="JLCPCB Part #" value="C25506 "/>
       <property name="JLCPCB Price" value="0.0051 "/>
@@ -1562,7 +1446,6 @@
         <field name="Manufacturer_Part_Number">CAT16A-1000F4LF</field>
         <field name="Mouser Part Number">652-CAT16A-1000F4LF</field>
         <field name="Mouser Price/Stock"> 0,098 € </field>
-        <field name="Price">0,10€</field>
       </fields>
       <libsource lib="Device" part="R_Pack04_Split" description="4 resistor network, parallel topology, split"/>
       <property name="Alternative MF" value=""/>
@@ -1572,7 +1455,6 @@
       <property name="Manufacturer_Name" value="Bourns"/>
       <property name="Manufacturer_Part_Number" value="CAT16A-1000F4LF"/>
       <property name="Mouser Part Number" value="652-CAT16A-1000F4LF"/>
-      <property name="Price" value="0,10€"/>
       <property name="Mouser Price/Stock" value=" 0,098 € "/>
       <property name="JLCPCB Part #" value="C25506 "/>
       <property name="JLCPCB Price" value="0.0051 "/>
@@ -1581,7 +1463,7 @@
       <property name="ki_description" value="4 resistor network, parallel topology, split"/>
       <property name="ki_keywords" value="R network parallel topology isolated"/>
       <sheetpath names="/ESP32-S3/" tstamps="/caaad550-b4dc-4462-8f3c-cac307d6a6e2/"/>
-      <tstamps>c57d2831-c5c9-4ab5-95ec-9786155b143b f86d25b3-d1ec-4ce9-9c33-c21911bbde24 40d9f0ab-05a1-42f8-ad02-0389cdd948da 13ba65b3-a4f7-49eb-8ea1-914115620b2b</tstamps>
+      <tstamps>40d9f0ab-05a1-42f8-ad02-0389cdd948da c57d2831-c5c9-4ab5-95ec-9786155b143b f86d25b3-d1ec-4ce9-9c33-c21911bbde24 13ba65b3-a4f7-49eb-8ea1-914115620b2b</tstamps>
     </comp>
     <comp ref="RN8">
       <value>10k x 4</value>
@@ -1595,7 +1477,6 @@
         <field name="Manufacturer_Part_Number">CAT16A-1002F4LF</field>
         <field name="Mouser Part Number">652-CAT16A-1002F4LF</field>
         <field name="Mouser Price/Stock"> 0,085 € </field>
-        <field name="Price">0,10€</field>
       </fields>
       <libsource lib="Device" part="R_Pack04" description="4 resistor network, parallel topology"/>
       <property name="Alternative MF" value=""/>
@@ -1605,7 +1486,6 @@
       <property name="Manufacturer_Name" value="Bourns"/>
       <property name="Manufacturer_Part_Number" value="CAT16A-1002F4LF"/>
       <property name="Mouser Part Number" value="652-CAT16A-1002F4LF"/>
-      <property name="Price" value="0,10€"/>
       <property name="Mouser Price/Stock" value=" 0,085 € "/>
       <property name="JLCPCB Part #" value="C29718"/>
       <property name="JLCPCB Price" value="0.0053 "/>
@@ -1616,65 +1496,51 @@
       <sheetpath names="/ESP32-S3/" tstamps="/caaad550-b4dc-4462-8f3c-cac307d6a6e2/"/>
       <tstamps>6a58bd92-67a7-43da-bfcb-dda9e9c1ca8e</tstamps>
     </comp>
-    <comp ref="S1">
-      <value>EVP-AT2L1B000</value>
-      <footprint>BugWiper_lib:SW_EVP-AT2L1B000</footprint>
+    <comp ref="SW1">
+      <value>SW_Push</value>
+      <footprint>BugWiper_lib:EVQ9P701P</footprint>
       <fields>
-        <field name="MANUFACTURER">Panasonic</field>
-        <field name="MAXIMUM_PACKAGE_HEIGHT">1.105mm</field>
+        <field name="Description">Tactile Switches 3.5x2.9mm Right Ang Light Touch Switch</field>
         <field name="Manufacturer_Name">Panasonic</field>
-        <field name="Manufacturer_Part_Number">EVP-AT2L1B000</field>
-        <field name="Mouser Part Number"> 667-EVP-AT2L1B000 </field>
-        <field name="Mouser Price/Stock">0,732 € </field>
+        <field name="Manufacturer_Part_Number">EVQ-P3401P</field>
+        <field name="Mouser Part Number">667-EVQP3401P</field>
+        <field name="Mouser Price/Stock">0,228€</field>
       </fields>
-      <libsource lib="BugWiper_Lib" part="EVP-AT2L1B000" description=""/>
-      <property name="PARTREV" value=""/>
-      <property name="MANUFACTURER" value="Panasonic"/>
-      <property name="MAXIMUM_PACKAGE_HEIGHT" value="1.105mm"/>
-      <property name="STANDARD" value=""/>
+      <libsource lib="Switch" part="SW_Push" description="Push button switch, generic, two pins"/>
+      <property name="Manufacturer_Part_Number" value="EVQ-P3401P"/>
+      <property name="Mouser Part Number" value="667-EVQP3401P"/>
+      <property name="Mouser Price/Stock" value="0,228€"/>
+      <property name="Description" value="Tactile Switches 3.5x2.9mm Right Ang Light Touch Switch"/>
       <property name="Manufacturer_Name" value="Panasonic"/>
-      <property name="Alternative MF" value=""/>
-      <property name="Alternative PN" value=""/>
-      <property name="Alternative Price" value=""/>
-      <property name="Manufacturer_Part_Number" value="EVP-AT2L1B000"/>
-      <property name="Mouser Part Number" value=" 667-EVP-AT2L1B000 "/>
-      <property name="Mouser Price/Stock" value="0,732 € "/>
-      <property name="JLCPCB Part #" value=""/>
-      <property name="JLCPCB Price" value=""/>
       <property name="Sheetname" value="ESP32-S3"/>
       <property name="Sheetfile" value="ESP32-S3.kicad_sch"/>
+      <property name="ki_description" value="Push button switch, generic, two pins"/>
+      <property name="ki_keywords" value="switch normally-open pushbutton push-button"/>
       <sheetpath names="/ESP32-S3/" tstamps="/caaad550-b4dc-4462-8f3c-cac307d6a6e2/"/>
-      <tstamps>f167955d-8ca5-4a5d-81a8-23ca65edfe6a</tstamps>
+      <tstamps>afbafcdc-3505-412e-984e-22aefa3a7f0e</tstamps>
     </comp>
-    <comp ref="S2">
-      <value>EVP-AT2L1B000</value>
-      <footprint>BugWiper_lib:SW_EVP-AT2L1B000</footprint>
+    <comp ref="SW2">
+      <value>SW_Push</value>
+      <footprint>BugWiper_lib:EVQ9P701P</footprint>
       <fields>
-        <field name="MANUFACTURER">Panasonic</field>
-        <field name="MAXIMUM_PACKAGE_HEIGHT">1.105mm</field>
+        <field name="Description">Tactile Switches 3.5x2.9mm Right Ang Light Touch Switch</field>
         <field name="Manufacturer_Name">Panasonic</field>
-        <field name="Manufacturer_Part_Number">EVP-AT2L1B000</field>
-        <field name="Mouser Part Number"> 667-EVP-AT2L1B000 </field>
-        <field name="Mouser Price/Stock">0,732 € </field>
+        <field name="Manufacturer_Part_Number">EVQ-P3401P</field>
+        <field name="Mouser Part Number">667-EVQP3401P</field>
+        <field name="Mouser Price/Stock">0,228€</field>
       </fields>
-      <libsource lib="BugWiper_Lib" part="EVP-AT2L1B000" description=""/>
-      <property name="PARTREV" value=""/>
-      <property name="MANUFACTURER" value="Panasonic"/>
-      <property name="MAXIMUM_PACKAGE_HEIGHT" value="1.105mm"/>
-      <property name="STANDARD" value=""/>
+      <libsource lib="Switch" part="SW_Push" description="Push button switch, generic, two pins"/>
+      <property name="Manufacturer_Part_Number" value="EVQ-P3401P"/>
+      <property name="Mouser Part Number" value="667-EVQP3401P"/>
+      <property name="Mouser Price/Stock" value="0,228€"/>
+      <property name="Description" value="Tactile Switches 3.5x2.9mm Right Ang Light Touch Switch"/>
       <property name="Manufacturer_Name" value="Panasonic"/>
-      <property name="Alternative MF" value=""/>
-      <property name="Alternative PN" value=""/>
-      <property name="Alternative Price" value=""/>
-      <property name="Manufacturer_Part_Number" value="EVP-AT2L1B000"/>
-      <property name="Mouser Part Number" value=" 667-EVP-AT2L1B000 "/>
-      <property name="Mouser Price/Stock" value="0,732 € "/>
-      <property name="JLCPCB Part #" value=""/>
-      <property name="JLCPCB Price" value=""/>
       <property name="Sheetname" value="ESP32-S3"/>
       <property name="Sheetfile" value="ESP32-S3.kicad_sch"/>
+      <property name="ki_description" value="Push button switch, generic, two pins"/>
+      <property name="ki_keywords" value="switch normally-open pushbutton push-button"/>
       <sheetpath names="/ESP32-S3/" tstamps="/caaad550-b4dc-4462-8f3c-cac307d6a6e2/"/>
-      <tstamps>651a7ddd-b0f0-4b49-bf8a-bc3bf2b99ac2</tstamps>
+      <tstamps>00dbb5d7-6223-4d47-bc95-e6fc60566f0e</tstamps>
     </comp>
     <comp ref="U1">
       <value>ESP32-S3-WROOM-1</value>
@@ -2039,7 +1905,7 @@
       <tstamps>db9b8c84-7875-41d7-a6fe-2e64e87af038</tstamps>
     </comp>
     <comp ref="C18">
-      <value>470uF 16V</value>
+      <value>330uF 25V</value>
       <footprint>Capacitor_SMD:CP_Elec_8x10.5</footprint>
       <fields>
         <field name="Description">SMD 25volts 330uF</field>
@@ -2067,7 +1933,7 @@
       <tstamps>8acb7bae-cb5d-4494-b03e-b04e131cbde8</tstamps>
     </comp>
     <comp ref="C19">
-      <value>470uF 16V</value>
+      <value>330uF 25V</value>
       <footprint>Capacitor_SMD:CP_Elec_8x10.5</footprint>
       <fields>
         <field name="Description">SMD 25volts 330uF</field>
@@ -2095,7 +1961,7 @@
       <tstamps>66fb1655-89bc-4643-995f-4e23676baa3a</tstamps>
     </comp>
     <comp ref="C20">
-      <value>470uF 16V</value>
+      <value>330uF 25V</value>
       <footprint>Capacitor_SMD:CP_Elec_8x10.5</footprint>
       <fields>
         <field name="Description">SMD 25volts 330uF</field>
@@ -2263,7 +2129,7 @@
       <tstamps>1cff331b-6362-4772-9d7c-9490fb3bb0ab</tstamps>
     </comp>
     <comp ref="C28">
-      <value>470uF 16V</value>
+      <value>330uF 25V</value>
       <footprint>Capacitor_SMD:CP_Elec_8x10.5</footprint>
       <fields>
         <field name="Description">SMD 25volts 330uF</field>
@@ -2318,23 +2184,6 @@
       <sheetpath names="/Power/" tstamps="/c3388659-287d-4904-b92a-4db1b844f22c/"/>
       <tstamps>e4e384bf-b464-44bd-9553-a636013af4a5</tstamps>
     </comp>
-    <comp ref="C41">
-      <value>1nF</value>
-      <footprint>Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder</footprint>
-      <libsource lib="Device" part="C" description="Unpolarized capacitor"/>
-      <property name="Alternative MF" value=""/>
-      <property name="Alternative PN" value=""/>
-      <property name="Alternative Price" value=""/>
-      <property name="JLCPCB Part #" value=""/>
-      <property name="JLCPCB Price" value=""/>
-      <property name="Sheetname" value="Power"/>
-      <property name="Sheetfile" value="Power.kicad_sch"/>
-      <property name="dnp"/>
-      <property name="ki_description" value="Unpolarized capacitor"/>
-      <property name="ki_keywords" value="cap capacitor"/>
-      <sheetpath names="/Power/" tstamps="/c3388659-287d-4904-b92a-4db1b844f22c/"/>
-      <tstamps>a4de310a-d786-4361-a967-2e8218975195</tstamps>
-    </comp>
     <comp ref="D2">
       <value>GDZ10B-E3-08</value>
       <footprint>Diode_SMD:D_SOD-323_HandSoldering</footprint>
@@ -2364,14 +2213,24 @@
       <tstamps>45470592-5be6-4574-9c8f-ce153d6d6f35</tstamps>
     </comp>
     <comp ref="D3">
-      <value>D_TVS 15V</value>
+      <value>D_TVS 14V</value>
       <footprint>Diode_SMD:D_SMB</footprint>
+      <fields>
+        <field name="Manufacturer_Name">Diodes Incorporated</field>
+        <field name="Manufacturer_Part_Number">SMBJ14CA-13-F</field>
+        <field name="Mouser Part Number">621-SMBJ14CA-13-F</field>
+        <field name="Mouser Price/Stock">0,219 €</field>
+      </fields>
       <libsource lib="Device" part="D_TVS" description="Bidirectional transient-voltage-suppression diode"/>
       <property name="Alternative MF" value=""/>
       <property name="Alternative PN" value=""/>
       <property name="Alternative Price" value=""/>
       <property name="JLCPCB Part #" value=""/>
       <property name="JLCPCB Price" value=""/>
+      <property name="Manufacturer_Name" value="Diodes Incorporated"/>
+      <property name="Manufacturer_Part_Number" value="SMBJ14CA-13-F"/>
+      <property name="Mouser Part Number" value="621-SMBJ14CA-13-F"/>
+      <property name="Mouser Price/Stock" value="0,219 €"/>
       <property name="Sheetname" value="Power"/>
       <property name="Sheetfile" value="Power.kicad_sch"/>
       <property name="ki_description" value="Bidirectional transient-voltage-suppression diode"/>
@@ -2412,13 +2271,14 @@
       <footprint>BugWiper_lib:WE-PD2_5848</footprint>
       <fields>
         <field name="Description">SMD WE-PD2 5848 10uH 2.2A .1Ohm</field>
+        <field name="JLCPCB Part #">C324269</field>
+        <field name="JLCPCB Price">0.1270 </field>
         <field name="Manufacturer_Name">Wurth Elektronik</field>
         <field name="Manufacturer_Part_Number">74477410</field>
         <field name="Mouser Part Number">710-74477410</field>
         <field name="Mouser Price/Stock">1,61€</field>
       </fields>
       <libsource lib="BugWiper_Lib" part="WE-PD2_5848" description=""/>
-      <property name="Nr" value=""/>
       <property name="Alternative MF" value=""/>
       <property name="Alternative PN" value=""/>
       <property name="Alternative Price" value=""/>
@@ -2427,8 +2287,8 @@
       <property name="Manufacturer_Part_Number" value="74477410"/>
       <property name="Mouser Part Number" value="710-74477410"/>
       <property name="Mouser Price/Stock" value="1,61€"/>
-      <property name="JLCPCB Part #" value=""/>
-      <property name="JLCPCB Price" value=""/>
+      <property name="JLCPCB Part #" value="C324269"/>
+      <property name="JLCPCB Price" value="0.1270 "/>
       <property name="Sheetname" value="Power"/>
       <property name="Sheetfile" value="Power.kicad_sch"/>
       <sheetpath names="/Power/" tstamps="/c3388659-287d-4904-b92a-4db1b844f22c/"/>
@@ -2444,14 +2304,12 @@
         <field name="Mouser Part Number">78-SQJ146ELP-T1_GE3</field>
         <field name="Mouser Price/Stock">1,02 €</field>
         <field name="Package">SO-8</field>
-        <field name="Price">1,00€</field>
       </fields>
       <libsource lib="BugWiper_Lib" part="NMOS_SO-8" description="N-MOSFET transistor, drain/gate/source"/>
       <property name="Description" value="SO-8 N-Channel Mosfet, VDS &gt; 40 V, RDSON&lt;10mOhm"/>
       <property name="Manufacturer_Name" value="Vishay"/>
       <property name="Manufacturer_Part_Number" value="SQJ146ELP-T1_GE3"/>
       <property name="Package" value="SO-8"/>
-      <property name="Price" value="1,00€"/>
       <property name="Alternative MF" value=""/>
       <property name="Alternative PN" value=""/>
       <property name="Alternative Price" value=""/>
@@ -2465,6 +2323,58 @@
       <property name="ki_keywords" value="transistor NMOS N-MOS N-MOSFET"/>
       <sheetpath names="/Power/" tstamps="/c3388659-287d-4904-b92a-4db1b844f22c/"/>
       <tstamps>d371009d-29d8-4860-be4a-f7a05e287447</tstamps>
+    </comp>
+    <comp ref="R7">
+      <value>22k</value>
+      <footprint>Resistor_SMD:R_0603_1608Metric</footprint>
+      <fields>
+        <field name="Manufacturer_Name">YAGEO</field>
+        <field name="Manufacturer_Part_Number">AC0603FR-1022KL</field>
+        <field name="Mouser Part Number">603-AC0603FR-1022KL</field>
+        <field name="Mouser Price/Stock">0,01 €</field>
+      </fields>
+      <libsource lib="Device" part="R" description="Resistor"/>
+      <property name="Alternative MF" value=""/>
+      <property name="Alternative PN" value=""/>
+      <property name="Alternative Price" value=""/>
+      <property name="JLCPCB Part #" value=""/>
+      <property name="JLCPCB Price" value=""/>
+      <property name="Manufacturer_Name" value="YAGEO"/>
+      <property name="Manufacturer_Part_Number" value="AC0603FR-1022KL"/>
+      <property name="Mouser Part Number" value="603-AC0603FR-1022KL"/>
+      <property name="Mouser Price/Stock" value="0,01 €"/>
+      <property name="Sheetname" value="Power"/>
+      <property name="Sheetfile" value="Power.kicad_sch"/>
+      <property name="ki_description" value="Resistor"/>
+      <property name="ki_keywords" value="R res resistor"/>
+      <sheetpath names="/Power/" tstamps="/c3388659-287d-4904-b92a-4db1b844f22c/"/>
+      <tstamps>6686453e-7a67-4e82-beff-603849e67ad7</tstamps>
+    </comp>
+    <comp ref="R8">
+      <value>22k</value>
+      <footprint>Resistor_SMD:R_0603_1608Metric</footprint>
+      <fields>
+        <field name="Manufacturer_Name">YAGEO</field>
+        <field name="Manufacturer_Part_Number">AC0603FR-1022KL</field>
+        <field name="Mouser Part Number">603-AC0603FR-1022KL</field>
+        <field name="Mouser Price/Stock">0,01 €</field>
+      </fields>
+      <libsource lib="Device" part="R" description="Resistor"/>
+      <property name="Alternative MF" value=""/>
+      <property name="Alternative PN" value=""/>
+      <property name="Alternative Price" value=""/>
+      <property name="JLCPCB Part #" value=""/>
+      <property name="JLCPCB Price" value=""/>
+      <property name="Manufacturer_Name" value="YAGEO"/>
+      <property name="Manufacturer_Part_Number" value="AC0603FR-1022KL"/>
+      <property name="Mouser Part Number" value="603-AC0603FR-1022KL"/>
+      <property name="Mouser Price/Stock" value="0,01 €"/>
+      <property name="Sheetname" value="Power"/>
+      <property name="Sheetfile" value="Power.kicad_sch"/>
+      <property name="ki_description" value="Resistor"/>
+      <property name="ki_keywords" value="R res resistor"/>
+      <sheetpath names="/Power/" tstamps="/c3388659-287d-4904-b92a-4db1b844f22c/"/>
+      <tstamps>6cd5cad6-2b0a-4e02-b025-09635c326aa1</tstamps>
     </comp>
     <comp ref="R9">
       <value>1k</value>
@@ -2756,14 +2666,12 @@
         <field name="Manufacturer_Part_Number">BTN9960LVAUMA1</field>
         <field name="Mouser Part Number">726-BTN9960LVAUMA1</field>
         <field name="Mouser Price/Stock">2,40 € </field>
-        <field name="Price">3,50€</field>
       </fields>
       <libsource lib="" part="BTN9960LV_1_1" description="High Current PN Half-Bridge with Integrated Driver"/>
       <property name="Description" value=" half bridge 35A and integrated driver IC "/>
       <property name="Manufacturer_Name" value="infineon"/>
       <property name="Manufacturer_Part_Number" value="BTN9960LVAUMA1"/>
       <property name="Mouser Part Number" value="726-BTN9960LVAUMA1"/>
-      <property name="Price" value="3,50€"/>
       <property name="Alternative MF" value=""/>
       <property name="Alternative PN" value=""/>
       <property name="Alternative Price" value=""/>
@@ -2786,14 +2694,12 @@
         <field name="Manufacturer_Part_Number">BTN9960LVAUMA1</field>
         <field name="Mouser Part Number">726-BTN9960LVAUMA1</field>
         <field name="Mouser Price/Stock">2,40 € </field>
-        <field name="Price">3,50€</field>
       </fields>
       <libsource lib="BugWiper_Lib" part="BTN9960LV_1" description="High Current PN Half-Bridge with Integrated Driver"/>
       <property name="Description" value=" half bridge 35A and integrated driver IC "/>
       <property name="Manufacturer_Name" value="infineon"/>
       <property name="Manufacturer_Part_Number" value="BTN9960LVAUMA1"/>
       <property name="Mouser Part Number" value="726-BTN9960LVAUMA1"/>
-      <property name="Price" value="3,50€"/>
       <property name="Alternative MF" value=""/>
       <property name="Alternative PN" value=""/>
       <property name="Alternative Price" value=""/>
@@ -2818,14 +2724,12 @@
         <field name="Manufacturer_Part_Number">INA180A2IDBVT</field>
         <field name="Mouser Part Number">595-INA180A2IDBVT</field>
         <field name="Mouser Price/Stock">0,855€</field>
-        <field name="Price">0,85€</field>
       </fields>
       <libsource lib="Amplifier_Current" part="INA180A2" description="Current Sense Amplifier, 1 Circuit, Rail-to-Rail, 26V, Gain 50 V/V, SOT-23-5"/>
       <property name="Description" value="26V, 50 V/V ,350kHz current sense amplifier, Pinout A"/>
       <property name="Manufacturer_Name" value="texasinstruments"/>
       <property name="Manufacturer_Part_Number" value="INA180A2IDBVT"/>
       <property name="Mouser Part Number" value="595-INA180A2IDBVT"/>
-      <property name="Price" value="0,85€"/>
       <property name="Alternative MF" value=""/>
       <property name="Alternative PN" value=""/>
       <property name="Alternative Price" value=""/>
@@ -2852,7 +2756,6 @@
         <field name="Manufacturer_Part_Number">R-78E3.3-0.5 </field>
         <field name="Mouser Part Number"> 919-R-78E3.3-0.5 </field>
         <field name="Mouser Price/Stock">2,75€</field>
-        <field name="Price">6,44€</field>
       </fields>
       <libsource lib="BugWiper_Lib" part="TSR_0.5-2433" description=""/>
       <property name="Alternative MF" value="TRACO Power"/>
@@ -2863,7 +2766,6 @@
       <property name="Manufacturer_Part_Number" value="R-78E3.3-0.5 "/>
       <property name="Mouser Part Number" value=" 919-R-78E3.3-0.5 "/>
       <property name="Package" value=""/>
-      <property name="Price" value="6,44€"/>
       <property name="Mouser Price/Stock" value="2,75€"/>
       <property name="JLCPCB Part #" value=""/>
       <property name="JLCPCB Price" value=""/>
@@ -3093,24 +2995,6 @@
         <pin num="41" name="GND" type="passive"/>
       </pins>
     </libpart>
-    <libpart lib="BugWiper_Lib" part="EVP-AT2L1B000">
-      <fields>
-        <field name="Reference">S</field>
-        <field name="Value">EVP-AT2L1B000</field>
-        <field name="Footprint">BugWiper_lib:SW_EVP-AT2L1B000</field>
-        <field name="PARTREV">N/A</field>
-        <field name="MANUFACTURER">Panasonic</field>
-        <field name="MAXIMUM_PACKAGE_HEIGHT">1.105mm</field>
-        <field name="STANDARD">Manufacturer Recommendations</field>
-      </fields>
-      <pins>
-        <pin num="1" name="" type="passive"/>
-        <pin num="2" name="" type="passive"/>
-        <pin num="P1" name="SHIELD" type="passive"/>
-        <pin num="S1" name="SHIELD__1" type="passive"/>
-        <pin num="S2" name="SHIELD__2" type="passive"/>
-      </pins>
-    </libpart>
     <libpart lib="BugWiper_Lib" part="IHLP4040DZER100M1A">
       <docs>IHLP4040DZER100M1A</docs>
       <footprints>
@@ -3255,6 +3139,22 @@
       <fields>
         <field name="Reference">J</field>
         <field name="Value">Conn_01x02_Pin</field>
+        <field name="Datasheet">~</field>
+      </fields>
+      <pins>
+        <pin num="1" name="Pin_1" type="passive"/>
+        <pin num="2" name="Pin_2" type="passive"/>
+      </pins>
+    </libpart>
+    <libpart lib="Connector" part="Conn_01x02_Socket">
+      <description>Generic connector, single row, 01x02, script generated</description>
+      <docs>~</docs>
+      <footprints>
+        <fp>Connector*:*_1x??_*</fp>
+      </footprints>
+      <fields>
+        <field name="Reference">J</field>
+        <field name="Value">Conn_01x02_Socket</field>
         <field name="Datasheet">~</field>
       </fields>
       <pins>
@@ -3570,28 +3470,44 @@
         <pin num="1" name="1" type="input"/>
       </pins>
     </libpart>
+    <libpart lib="Switch" part="SW_Push">
+      <description>Push button switch, generic, two pins</description>
+      <docs>~</docs>
+      <fields>
+        <field name="Reference">SW</field>
+        <field name="Value">SW_Push</field>
+        <field name="Datasheet">~</field>
+      </fields>
+      <pins>
+        <pin num="1" name="1" type="passive"/>
+        <pin num="2" name="2" type="passive"/>
+      </pins>
+    </libpart>
   </libparts>
   <libraries>
     <library logical="Amplifier_Current">
-      <uri>C:\Program Files\KiCad\7.0\share\kicad\symbols\/Amplifier_Current.kicad_sym</uri>
+      <uri>/Applications/KiCad/KiCad.app/Contents/SharedSupport/symbols//Amplifier_Current.kicad_sym</uri>
     </library>
     <library logical="BugWiper_Lib">
-      <uri>C:\Git\BugWiper2_0\Hardware\ControllerPCB/BugWiper_Lib.kicad_sym</uri>
+      <uri>/Users/scholli/Git/BugWiper2_0/Hardware/ControllerPCB/BugWiper_Lib.kicad_sym</uri>
     </library>
     <library logical="Connector">
-      <uri>C:\Program Files\KiCad\7.0\share\kicad\symbols\/Connector.kicad_sym</uri>
+      <uri>/Applications/KiCad/KiCad.app/Contents/SharedSupport/symbols//Connector.kicad_sym</uri>
     </library>
     <library logical="Device">
-      <uri>C:\Program Files\KiCad\7.0\share\kicad\symbols\/Device.kicad_sym</uri>
+      <uri>/Applications/KiCad/KiCad.app/Contents/SharedSupport/symbols//Device.kicad_sym</uri>
     </library>
     <library logical="Diode">
-      <uri>C:\Program Files\KiCad\7.0\share\kicad\symbols\/Diode.kicad_sym</uri>
+      <uri>/Applications/KiCad/KiCad.app/Contents/SharedSupport/symbols//Diode.kicad_sym</uri>
     </library>
     <library logical="Jumper">
-      <uri>C:\Program Files\KiCad\7.0\share\kicad\symbols\/Jumper.kicad_sym</uri>
+      <uri>/Applications/KiCad/KiCad.app/Contents/SharedSupport/symbols//Jumper.kicad_sym</uri>
     </library>
     <library logical="Mechanical">
-      <uri>C:\Program Files\KiCad\7.0\share\kicad\symbols\/Mechanical.kicad_sym</uri>
+      <uri>/Applications/KiCad/KiCad.app/Contents/SharedSupport/symbols//Mechanical.kicad_sym</uri>
+    </library>
+    <library logical="Switch">
+      <uri>/Applications/KiCad/KiCad.app/Contents/SharedSupport/symbols//Switch.kicad_sym</uri>
     </library>
   </libraries>
   <nets>
@@ -3719,19 +3635,20 @@
       <node ref="Q1" pin="3" pinfunction="S" pintype="passive"/>
     </net>
     <net code="19" name="/Power/3V3">
-      <node ref="C41" pin="2" pintype="passive"/>
       <node ref="U6" pin="3" pinfunction="+VOUT" pintype="power_in"/>
     </net>
     <net code="20" name="/Power/Motor+">
       <node ref="C5" pin="1" pintype="passive"/>
       <node ref="J6" pin="1" pinfunction="1" pintype="passive"/>
       <node ref="J6" pin="2" pinfunction="2" pintype="passive"/>
+      <node ref="R7" pin="1" pintype="passive"/>
       <node ref="U2" pin="8" pinfunction="OUT" pintype="output"/>
     </net>
     <net code="21" name="/Power/Motor-">
       <node ref="C9" pin="1" pintype="passive"/>
       <node ref="J6" pin="3" pinfunction="3" pintype="passive"/>
       <node ref="J6" pin="4" pinfunction="4" pintype="passive"/>
+      <node ref="R8" pin="1" pintype="passive"/>
       <node ref="U3" pin="8" pinfunction="OUT" pintype="output"/>
     </net>
     <net code="22" name="A_INA">
@@ -3757,7 +3674,7 @@
     </net>
     <net code="27" name="Boot">
       <node ref="C3" pin="1" pintype="passive"/>
-      <node ref="S1" pin="1" pintype="passive"/>
+      <node ref="SW1" pin="1" pinfunction="1" pintype="passive"/>
       <node ref="U1" pin="27" pinfunction="GPIO0/BOOT" pintype="bidirectional"/>
     </net>
     <net code="28" name="CLK">
@@ -3786,18 +3703,16 @@
     <net code="33" name="EN">
       <node ref="C4" pin="1" pintype="passive"/>
       <node ref="R6" pin="1" pintype="passive"/>
-      <node ref="S2" pin="1" pintype="passive"/>
+      <node ref="SW2" pin="1" pinfunction="1" pintype="passive"/>
       <node ref="U1" pin="3" pinfunction="EN" pintype="input"/>
     </net>
     <net code="34" name="EN_C1">
       <node ref="J2" pin="7" pinfunction="7" pintype="unspecified"/>
       <node ref="J2" pin="8" pinfunction="8" pintype="unspecified"/>
-      <node ref="JP2" pin="1" pinfunction="A" pintype="passive"/>
     </net>
     <net code="35" name="EN_C2">
       <node ref="J2" pin="5" pinfunction="5" pintype="unspecified"/>
       <node ref="J2" pin="6" pinfunction="6" pintype="unspecified"/>
-      <node ref="JP3" pin="1" pinfunction="A" pintype="passive"/>
     </net>
     <net code="36" name="Enc1">
       <node ref="C36" pin="1" pintype="passive"/>
@@ -3810,13 +3725,9 @@
       <node ref="U1" pin="9" pinfunction="GPIO16/U0CTS/ADC2_CH5/XTAL_32K_N" pintype="bidirectional"/>
     </net>
     <net code="38" name="Enc_1">
-      <node ref="JP2" pin="2" pinfunction="A" pintype="passive"/>
-      <node ref="R17" pin="2" pintype="passive"/>
       <node ref="RN7" pin="2" pinfunction="R2.1" pintype="passive"/>
     </net>
     <net code="39" name="Enc_2">
-      <node ref="JP3" pin="2" pinfunction="A" pintype="passive"/>
-      <node ref="R16" pin="2" pintype="passive"/>
       <node ref="RN7" pin="3" pinfunction="R3.1" pintype="passive"/>
     </net>
     <net code="40" name="GND">
@@ -3870,27 +3781,20 @@
       <node ref="J1" pin="SH3" pinfunction="SHIELD" pintype="passive"/>
       <node ref="J1" pin="SH4" pinfunction="SHIELD" pintype="passive"/>
       <node ref="J3" pin="2" pinfunction="2" pintype="passive"/>
-      <node ref="J7" pin="1" pinfunction="Pin_1" pintype="passive"/>
       <node ref="J8" pin="10" pinfunction="DET_A" pintype="passive"/>
       <node ref="J8" pin="11" pinfunction="SHIELD" pintype="passive"/>
       <node ref="J8" pin="6" pinfunction="VSS" pintype="power_in"/>
       <node ref="R12" pin="2" pintype="passive"/>
-      <node ref="R16" pin="1" pintype="passive"/>
-      <node ref="R17" pin="1" pintype="passive"/>
       <node ref="R19" pin="2" pintype="passive"/>
       <node ref="R2" pin="2" pintype="passive"/>
       <node ref="R21" pin="2" pintype="passive"/>
       <node ref="R27" pin="2" pintype="passive"/>
       <node ref="R3" pin="2" pintype="passive"/>
+      <node ref="R7" pin="2" pintype="passive"/>
+      <node ref="R8" pin="2" pintype="passive"/>
       <node ref="R9" pin="2" pintype="passive"/>
-      <node ref="S1" pin="2" pintype="passive"/>
-      <node ref="S1" pin="P1" pinfunction="SHIELD" pintype="passive"/>
-      <node ref="S1" pin="S1" pinfunction="SHIELD__1" pintype="passive"/>
-      <node ref="S1" pin="S2" pinfunction="SHIELD__2" pintype="passive"/>
-      <node ref="S2" pin="2" pintype="passive"/>
-      <node ref="S2" pin="P1" pinfunction="SHIELD" pintype="passive"/>
-      <node ref="S2" pin="S1" pinfunction="SHIELD__1" pintype="passive"/>
-      <node ref="S2" pin="S2" pinfunction="SHIELD__2" pintype="passive"/>
+      <node ref="SW1" pin="2" pinfunction="2" pintype="passive"/>
+      <node ref="SW2" pin="2" pinfunction="2" pintype="passive"/>
       <node ref="TH1" pin="2" pintype="passive"/>
       <node ref="U1" pin="1" pinfunction="GND" pintype="power_in"/>
       <node ref="U1" pin="40" pinfunction="GND" pintype="passive"/>
@@ -4077,7 +3981,6 @@
     </net>
     <net code="78" name="Net-(U6-+VIN)">
       <node ref="C26" pin="2" pintype="passive"/>
-      <node ref="C41" pin="1" pintype="passive"/>
       <node ref="L2" pin="2" pintype="passive"/>
       <node ref="U6" pin="1" pinfunction="+VIN" pintype="power_in"/>
     </net>
@@ -4130,7 +4033,6 @@
       <node ref="RN7" pin="4" pinfunction="R4.1" pintype="passive"/>
     </net>
     <net code="90" name="sw_2">
-      <node ref="J7" pin="2" pinfunction="Pin_2" pintype="passive"/>
       <node ref="RN7" pin="1" pinfunction="R1.1" pintype="passive"/>
     </net>
     <net code="91" name="unconnected-(J1-SBU1-PadA8)">
@@ -4139,31 +4041,37 @@
     <net code="92" name="unconnected-(J1-SBU2-PadB8)">
       <node ref="J1" pin="B8" pinfunction="SBU2" pintype="passive+no_connect"/>
     </net>
-    <net code="93" name="unconnected-(RN3A-R1.1-Pad1)">
+    <net code="93" name="unconnected-(J9-Pin_1-Pad1)">
+      <node ref="J9" pin="1" pinfunction="Pin_1" pintype="passive"/>
+    </net>
+    <net code="94" name="unconnected-(J9-Pin_2-Pad2)">
+      <node ref="J9" pin="2" pinfunction="Pin_2" pintype="passive"/>
+    </net>
+    <net code="95" name="unconnected-(RN3A-R1.1-Pad1)">
       <node ref="RN3" pin="1" pinfunction="R1.1" pintype="passive+no_connect"/>
     </net>
-    <net code="94" name="unconnected-(RN3A-R1.2-Pad8)">
+    <net code="96" name="unconnected-(RN3A-R1.2-Pad8)">
       <node ref="RN3" pin="8" pinfunction="R1.2" pintype="passive+no_connect"/>
     </net>
-    <net code="95" name="unconnected-(RN3B-R2.1-Pad2)">
+    <net code="97" name="unconnected-(RN3B-R2.1-Pad2)">
       <node ref="RN3" pin="2" pinfunction="R2.1" pintype="passive+no_connect"/>
     </net>
-    <net code="96" name="unconnected-(RN3B-R2.2-Pad7)">
+    <net code="98" name="unconnected-(RN3B-R2.2-Pad7)">
       <node ref="RN3" pin="7" pinfunction="R2.2" pintype="passive+no_connect"/>
     </net>
-    <net code="97" name="unconnected-(U1-GPIO3{slash}TOUCH3{slash}ADC1_CH2-Pad15)">
+    <net code="99" name="unconnected-(U1-GPIO3{slash}TOUCH3{slash}ADC1_CH2-Pad15)">
       <node ref="U1" pin="15" pinfunction="GPIO3/TOUCH3/ADC1_CH2" pintype="bidirectional+no_connect"/>
     </net>
-    <net code="98" name="unconnected-(U1-GPIO38{slash}FSPIWP{slash}SUBSPIWP-Pad31)">
+    <net code="100" name="unconnected-(U1-GPIO38{slash}FSPIWP{slash}SUBSPIWP-Pad31)">
       <node ref="U1" pin="31" pinfunction="GPIO38/FSPIWP/SUBSPIWP" pintype="bidirectional+no_connect"/>
     </net>
-    <net code="99" name="unconnected-(U1-GPIO45-Pad26)">
+    <net code="101" name="unconnected-(U1-GPIO45-Pad26)">
       <node ref="U1" pin="26" pinfunction="GPIO45" pintype="bidirectional+no_connect"/>
     </net>
-    <net code="100" name="unconnected-(U1-GPIO46-Pad16)">
+    <net code="102" name="unconnected-(U1-GPIO46-Pad16)">
       <node ref="U1" pin="16" pinfunction="GPIO46" pintype="bidirectional+no_connect"/>
     </net>
-    <net code="101" name="unconnected-(U1-SPIDQS{slash}GPIO37{slash}FSPIQ{slash}SUBSPIQ-Pad30)">
+    <net code="103" name="unconnected-(U1-SPIDQS{slash}GPIO37{slash}FSPIQ{slash}SUBSPIQ-Pad30)">
       <node ref="U1" pin="30" pinfunction="SPIDQS/GPIO37/FSPIQ/SUBSPIQ" pintype="bidirectional+no_connect"/>
     </net>
   </nets>
