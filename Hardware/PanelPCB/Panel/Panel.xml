@@ -1,0 +1,541 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<export version="E">
+  <design>
+    <source>/Users/scholli/Git/BugWiper2_0/Hardware/PanelPCB/Panel/Panel.kicad_sch</source>
+    <date>Thursday, February 13, 2025 at 12:35:27 AM</date>
+    <tool>Eeschema 7.0.10</tool>
+    <sheet number="1" name="/" tstamps="/">
+      <title_block>
+        <title>BugWiper 2.0 Control Panel PCB</title>
+        <company>M. Scholjegerdes</company>
+        <rev/>
+        <date>2025-01-27</date>
+        <source>Panel.kicad_sch</source>
+        <comment number="1" value=""/>
+        <comment number="2" value=""/>
+        <comment number="3" value=""/>
+        <comment number="4" value=""/>
+        <comment number="5" value=""/>
+        <comment number="6" value=""/>
+        <comment number="7" value=""/>
+        <comment number="8" value=""/>
+        <comment number="9" value=""/>
+      </title_block>
+    </sheet>
+  </design>
+  <components>
+    <comp ref="C1">
+      <value>100nF</value>
+      <footprint>Capacitor_SMD:C_0603_1608Metric</footprint>
+      <fields>
+        <field name="Manufacturer_Name">Samsung Electro-Mechanics</field>
+        <field name="Manufacturer_Part_Number">CL10B104KB8NNNC</field>
+        <field name="Mouser Part Number">187-CL10B104KB8NNNC</field>
+      </fields>
+      <libsource lib="Device" part="C" description="Unpolarized capacitor"/>
+      <property name="Description" value=""/>
+      <property name="Packeg" value=""/>
+      <property name="Manufacturer_Name" value="Samsung Electro-Mechanics"/>
+      <property name="Manufacturer_Part_Number" value="CL10B104KB8NNNC"/>
+      <property name="Mouser Part Number" value="187-CL10B104KB8NNNC"/>
+      <property name="Sheetname" value=""/>
+      <property name="Sheetfile" value="Panel.kicad_sch"/>
+      <property name="ki_description" value="Unpolarized capacitor"/>
+      <property name="ki_keywords" value="cap capacitor"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>d9aeba44-d506-4a0b-ba65-e1a8d100f296</tstamps>
+    </comp>
+    <comp ref="C2">
+      <value>470nF</value>
+      <footprint>Capacitor_SMD:C_0603_1608Metric</footprint>
+      <fields>
+        <field name="Description">Multilayer Ceramic Capacitors MLCC - SMD/SMT 470nF+/-10% 25V X7R 0603</field>
+        <field name="Manufacturer_Name">Samsung Electro-Mechanics</field>
+        <field name="Manufacturer_Part_Number">CL10B474KA8NFNC</field>
+        <field name="Mouser Part Number">187-CL10B474KA8NFNC</field>
+        <field name="Mouser Price/Stock">0,038 €</field>
+      </fields>
+      <libsource lib="Device" part="C" description="Unpolarized capacitor"/>
+      <property name="Description" value="Multilayer Ceramic Capacitors MLCC - SMD/SMT 470nF+/-10% 25V X7R 0603"/>
+      <property name="Packeg" value=""/>
+      <property name="Manufacturer_Name" value="Samsung Electro-Mechanics"/>
+      <property name="Manufacturer_Part_Number" value="CL10B474KA8NFNC"/>
+      <property name="Mouser Part Number" value="187-CL10B474KA8NFNC"/>
+      <property name="Mouser Price/Stock" value="0,038 €"/>
+      <property name="Sheetname" value=""/>
+      <property name="Sheetfile" value="Panel.kicad_sch"/>
+      <property name="ki_description" value="Unpolarized capacitor"/>
+      <property name="ki_keywords" value="cap capacitor"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>8744b080-e16f-4359-91d5-4b7a8b4a0c26</tstamps>
+    </comp>
+    <comp ref="C3">
+      <value>100nF</value>
+      <footprint>Capacitor_SMD:C_0603_1608Metric</footprint>
+      <fields>
+        <field name="Manufacturer_Name">Samsung Electro-Mechanics</field>
+        <field name="Manufacturer_Part_Number">CL10B104KB8NNNC</field>
+        <field name="Mouser Part Number">187-CL10B104KB8NNNC</field>
+      </fields>
+      <libsource lib="Device" part="C" description="Unpolarized capacitor"/>
+      <property name="Description" value=""/>
+      <property name="Packeg" value=""/>
+      <property name="Manufacturer_Name" value="Samsung Electro-Mechanics"/>
+      <property name="Manufacturer_Part_Number" value="CL10B104KB8NNNC"/>
+      <property name="Mouser Part Number" value="187-CL10B104KB8NNNC"/>
+      <property name="Sheetname" value=""/>
+      <property name="Sheetfile" value="Panel.kicad_sch"/>
+      <property name="ki_description" value="Unpolarized capacitor"/>
+      <property name="ki_keywords" value="cap capacitor"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>6ab2da65-ffda-4e82-920e-87080c0b1db2</tstamps>
+    </comp>
+    <comp ref="D1">
+      <value>APA-106-F5</value>
+      <footprint>LED_THT:LED_D5.0mm-4_RGB_Wide_Pins</footprint>
+      <datasheet>https://cdn.sparkfun.com/datasheets/Components/LED/COM-12877.pdf</datasheet>
+      <fields>
+        <field name="Manufacturer_Name">SparkFun</field>
+        <field name="Manufacturer_Part_Number">APA-106-F5</field>
+      </fields>
+      <libsource lib="LED" part="APA-106-F5" description="RGB LED with integrated controller, 5mm Package"/>
+      <property name="Description" value=""/>
+      <property name="Packeg" value=""/>
+      <property name="Manufacturer_Name" value="SparkFun"/>
+      <property name="Manufacturer_Part_Number" value="APA-106-F5"/>
+      <property name="Sheetname" value=""/>
+      <property name="Sheetfile" value="Panel.kicad_sch"/>
+      <property name="ki_description" value="RGB LED with integrated controller, 5mm Package"/>
+      <property name="ki_keywords" value="RGB LED addressable 8bit pwm 5bit greyscale"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>564a8d16-f7c5-4401-bc54-0df0e6d75f42</tstamps>
+    </comp>
+    <comp ref="D2">
+      <value>CUS15S30,H3F</value>
+      <footprint>Diode_SMD:D_SOD-323_HandSoldering</footprint>
+      <datasheet>https://www.vishay.com/docs/85748/1n4148w.pdf</datasheet>
+      <fields>
+        <field name="Manufacturer_Name">Toshiba</field>
+        <field name="Manufacturer_Part_Number">CUS15S30,H3F</field>
+        <field name="Mouser Part Number">757-CUS15S30H3F</field>
+        <field name="Mouser Price/Stock">0,209 €</field>
+      </fields>
+      <libsource lib="Diode" part="1N4148W" description="75V 0.15A Fast Switching Diode, SOD-123"/>
+      <property name="Description" value=""/>
+      <property name="Packeg" value=""/>
+      <property name="Manufacturer_Name" value="Toshiba"/>
+      <property name="Manufacturer_Part_Number" value="CUS15S30,H3F"/>
+      <property name="Mouser Part Number" value="757-CUS15S30H3F"/>
+      <property name="Mouser Price/Stock" value="0,209 €"/>
+      <property name="Sheetname" value=""/>
+      <property name="Sheetfile" value="Panel.kicad_sch"/>
+      <property name="ki_description" value="75V 0.15A Fast Switching Diode, SOD-123"/>
+      <property name="ki_keywords" value="diode"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>75b20a25-0d7b-4543-9c1d-f9bdcd28b297</tstamps>
+    </comp>
+    <comp ref="J1">
+      <value>RJ45</value>
+      <footprint>BugWiper_lib:MJ3415882</footprint>
+      <fields>
+        <field name="Description">Modular Connectors / Ethernet Connectors MJ 8P8C Vertical 6u" Through Hole</field>
+        <field name="Manufacturer_Name">GCT</field>
+        <field name="Manufacturer_Part_Number">MJ3415-88-2</field>
+        <field name="Mouser Part Number">640-MJ3415-88-2</field>
+        <field name="Mouser Price/Stock">0,599 €</field>
+      </fields>
+      <libsource lib="Connector" part="RJ45" description="RJ connector, 8P8C (8 positions 8 connected)"/>
+      <property name="Description" value="Modular Connectors / Ethernet Connectors MJ 8P8C Vertical 6u&quot; Through Hole"/>
+      <property name="Packeg" value=""/>
+      <property name="Manufacturer_Name" value="GCT"/>
+      <property name="Manufacturer_Part_Number" value="MJ3415-88-2"/>
+      <property name="Mouser Part Number" value="640-MJ3415-88-2"/>
+      <property name="Mouser Price/Stock" value="0,599 €"/>
+      <property name="Sheetname" value=""/>
+      <property name="Sheetfile" value="Panel.kicad_sch"/>
+      <property name="ki_description" value="RJ connector, 8P8C (8 positions 8 connected)"/>
+      <property name="ki_keywords" value="8P8C RJ socket connector"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>dc32bf4f-0610-49b4-b7a9-86a07ecc6bfb</tstamps>
+    </comp>
+    <comp ref="L1">
+      <value>L_Ferrite</value>
+      <footprint>Inductor_SMD:L_0805_2012Metric</footprint>
+      <fields>
+        <field name="Description">Ferrite Beads 150ohms 25%</field>
+        <field name="Manufacturer_Name">Vishay / Dale</field>
+        <field name="Manufacturer_Part_Number">ILBB0805ER151V</field>
+        <field name="Mouser Part Number">70-ILBB0805ER151V</field>
+        <field name="Mouser Price/Stock">0,095 €</field>
+      </fields>
+      <libsource lib="Device" part="L_Ferrite" description="Inductor with ferrite core"/>
+      <property name="Description" value="Ferrite Beads 150ohms 25%"/>
+      <property name="Packeg" value=""/>
+      <property name="Manufacturer_Name" value="Vishay / Dale"/>
+      <property name="Manufacturer_Part_Number" value="ILBB0805ER151V"/>
+      <property name="Mouser Part Number" value="70-ILBB0805ER151V"/>
+      <property name="Mouser Price/Stock" value="0,095 €"/>
+      <property name="Sheetname" value=""/>
+      <property name="Sheetfile" value="Panel.kicad_sch"/>
+      <property name="ki_description" value="Inductor with ferrite core"/>
+      <property name="ki_keywords" value="inductor choke coil reactor magnetic"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>c306de90-f25b-481d-b594-df8ad76a0acb</tstamps>
+    </comp>
+    <comp ref="S1">
+      <value>100SP4T1B4M2QE</value>
+      <footprint>100SP4T1B4M2QE</footprint>
+      <datasheet>https://componentsearchengine.com/Datasheets/1/100SP4T1B4M2QE.pdf</datasheet>
+      <fields>
+        <field name="Height">28.44</field>
+        <field name="Manufacturer_Name">E-Switch</field>
+        <field name="Manufacturer_Part_Number">100SP4T1B4M2QE</field>
+        <field name="Mouser Part Number">612-100SP4T1B4M2QE</field>
+      </fields>
+      <libsource lib="BugWiper_Lib" part="100SP4T1B4M2QE" description="TOGGLE, 5A, 120VAC/28VDC SPDT, (On)-Off-(On) Through Hole"/>
+      <property name="Height" value="28.44"/>
+      <property name="Mouser Part Number" value="612-100SP4T1B4M2QE"/>
+      <property name="Mouser Price/Stock" value=""/>
+      <property name="Manufacturer_Name" value="E-Switch"/>
+      <property name="Manufacturer_Part_Number" value="100SP4T1B4M2QE"/>
+      <property name="Description" value=""/>
+      <property name="Packeg" value=""/>
+      <property name="Sheetname" value=""/>
+      <property name="Sheetfile" value="Panel.kicad_sch"/>
+      <property name="ki_description" value="TOGGLE, 5A, 120VAC/28VDC SPDT, (On)-Off-(On) Through Hole"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>00f3dfe6-aa24-4a6d-bc4c-8fa87dba5d77</tstamps>
+    </comp>
+    <comp ref="U1">
+      <value>AP2204R-5.0</value>
+      <footprint>Package_TO_SOT_SMD:SOT-89-3</footprint>
+      <datasheet>https://www.diodes.com/assets/Datasheets/AP2204.pdf</datasheet>
+      <fields>
+        <field name="Description">LDO 5V 150mA</field>
+        <field name="Manufacturer_Name">Diodes Incorporated</field>
+        <field name="Manufacturer_Part_Number">AP2204R-5.0TRG1</field>
+        <field name="Mouser Part Number">621-AP2204R-5.0TRG1</field>
+        <field name="Packeg">SOT-89-3</field>
+      </fields>
+      <libsource lib="Regulator_Linear" part="AP2204R-5.0" description="150mA low dropout linear regulator, wide input voltage range, 5.0V fixed positive output, SOT-89-3 package"/>
+      <property name="Description" value="LDO 5V 150mA"/>
+      <property name="Packeg" value="SOT-89-3"/>
+      <property name="Manufacturer_Name" value="Diodes Incorporated"/>
+      <property name="Manufacturer_Part_Number" value="AP2204R-5.0TRG1"/>
+      <property name="Mouser Part Number" value="621-AP2204R-5.0TRG1"/>
+      <property name="Sheetname" value=""/>
+      <property name="Sheetfile" value="Panel.kicad_sch"/>
+      <property name="ki_description" value="150mA low dropout linear regulator, wide input voltage range, 5.0V fixed positive output, SOT-89-3 package"/>
+      <property name="ki_keywords" value="linear regulator ldo fixed positive"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>91a6d9fd-8aed-4d2e-982a-843657223628</tstamps>
+    </comp>
+    <comp ref="U2">
+      <value>SN74LV1T34DBV</value>
+      <footprint>Package_TO_SOT_SMD:SOT-23-5</footprint>
+      <datasheet>https://www.ti.com/lit/ds/symlink/sn74lv1t34.pdf</datasheet>
+      <fields>
+        <field name="Description">Logic Level Shifter</field>
+        <field name="Manufacturer_Name">Texas Instruments</field>
+        <field name="Manufacturer_Part_Number">SN74LV1T34DBVR</field>
+        <field name="Mouser Part Number">595-SN74LV1T34DBVR</field>
+        <field name="Packeg">SOT-23-5</field>
+      </fields>
+      <libsource lib="Logic_LevelTranslator" part="SN74LV1T34DBV" description="Single Power Supply, Single Buffer GATE, CMOS Logic, Level Shifter, SOT-23-5"/>
+      <property name="Description" value="Logic Level Shifter"/>
+      <property name="Manufacturer_Name" value="Texas Instruments"/>
+      <property name="Manufacturer_Part_Number" value="SN74LV1T34DBVR"/>
+      <property name="Mouser Part Number" value="595-SN74LV1T34DBVR"/>
+      <property name="Packeg" value="SOT-23-5"/>
+      <property name="Sheetname" value=""/>
+      <property name="Sheetfile" value="Panel.kicad_sch"/>
+      <property name="ki_description" value="Single Power Supply, Single Buffer GATE, CMOS Logic, Level Shifter, SOT-23-5"/>
+      <property name="ki_keywords" value="single buffer level shift"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>2c73f4ce-4c43-4394-b518-a28cbeddc089</tstamps>
+    </comp>
+  </components>
+  <libparts>
+    <libpart lib="BugWiper_Lib" part="100SP4T1B4M2QE">
+      <description>TOGGLE, 5A, 120VAC/28VDC SPDT, (On)-Off-(On) Through Hole</description>
+      <docs>https://componentsearchengine.com/Datasheets/1/100SP4T1B4M2QE.pdf</docs>
+      <fields>
+        <field name="Reference">S</field>
+        <field name="Value">100SP4T1B4M2QE</field>
+        <field name="Footprint">100SP4T1B4M2QE</field>
+        <field name="Datasheet">https://componentsearchengine.com/Datasheets/1/100SP4T1B4M2QE.pdf</field>
+        <field name="Height">28.44</field>
+        <field name="Mouser Part Number">612-100SP4T1B4M2QE</field>
+        <field name="Mouser Price/Stock">https://www.mouser.com/Search/Refine.aspx?Keyword=612-100SP4T1B4M2QE</field>
+        <field name="Manufacturer_Name">E-Switch</field>
+        <field name="Manufacturer_Part_Number">100SP4T1B4M2QE</field>
+      </fields>
+      <pins>
+        <pin num="1" name="NO" type="passive"/>
+        <pin num="2" name="COM" type="passive"/>
+        <pin num="3" name="NO" type="passive"/>
+      </pins>
+    </libpart>
+    <libpart lib="Connector" part="Conn_01x04_Pin">
+      <description>Generic connector, single row, 01x04, script generated</description>
+      <docs>~</docs>
+      <footprints>
+        <fp>Connector*:*_1x??_*</fp>
+      </footprints>
+      <fields>
+        <field name="Reference">J</field>
+        <field name="Value">Conn_01x04_Pin</field>
+        <field name="Datasheet">~</field>
+      </fields>
+      <pins>
+        <pin num="1" name="Pin_1" type="passive"/>
+        <pin num="2" name="Pin_2" type="passive"/>
+        <pin num="3" name="Pin_3" type="passive"/>
+        <pin num="4" name="Pin_4" type="passive"/>
+      </pins>
+    </libpart>
+    <libpart lib="Connector" part="RJ45">
+      <description>RJ connector, 8P8C (8 positions 8 connected)</description>
+      <docs>~</docs>
+      <footprints>
+        <fp>8P8C*</fp>
+        <fp>RJ31*</fp>
+        <fp>RJ32*</fp>
+        <fp>RJ33*</fp>
+        <fp>RJ34*</fp>
+        <fp>RJ35*</fp>
+        <fp>RJ41*</fp>
+        <fp>RJ45*</fp>
+        <fp>RJ49*</fp>
+        <fp>RJ61*</fp>
+      </footprints>
+      <fields>
+        <field name="Reference">J</field>
+        <field name="Value">RJ45</field>
+        <field name="Datasheet">~</field>
+      </fields>
+      <pins>
+        <pin num="1" name="" type="passive"/>
+        <pin num="2" name="" type="passive"/>
+        <pin num="3" name="" type="passive"/>
+        <pin num="4" name="" type="passive"/>
+        <pin num="5" name="" type="passive"/>
+        <pin num="6" name="" type="passive"/>
+        <pin num="7" name="" type="passive"/>
+        <pin num="8" name="" type="passive"/>
+      </pins>
+    </libpart>
+    <libpart lib="Device" part="C">
+      <description>Unpolarized capacitor</description>
+      <docs>~</docs>
+      <footprints>
+        <fp>C_*</fp>
+      </footprints>
+      <fields>
+        <field name="Reference">C</field>
+        <field name="Value">C</field>
+        <field name="Datasheet">~</field>
+      </fields>
+      <pins>
+        <pin num="1" name="" type="passive"/>
+        <pin num="2" name="" type="passive"/>
+      </pins>
+    </libpart>
+    <libpart lib="Device" part="L_Ferrite">
+      <description>Inductor with ferrite core</description>
+      <docs>~</docs>
+      <footprints>
+        <fp>Choke_*</fp>
+        <fp>*Coil*</fp>
+        <fp>Inductor_*</fp>
+        <fp>L_*</fp>
+      </footprints>
+      <fields>
+        <field name="Reference">L</field>
+        <field name="Value">L_Ferrite</field>
+        <field name="Datasheet">~</field>
+      </fields>
+      <pins>
+        <pin num="1" name="1" type="passive"/>
+        <pin num="2" name="2" type="passive"/>
+      </pins>
+    </libpart>
+    <libpart lib="Diode" part="1N4148W">
+      <description>75V 0.15A Fast Switching Diode, SOD-123</description>
+      <docs>https://www.vishay.com/docs/85748/1n4148w.pdf</docs>
+      <footprints>
+        <fp>D*SOD?123*</fp>
+      </footprints>
+      <fields>
+        <field name="Reference">D</field>
+        <field name="Value">1N4148W</field>
+        <field name="Footprint">Diode_SMD:D_SOD-123</field>
+        <field name="Datasheet">https://www.vishay.com/docs/85748/1n4148w.pdf</field>
+        <field name="Sim.Device">D</field>
+        <field name="Sim.Pins">1=K 2=A</field>
+      </fields>
+      <pins>
+        <pin num="1" name="K" type="passive"/>
+        <pin num="2" name="A" type="passive"/>
+      </pins>
+    </libpart>
+    <libpart lib="LED" part="APA-106-F5">
+      <description>RGB LED with integrated controller, 5mm Package</description>
+      <docs>https://cdn.sparkfun.com/datasheets/Components/LED/COM-12877.pdf</docs>
+      <footprints>
+        <fp>LED*D5.0mm*RGB*</fp>
+      </footprints>
+      <fields>
+        <field name="Reference">D</field>
+        <field name="Value">APA-106-F5</field>
+        <field name="Footprint">LED_THT:LED_D5.0mm-4_RGB</field>
+        <field name="Datasheet">https://cdn.sparkfun.com/datasheets/Components/LED/COM-12877.pdf</field>
+      </fields>
+      <pins>
+        <pin num="1" name="DO" type="output"/>
+        <pin num="2" name="GND" type="power_in"/>
+        <pin num="3" name="VDD" type="power_in"/>
+        <pin num="4" name="DI" type="input"/>
+      </pins>
+    </libpart>
+    <libpart lib="Logic_LevelTranslator" part="SN74LV1T34DBV">
+      <description>Single Power Supply, Single Buffer GATE, CMOS Logic, Level Shifter, SOT-23-5</description>
+      <docs>https://www.ti.com/lit/ds/symlink/sn74lv1t34.pdf</docs>
+      <footprints>
+        <fp>SOT?23*</fp>
+      </footprints>
+      <fields>
+        <field name="Reference">U</field>
+        <field name="Value">SN74LV1T34DBV</field>
+        <field name="Footprint">Package_TO_SOT_SMD:SOT-23-5</field>
+        <field name="Datasheet">https://www.ti.com/lit/ds/symlink/sn74lv1t34.pdf</field>
+      </fields>
+      <pins>
+        <pin num="1" name="NC" type="no_connect"/>
+        <pin num="2" name="A" type="input"/>
+        <pin num="3" name="GND" type="power_in"/>
+        <pin num="4" name="Y" type="output"/>
+        <pin num="5" name="VCC" type="power_in"/>
+      </pins>
+    </libpart>
+    <libpart lib="Mechanical" part="MountingHole">
+      <description>Mounting Hole without connection</description>
+      <docs>~</docs>
+      <footprints>
+        <fp>MountingHole*</fp>
+      </footprints>
+      <fields>
+        <field name="Reference">H</field>
+        <field name="Value">MountingHole</field>
+        <field name="Datasheet">~</field>
+      </fields>
+    </libpart>
+    <libpart lib="Regulator_Linear" part="AP2204R-5.0">
+      <description>150mA low dropout linear regulator, wide input voltage range, 5.0V fixed positive output, SOT-89-3 package</description>
+      <docs>https://www.diodes.com/assets/Datasheets/AP2204.pdf</docs>
+      <footprints>
+        <fp>SOT?89*</fp>
+      </footprints>
+      <fields>
+        <field name="Reference">U</field>
+        <field name="Value">AP2204R-5.0</field>
+        <field name="Footprint">Package_TO_SOT_SMD:SOT-89-3</field>
+        <field name="Datasheet">https://www.diodes.com/assets/Datasheets/AP2204.pdf</field>
+      </fields>
+      <pins>
+        <pin num="1" name="VIN" type="power_in"/>
+        <pin num="2" name="GND" type="power_in"/>
+        <pin num="3" name="VOUT" type="power_out"/>
+      </pins>
+    </libpart>
+  </libparts>
+  <libraries>
+    <library logical="BugWiper_Lib">
+      <uri>/Users/scholli/Git/BugWiper2_0/Hardware/ControllerPCB/BugWiper_Lib.kicad_sym</uri>
+    </library>
+    <library logical="Connector">
+      <uri>/Applications/KiCad/KiCad.app/Contents/SharedSupport/symbols//Connector.kicad_sym</uri>
+    </library>
+    <library logical="Device">
+      <uri>/Applications/KiCad/KiCad.app/Contents/SharedSupport/symbols//Device.kicad_sym</uri>
+    </library>
+    <library logical="Diode">
+      <uri>/Applications/KiCad/KiCad.app/Contents/SharedSupport/symbols//Diode.kicad_sym</uri>
+    </library>
+    <library logical="LED">
+      <uri>/Applications/KiCad/KiCad.app/Contents/SharedSupport/symbols//LED.kicad_sym</uri>
+    </library>
+    <library logical="Logic_LevelTranslator">
+      <uri>/Applications/KiCad/KiCad.app/Contents/SharedSupport/symbols//Logic_LevelTranslator.kicad_sym</uri>
+    </library>
+    <library logical="Mechanical">
+      <uri>/Applications/KiCad/KiCad.app/Contents/SharedSupport/symbols//Mechanical.kicad_sym</uri>
+    </library>
+    <library logical="Regulator_Linear">
+      <uri>/Applications/KiCad/KiCad.app/Contents/SharedSupport/symbols//Regulator_Linear.kicad_sym</uri>
+    </library>
+  </libraries>
+  <nets>
+    <net code="1" name="+5V">
+      <node ref="C2" pin="1" pintype="passive"/>
+      <node ref="D1" pin="3" pinfunction="VDD" pintype="power_in"/>
+      <node ref="U1" pin="3" pinfunction="VOUT" pintype="power_out"/>
+      <node ref="U2" pin="5" pinfunction="VCC" pintype="power_in"/>
+    </net>
+    <net code="2" name="GND1">
+      <node ref="C1" pin="2" pintype="passive"/>
+      <node ref="C2" pin="2" pintype="passive"/>
+      <node ref="C3" pin="2" pintype="passive"/>
+      <node ref="D1" pin="2" pinfunction="GND" pintype="power_in"/>
+      <node ref="J1" pin="1" pintype="passive"/>
+      <node ref="S1" pin="2" pinfunction="COM" pintype="passive"/>
+      <node ref="U1" pin="2" pinfunction="GND" pintype="power_in"/>
+      <node ref="U2" pin="3" pinfunction="GND" pintype="power_in"/>
+    </net>
+    <net code="3" name="IN1">
+      <node ref="J1" pin="4" pintype="passive"/>
+      <node ref="S1" pin="1" pinfunction="NO" pintype="passive"/>
+    </net>
+    <net code="4" name="IN2">
+      <node ref="J1" pin="5" pintype="passive"/>
+      <node ref="S1" pin="3" pinfunction="NO" pintype="passive"/>
+    </net>
+    <net code="5" name="IN3">
+      <node ref="J1" pin="6" pintype="passive"/>
+    </net>
+    <net code="6" name="IN4">
+      <node ref="J1" pin="7" pintype="passive"/>
+    </net>
+    <net code="7" name="Net-(D2-K)">
+      <node ref="C3" pin="1" pintype="passive"/>
+      <node ref="D2" pin="1" pinfunction="K" pintype="passive"/>
+      <node ref="L1" pin="1" pinfunction="1" pintype="passive"/>
+    </net>
+    <net code="8" name="Net-(U1-VIN)">
+      <node ref="C1" pin="1" pintype="passive"/>
+      <node ref="L1" pin="2" pinfunction="2" pintype="passive"/>
+      <node ref="U1" pin="1" pinfunction="VIN" pintype="power_in"/>
+    </net>
+    <net code="9" name="OUT1">
+      <node ref="J1" pin="2" pintype="passive"/>
+      <node ref="U2" pin="2" pinfunction="A" pintype="input"/>
+    </net>
+    <net code="10" name="OUT2">
+      <node ref="J1" pin="3" pintype="passive"/>
+    </net>
+    <net code="11" name="OUT_1">
+      <node ref="D1" pin="4" pinfunction="DI" pintype="input"/>
+      <node ref="U2" pin="4" pinfunction="Y" pintype="output"/>
+    </net>
+    <net code="12" name="V_IN">
+      <node ref="D2" pin="2" pinfunction="A" pintype="passive"/>
+      <node ref="J1" pin="8" pintype="passive"/>
+    </net>
+    <net code="13" name="unconnected-(D1-DO-Pad1)">
+      <node ref="D1" pin="1" pinfunction="DO" pintype="output"/>
+    </net>
+    <net code="15" name="unconnected-(U2-NC-Pad1)">
+      <node ref="U2" pin="1" pinfunction="NC" pintype="no_connect"/>
+    </net>
+  </nets>
+</export>
