@@ -2243,7 +2243,7 @@
     (property "Reference" "C27" (at 106.68 170.18 0)
       (effects (font (size 1.27 1.27)) (justify left))
     )
-    (property "Value" "100nF " (at 106.68 172.72 0)
+    (property "Value" "100nF" (at 106.68 172.72 0)
       (effects (font (size 1.27 1.27)) (justify left))
     )
     (property "Footprint" "Capacitor_SMD:C_0603_1608Metric" (at 109.5248 175.26 0)
