@@ -60,6 +60,10 @@ private:
   gpio_num_t motor_pwm_pin;
   gpio_num_t motor_in1_pin;
   gpio_num_t motor_in2_pin;
+  gpio_num_t motor_inh1_pin;
+  gpio_num_t motor_inh2_pin;
+  gpio_num_t motor_is1_pin;
+  gpio_num_t motor_is2_pin;
   uint8_t motor_power;
   uint8_t motor_power_dest;
   volatile uint16_t timer_LED;

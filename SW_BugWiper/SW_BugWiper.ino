@@ -2,8 +2,13 @@
 #include <ESP32Encoder.h>
 #include "BugWiper.h"
 
+#define BugWiperPCB 1
 #define USE_WIFI 0
 #define ESP32_S3_DevKit 0
+
+#if BugWiperPCB
+#define BTN9960_CONTROLLER 1
+#endif
 
 #if USE_WIFI
 #include <WiFi.h>
@@ -33,35 +38,56 @@
 // 39,40,41&42 (JTAG); 43 & 44 (UART 0 for serial debug interface); 45 & 46 (Strapping Pins / Pull-down)  48 Board LED
 
 //Button PINs
-#if ESP32_S3_DevKit
+#if BugWiperPCB
+  #define BUTTON_CLEANING_A_PIN 14
+  #define BUTTON_WINDING_IN_A_PIN 21
+  #define SW_CABLE_LOOSE_A_PIN 17
+  #define SAFETY_SWITCH_PIN 47  // Saftyswitch to deaktivate the BugWiper
+//LED configuration
+  #define LED_PIN 9
+//Motor PINs
+  #define ADC_NTC_PIN 5
+  #define ADC_VBat_PIN 4
+  #define MOTOR_IN1_PIN 10
+  #define MOTOR_IN2_PIN 11
+  #define MOTOR_INH1_PIN 12
+  #define MOTOR_INH2_PIN 13
+  #define MOTOR_IS1_PIN 6
+  #define MOTOR_IS2_PIN 7
+  #define MOTOR_CURRENT_SENSE_PIN 1
+  #define MOTOR_ENCODER_1_PIN 15
+  #define MOTOR_ENCODER_2_PIN 16
+//SD Card
+  #define SD_Detect_PIN 2
+#elif ESP32_S3_DevKit
   #define BUTTON_CLEANING_A_PIN 5
   #define BUTTON_WINDING_IN_A_PIN 6
   #define SW_CABLE_LOOSE_A_PIN 10
   #define SAFETY_SWITCH_PIN 11  // Saftyswitch to deaktivate the BugWiper
 //LED configuration
   #define RGB_BUILD_IN 48
-  #define LED_A_PIN 48
+  #define LED_PIN 48
 //Motor PINs
-  #define MOTOR_A_IN1_PIN 12
-  #define MOTOR_A_IN2_PIN 13
-  #define MOTOR_A_EN_PIN 14  //PWM Pin
-  #define MOTOR_A_CURRENT_SENSE_PIN 16
-  #define MOTOR_A_ENCODER_1_PIN 1
-  #define MOTOR_A_ENCODER_2_PIN 2
+  #define MOTOR_IN1_PIN 12
+  #define MOTOR_IN2_PIN 13
+  #define MOTOR_EN_PIN 14  //PWM Pin
+  #define MOTOR_CURRENT_SENSE_PIN 16
+  #define MOTOR_ENCODER_1_PIN 1
+  #define MOTOR_ENCODER_2_PIN 2
 #else
   #define BUTTON_CLEANING_A_PIN 21
   #define BUTTON_WINDING_IN_A_PIN 18
   #define SW_CABLE_LOOSE_A_PIN 23
   #define SAFETY_SWITCH_PIN 16  // Saftyswitch to deaktivate the BugWiper
 //LED configuration
-  #define LED_A_PIN 2
+  #define LED_PIN 2
 //Motor PINs
-  #define MOTOR_A_IN1_PIN 12
-  #define MOTOR_A_IN2_PIN 13
-  #define MOTOR_A_EN_PIN 14  //PWM Pin
-  #define MOTOR_A_CURRENT_SENSE_PIN 36
-  #define MOTOR_A_ENCODER_1_PIN 26
-  #define MOTOR_A_ENCODER_2_PIN 27
+  #define MOTOR_IN1_PIN 12
+  #define MOTOR_IN2_PIN 13
+  #define MOTOR_EN_PIN 14  //PWM Pin
+  #define MOTOR_CURRENT_SENSE_PIN 36
+  #define MOTOR_ENCODER_1_PIN 26
+  #define MOTOR_ENCODER_2_PIN 27
 #endif
 
 // Kalibrierung des Putzvorganges
@@ -97,8 +123,10 @@ ESP32Encoder encoder_motor_a;
 hw_timer_t *Timer0_Cfg = NULL;
 volatile uint16_t counter_timer = 0;
 
-BugWiper Putzi_a(LED_A_PIN, MOTOR_A_CURRENT_SENSE_PIN, MOTOR_A_IN1_PIN, MOTOR_A_IN2_PIN, MOTOR_A_EN_PIN, PWM_CHANNEL_A);
-
+#ifdef BTN9960_CONTROLLER
+#else
+BugWiper Putzi_a(LED_PIN, MOTOR_CURRENT_SENSE_PIN, MOTOR_IN1_PIN, MOTOR_IN2_PIN, MOTOR_EN_PIN, PWM_CHANNEL_A);
+#endif
 
 void IRAM_ATTR Timer0_ISR(void) {
   counter_timer = counter_timer+1;
@@ -110,7 +138,7 @@ void IRAM_ATTR Timer0_ISR(void) {
 }
 
 void Encoder_init(void) {
-  encoder_motor_a.attachHalfQuad(MOTOR_A_ENCODER_1_PIN, MOTOR_A_ENCODER_2_PIN);
+  encoder_motor_a.attachHalfQuad(MOTOR_ENCODER_1_PIN, MOTOR_ENCODER_2_PIN);
   encoder_motor_a.setCount(0);
 }
 

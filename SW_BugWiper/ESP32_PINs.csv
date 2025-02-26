@@ -1,16 +1,16 @@
 EN;;reset button;
-GPIO36;MOTOR_A_CURRENT_SENSE_PIN;input only;no pull-up or pull-down
+GPIO36;MOTOR_CURRENT_SENSE_PIN;input only;no pull-up or pull-down
 GPIO39;MOTOR_B_CURRENT_SENSE_PIN;input only;no pull-up or pull-down
 GPIO34;MOTOR_B_ENCODER_1_PIN;input only;no pull-up or pull-down
 GPIO35;MOTOR_B_ENCODER_2_PIN;input only;no pull-up or pull-down
-GPIO32;MOTOR_A_ENCODER_1_PIN;
-GPIO33;MOTOR_A_ENCODER_1_PIN;
+GPIO32;MOTOR_ENCODER_1_PIN;
+GPIO33;MOTOR_ENCODER_1_PIN;
 GPIO25;MOTOR_B_EN_PIN;
 GPIO26;MOTOR_B_IN1_PIN;
 GPIO27;MOTOR_B_IN2_PIN;
-GPIO14;MOTOR_A_EN_PIN;;;;Sends a PWM signal at boot time
-GPIO12;MOTOR_A_IN1_PIN;Strapping PIN;MTDI;pull-down
-GPIO13;MOTOR_A_IN2_PIN;
+GPIO14;MOTOR_EN_PIN;;;;Sends a PWM signal at boot time
+GPIO12;MOTOR_IN1_PIN;Strapping PIN;MTDI;pull-down
+GPIO13;MOTOR_IN2_PIN;
 GND;
 VIN;
 
