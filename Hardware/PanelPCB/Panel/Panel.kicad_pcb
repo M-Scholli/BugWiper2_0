@@ -607,8 +607,8 @@
       (net 3 "+5V") (pinfunction "VDD") (pintype "power_in") (tstamp ffebb8b3-8fed-4ff5-be05-dd23460884d7))
     (pad "4" thru_hole circle (at 3.2385 0 90) (size 1.8 1.8) (drill 0.9) (layers "*.Cu" "*.Mask")
       (net 12 "OUT_1") (pinfunction "DI") (pintype "input") (tstamp 19e7e3ec-1a99-4535-8936-9078ca5477cb))
-    (model "${KICAD6_3DMODEL_DIR}/LED_THT.3dshapes/LED_D5.0mm-4_RGB_Wide_Pins.wrl"
-      (offset (xyz -3.2385 0 0))
+    (model "${KICAD7_3DMODEL_DIR}/LED_THT.3dshapes/LED_D5.0mm-4_RGB.step"
+      (offset (xyz -1.9 0 5))
       (scale (xyz 1 1 1))
       (rotate (xyz 0 0 0))
     )
@@ -869,8 +869,8 @@
       (net 3 "+5V") (pinfunction "VDD") (pintype "power_in") (tstamp 9deefac5-cd84-4c50-93ba-6c72c47188bc))
     (pad "4" thru_hole circle (at 3.2385 0 90) (size 1.8 1.8) (drill 0.9) (layers "*.Cu" "*.Mask")
       (net 12 "OUT_1") (pinfunction "DI") (pintype "input") (tstamp ea779a97-1405-456e-a135-806d7a297abf))
-    (model "${KICAD6_3DMODEL_DIR}/LED_THT.3dshapes/LED_D5.0mm-4_RGB_Wide_Pins.wrl"
-      (offset (xyz -3.2385 0 0))
+    (model "${KICAD7_3DMODEL_DIR}/LED_THT.3dshapes/LED_D5.0mm-4_RGB.step"
+      (offset (xyz -1.9 0 5))
       (scale (xyz 1 1 1))
       (rotate (xyz 0 0 0))
     )
