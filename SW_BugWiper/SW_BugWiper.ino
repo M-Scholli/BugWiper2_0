@@ -1,19 +1,24 @@
 #include <Arduino.h>
 #include <ESP32Encoder.h>
 #include "BugWiper.h"
+#include "my_debug.h"
 
-#define BugWiperPCB 1
+#define BugWiperPCB 0
 
-#define ESP32_S3_DevKit 0
+#define ESP32_S3_DevKit 1
 
 #if BugWiperPCB
 #define BTN9960_CONTROLLER 1
 #endif
 
-
 #define FIRMWARE_VERSION "V0.0.2"
 #define DEBUG_SERIAL_OUT 2
 
+#define TRACE_LEVEL_INFO       4
+#define TRACE_LEVEL_WARNING    3
+#define TRACE_LEVEL_ERROR      2
+#define TRACE_LEVEL_FATAL      1
+#define TRACE_LEVEL_NO_TRACE   0
 
 // Pin discription
 // ESP32-Wroom-32: 
@@ -147,16 +152,12 @@ void Timer_init(void) {
 }
 
 void init_io(void) {
-#if (DEBUG_SERIAL_OUT)
-  Serial.println("Init PINs A:");
-#endif
+  DEBUG_INFO("Init PINs A:")
   pinMode(SW_CABLE_LOOSE_A_PIN, INPUT_PULLUP);
   pinMode(SAFETY_SWITCH_PIN, INPUT_PULLUP);
   pinMode(BUTTON_WINDING_IN_A_PIN, INPUT_PULLUP);
   pinMode(BUTTON_CLEANING_A_PIN, INPUT_PULLUP);
-#if (DEBUG_SERIAL_OUT)
-  Serial.println("Init PINs A complete");
-#endif
+  DEBUG_INFO("Init PINs A complete")
 }
 
 void button_debounce(void) {
@@ -200,29 +201,19 @@ void read_Buttons(void) {
 
 //The setup function is called once at startup of the sketch
 void setup() {
-
-#if DEBUG_SERIAL_OUT
-Serial.println("BugWiper start programm");
-#endif
-
+    DEBUG_INIT(115200);
+    delay(500);
+    DEBUG_INFO("BugWiper start programm");
     Encoder_init();
     Putzi_a.init();
     init_io();
     Timer_init();
-#if (DEBUG_SERIAL_OUT)
     if (digitalRead(SAFETY_SWITCH_PIN) == 0) {
-      Serial.println("SAFETY SWITCH closed");
+      DEBUG_INFO("SAFETY SWITCH closed");
     } else {
-      Serial.println("WARNING!!! SAFETY SWITCH open");
-      Serial.println("Close the SAFETY SWITCH to operate the BugWiper");
+      DEBUG_WARNING("WARNING!!! SAFETY SWITCH open");
+      DEBUG_INFO("Close the SAFETY SWITCH to operate the BugWiper");
     }
-#endif
-
-#if USE_WIFI
-  } else {
-   init_wifi();
-  }
-#endif
 }
 
 uint16_t counter_output=0;
@@ -232,8 +223,8 @@ void loop() {
     Putzi_a.calculate(encoder_motor_a.getCount(), 0, 0, 0);
 #if (DEBUG_SERIAL_OUT >= 2)
   if (counter_output > 10000) {
-    Serial.println("ADC value = " + String(Putzi_a.ADC_current_sense));
-    Serial.println("Encoder count = " + String((int32_t)encoder_motor_a.getCount()));
+    DEBUG_INFO("ADC value = " + String(Putzi_a.ADC_current_sense));
+    DEBUG_INFO("Encoder count = " + String((int32_t)encoder_motor_a.getCount()));
     counter_output = 0;
   }
   counter_output++;
