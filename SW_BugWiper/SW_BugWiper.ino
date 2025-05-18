@@ -153,6 +153,14 @@ void Timer_init(void) {
 
 void init_io(void) {
   DEBUG_INFO("Init PINs A:")
+  LED_pin = (gpio_num_t)LED_PIN;
+  motor_current_pin = (gpio_num_t)MOTOR_CURRENT_SENSE_PIN;
+  motor_in1_pin = (gpio_num_t)MOTOR_IN1_PIN;
+  motor_in2_pin = (gpio_num_t)MOTOR_IN2_PIN;
+  motor_inh1_pin = (gpio_num_t)MOTOR_INH1_PIN;
+  motor_inh2_pin = (gpio_num_t)MOTOR_INH2_PIN;
+  motor_is1_pin = (gpio_num_t)MOTOR_IS1_PIN;
+  motor_is2_pin = (gpio_num_t)MOTOR_IS2_PIN;
   pinMode(SW_CABLE_LOOSE_A_PIN, INPUT_PULLUP);
   pinMode(SAFETY_SWITCH_PIN, INPUT_PULLUP);
   pinMode(BUTTON_WINDING_IN_A_PIN, INPUT_PULLUP);
@@ -205,8 +213,8 @@ void setup() {
     delay(500);
     DEBUG_INFO("BugWiper start programm");
     Encoder_init();
-    BugWiper_init();
     init_io();
+    BugWiper_init();
     Timer_init();
     if (digitalRead(SAFETY_SWITCH_PIN) == 0) {
       DEBUG_INFO("SAFETY SWITCH closed");

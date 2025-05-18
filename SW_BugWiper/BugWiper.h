@@ -48,4 +48,12 @@ void BugWiper_calculate(int64_t count, bool button_cleaning, bool button_winding
 extern volatile uint16_t BW_ADC_current_sense;
 extern volatile uint32_t BW_timer_cleaning;
 extern uint16_t BW_state_machine_state;
-
+extern gpio_num_t LED_pin;
+extern gpio_num_t motor_current_pin;
+extern gpio_num_t motor_pwm_pin;
+extern gpio_num_t motor_in1_pin;
+extern gpio_num_t motor_in2_pin;
+extern gpio_num_t motor_inh1_pin;
+extern gpio_num_t motor_inh2_pin;
+extern gpio_num_t motor_is1_pin;
+extern gpio_num_t motor_is2_pin;
