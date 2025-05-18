@@ -32,49 +32,20 @@
 #define POSITION_WINGTIP 6500         // End of the Wing in mm
 #define LENGTH_SLOW 200               // Distance to slow down 
 
-enum class direction { out,
-                       in,
-                       stop };
+enum direction { OUT = 0,
+                 IN,
+                 STOP };
 
-class BugWiper {
-public:
-  BugWiper(int LED_p, int m_adc, int m_in1, int m_in2, int m_pwm, int m_pwm_chnl);
-  void init();
-  void read_motor_current();
-  void set_timer();
-  void set_winding_in();
-  void set_start_cleaning();
-  void set_motor_brake();
-  void state_machine();
-  void calculate(int64_t count, bool button_cleaning, bool button_winding_in, bool sw_cable_loose);
-  volatile uint16_t ADC_current_sense;
-  volatile uint32_t timer_cleaning;
-  uint16_t state_machine_state;
-private:
-  void set_motor_dir(direction dir);
-  void set_motor_power();
-  void LED_blinking();
-  int motor_pwm_channel;
-  gpio_num_t LED_pin;
-  gpio_num_t motor_current_pin;
-  gpio_num_t motor_pwm_pin;
-  gpio_num_t motor_in1_pin;
-  gpio_num_t motor_in2_pin;
-  gpio_num_t motor_inh1_pin;
-  gpio_num_t motor_inh2_pin;
-  gpio_num_t motor_is1_pin;
-  gpio_num_t motor_is2_pin;
-  uint8_t motor_power;
-  uint8_t motor_power_dest;
-  volatile uint16_t timer_LED;
-  uint16_t LED_time;
-  uint8_t time_pwm_ramp;
-  volatile uint8_t timer_motor_power;
-  int64_t motor_count; // counts from encoder
-  int32_t position; // position in mm converted from the encoder
-  int16_t p_numerator = 1;
-  int16_t p_denominator = 1;
-  bool motor_inverted;
-  bool cable_loose;
-  direction moror_direction;
-};
+void BugWiper_init();
+void BugWiper_read_motor_current();
+void BugWiper_set_timer();
+void BugWiper_set_winding_in();
+void BugWiper_set_start_cleaning();
+void BugWiper_set_motor_brake();
+void BugWiper_state_machine();
+void BugWiper_calculate(int64_t count, bool button_cleaning, bool button_winding_in, bool sw_cable_loose);
+
+extern volatile uint16_t BW_ADC_current_sense;
+extern volatile uint32_t BW_timer_cleaning;
+extern uint16_t BW_state_machine_state;
+

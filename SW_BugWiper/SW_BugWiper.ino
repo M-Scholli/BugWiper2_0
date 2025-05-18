@@ -3,9 +3,9 @@
 #include "BugWiper.h"
 #include "my_debug.h"
 
-#define BugWiperPCB 0
+#define BugWiperPCB 1
 
-#define ESP32_S3_DevKit 1
+#define ESP32_S3_DevKit 0
 
 #if BugWiperPCB
 #define BTN9960_CONTROLLER 1
@@ -116,17 +116,17 @@ hw_timer_t *Timer0_Cfg = NULL;
 volatile uint16_t counter_timer = 0;
 
 #ifdef BTN9960_CONTROLLER
-BugWiper Putzi_a(LED_PIN, MOTOR_CURRENT_SENSE_PIN, MOTOR_IN1_PIN, MOTOR_IN2_PIN, MOTOR_EN_PIN, PWM_CHANNEL_A);
+//BugWiper Putzi_a(LED_PIN, MOTOR_CURRENT_SENSE_PIN, MOTOR_IN1_PIN, MOTOR_IN2_PIN, MOTOR_EN_PIN, PWM_CHANNEL_A);
 #else
-BugWiper Putzi_a(LED_PIN, MOTOR_CURRENT_SENSE_PIN, MOTOR_IN1_PIN, MOTOR_IN2_PIN, MOTOR_EN_PIN, PWM_CHANNEL_A);
+//BugWiper Putzi_a(LED_PIN, MOTOR_CURRENT_SENSE_PIN, MOTOR_IN1_PIN, MOTOR_IN2_PIN, MOTOR_EN_PIN, PWM_CHANNEL_A);
 #endif
 
 void IRAM_ATTR Timer0_ISR(void) {
   counter_timer = counter_timer+1;
-  Putzi_a.read_motor_current();
+  BugWiper_read_motor_current();
   if (counter_timer == 10) {
     counter_timer = 0;
-    Putzi_a.set_timer();
+    BugWiper_set_timer();
   }
 }
 
@@ -180,17 +180,17 @@ void button_debounce(void) {
 
 void read_Buttons(void) {
   if (digitalRead(SAFETY_SWITCH_PIN) == 0) {
-    if (timer_button_winding_in_a >= TIME_BUTTON_DEBOUNCE && Putzi_a.state_machine_state == 0) {
-      Putzi_a.set_winding_in();
+    if (timer_button_winding_in_a >= TIME_BUTTON_DEBOUNCE && BW_state_machine_state == 0) {
+      BugWiper_set_winding_in();
     }
-    if (Putzi_a.state_machine_state == 0 && timer_button_long_press_a >= TIME_LONG_PRESS) {
-      Putzi_a.set_start_cleaning();
+    if (BW_state_machine_state == 0 && timer_button_long_press_a >= TIME_LONG_PRESS) {
+      BugWiper_set_start_cleaning();
     }
   }
   // prevents a imediate second start cleaning after finish the first one
   if (timer_button_winding_in_a <= 5 && timer_button_start_cleaning_a <= 5
-      && Putzi_a.state_machine_state == 3 && Putzi_a.timer_cleaning >= 200) {
-    Putzi_a.state_machine_state = 0;
+      && BW_state_machine_state == 3 && BW_timer_cleaning >= 200) {
+    BW_state_machine_state = 0;
   }
   // reset timer for long press of buttons
   if (timer_button_start_cleaning_a <= 5) {
@@ -205,7 +205,7 @@ void setup() {
     delay(500);
     DEBUG_INFO("BugWiper start programm");
     Encoder_init();
-    Putzi_a.init();
+    BugWiper_init();
     init_io();
     Timer_init();
     if (digitalRead(SAFETY_SWITCH_PIN) == 0) {
@@ -220,10 +220,10 @@ uint16_t counter_output=0;
 // The loop function is called in an endless loop
 void loop() { 
     read_Buttons();
-    Putzi_a.calculate(encoder_motor_a.getCount(), 0, 0, 0);
+    BugWiper_calculate(encoder_motor_a.getCount(), 0, 0, 0);
 #if (DEBUG_SERIAL_OUT >= 2)
   if (counter_output > 10000) {
-    DEBUG_INFO("ADC value = " + String(Putzi_a.ADC_current_sense));
+    DEBUG_INFO("ADC value = " + String(BW_ADC_current_sense));
     DEBUG_INFO("Encoder count = " + String((int32_t)encoder_motor_a.getCount()));
     counter_output = 0;
   }
