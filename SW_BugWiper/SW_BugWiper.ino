@@ -3,30 +3,17 @@
 #include "BugWiper.h"
 
 #define BugWiperPCB 1
-#define USE_WIFI 0
+
 #define ESP32_S3_DevKit 0
 
 #if BugWiperPCB
 #define BTN9960_CONTROLLER 1
 #endif
 
-#if USE_WIFI
-#include <WiFi.h>
-#include <AsyncTCP.h>
-#include <ESPAsyncWebServer.h>
-#include <Update.h>
-#include "webpages.h"
-#include "FS.h"
-#include "FFat.h"
-#endif
 
 #define FIRMWARE_VERSION "V0.0.2"
 #define DEBUG_SERIAL_OUT 2
 
-
-#if USE_WIFI
-#define Wifi_Boot_Pin 4
-#endif
 
 // Pin discription
 // ESP32-Wroom-32: 
@@ -124,6 +111,7 @@ hw_timer_t *Timer0_Cfg = NULL;
 volatile uint16_t counter_timer = 0;
 
 #ifdef BTN9960_CONTROLLER
+BugWiper Putzi_a(LED_PIN, MOTOR_CURRENT_SENSE_PIN, MOTOR_IN1_PIN, MOTOR_IN2_PIN, MOTOR_EN_PIN, PWM_CHANNEL_A);
 #else
 BugWiper Putzi_a(LED_PIN, MOTOR_CURRENT_SENSE_PIN, MOTOR_IN1_PIN, MOTOR_IN2_PIN, MOTOR_EN_PIN, PWM_CHANNEL_A);
 #endif
@@ -209,47 +197,9 @@ void read_Buttons(void) {
   }
 }
 
-#if USE_WIFI
-// Webserver based on https://github.com/smford/esp32-asyncwebserver-fileupload-example.git
-const String default_ssid = "somessid";
-const String default_wifipassword = "mypassword";
-const String default_httpuser = "admin";
-const String default_httppassword = "admin";
-const int default_webserverporthttp = 80;
-
-bool shouldReboot = false;  // schedule a reboot
-bool shouldUpdate = false;  // schedule a firmware update
-bool ConfigMode = false;
-
-AsyncWebServer *server;     // initialise webserver
-#endif
 
 //The setup function is called once at startup of the sketch
 void setup() {
-#if USE_WIFI
-  pinMode(Wifi_Boot_Pin, INPUT_PULLUP);
-#endif
-
-#if DEBUG_SERIAL_OUT
-  Serial.begin(115200);
-  Serial.print("Firmware: ");
-  Serial.println(FIRMWARE_VERSION);
-  Serial.println("Booting ...");
-#endif
-
-#if USE_WIFI
-  //   Serial.println("FatFS, formatting");
-  // #warning "WARNING ALL DATA WILL BE LOST: FFat.format()"
-  //FFat.format();
- init_FAT();
-
-  if (digitalRead(Wifi_Boot_Pin)) {
-  
-#if DEBUG_SERIAL_OUT
-    Serial.println("PIN Config Mode: No Wifi selected");
-#endif 
-
-#endif
 
 #if DEBUG_SERIAL_OUT
 Serial.println("BugWiper start programm");
@@ -277,12 +227,7 @@ Serial.println("BugWiper start programm");
 
 uint16_t counter_output=0;
 // The loop function is called in an endless loop
-void loop() {
-#if USE_WIFI
-  if (ConfigMode) {
-   check_wifi_functions(); 
-  } else {
-#endif    
+void loop() { 
     read_Buttons();
     Putzi_a.calculate(encoder_motor_a.getCount(), 0, 0, 0);
 #if (DEBUG_SERIAL_OUT >= 2)
@@ -293,9 +238,6 @@ void loop() {
   }
   counter_output++;
 #endif
-#if USE_WIFI
-  }
-#endif  
 }
 
 
