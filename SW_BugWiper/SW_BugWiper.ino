@@ -33,7 +33,7 @@
 #if BugWiperPCB
   #define BUTTON_CLEANING_A_PIN 14
   #define BUTTON_WINDING_IN_A_PIN 21
-  #define SW_CABLE_LOOSE_A_PIN 17
+  #define SW_CABLE_LOOSE_A_PIN 15
   #define SAFETY_SWITCH_PIN 47  // Saftyswitch to deaktivate the BugWiper
 //LED configuration
   #define LED_PIN 9
@@ -47,8 +47,8 @@
   #define MOTOR_IS1_PIN 6
   #define MOTOR_IS2_PIN 7
   #define MOTOR_CURRENT_SENSE_PIN 1
-  #define MOTOR_ENCODER_1_PIN 15
-  #define MOTOR_ENCODER_2_PIN 16
+  #define MOTOR_ENCODER_1_PIN 16
+  #define MOTOR_ENCODER_2_PIN 17
 //SD Card
   #define SD_Detect_PIN 2
 #elif ESP32_S3_DevKit
