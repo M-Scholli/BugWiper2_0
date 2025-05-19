@@ -2024,6 +2024,14 @@
     (uuid fdab35af-3e15-4a3c-a7a6-db7ab88bac48)
   )
 
+  (text_box "1A = 4mV\nGain(INA) 50V/V\n1A = 200mV\n1V = 5A\n3.3V = 16,5A"
+    (at 55.88 91.44 0) (size 26.67 15.24)
+    (stroke (width 0) (type default))
+    (fill (type none))
+    (effects (font (size 1.27 1.27)) (justify left top))
+    (uuid 519db58b-719e-47f6-8886-0fa8ef9ff8f0)
+  )
+
   (label "3V3" (at 110.49 147.32 0) (fields_autoplaced)
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid c3c653af-b0a9-411f-9eed-e500ebdaecda)
