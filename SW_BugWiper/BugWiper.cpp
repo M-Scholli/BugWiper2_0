@@ -35,7 +35,7 @@ enum direction moror_direction;
 
 
 void BugWiper_init(void) {
-  DEBUG_INFO("Init BugWiperA:");
+  DEBUG_INFO("Init BugWiper:");
   pinMode(LED_pin, OUTPUT);
   pinMode(motor_in1_pin, OUTPUT);
   pinMode(motor_in2_pin, OUTPUT);
