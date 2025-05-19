@@ -45,6 +45,8 @@ This project is an open source electronic bug wiper system.
 
 
 # Hardware:
+![image](./fotos/CAD_1.png)
+![image](./fotos/CAD_2.png)
 
 ## Electronics / PCB Designs
 ### Motor Controller PCB
