@@ -229,14 +229,12 @@ uint16_t counter_output=0;
 void loop() { 
     read_Buttons();
     BugWiper_calculate(encoder_motor_a.getCount(), 0, 0, 0);
-#if (DEBUG_SERIAL_OUT >= 2)
   if (counter_output > 10000) {
     DEBUG_INFO("ADC value = " + String(BW_ADC_current_sense));
     DEBUG_INFO("Encoder count = " + String((int32_t)encoder_motor_a.getCount()));
     counter_output = 0;
   }
   counter_output++;
-#endif
 }
 
 
