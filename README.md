@@ -39,7 +39,7 @@ This project is an open source electronic bug wiper system.
 - selected Board: ESP32S3 DEV Module
 
 ### Installed Librarys:
-- ESP32Encoder 0.11.6 by Kevin Harrington: https://github.com/madhephaestus/ESP32Encoder
+- ESP32Encoder 0.11.7 by Kevin Harrington: https://github.com/madhephaestus/ESP32Encoder
 - Manual Installed arduino-motix-btn99x0 from: https://github.com/M-Scholli/arduino-motix-btn99x0/tree/add_ESP32_support
 
 
