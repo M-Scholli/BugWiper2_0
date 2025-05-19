@@ -222,6 +222,7 @@ void setup() {
       DEBUG_WARNING("WARNING!!! SAFETY SWITCH open");
       DEBUG_INFO("Close the SAFETY SWITCH to operate the BugWiper");
     }
+    BugWiper_test_LED();
 }
 
 uint16_t counter_output=0;

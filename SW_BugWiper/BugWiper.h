@@ -4,6 +4,7 @@
 #define PWM_FREQ 10000
 #define PWM_RESOLUTION_BITS 8
 #define MOTOR_CURRENT_STOP 2500
+#define RGB_BRIGHTNESS 64 // Change white brightness (max 255)
 #define LED_TIME_CLEANING 500    //time blinking LED
 #define LED_TIME_WINDING_IN 250  //time blinking LED
 
@@ -36,13 +37,14 @@ enum direction { OUT = 0,
                  IN,
                  STOP };
 
-void BugWiper_init();
-void BugWiper_read_motor_current();
-void BugWiper_set_timer();
-void BugWiper_set_winding_in();
-void BugWiper_set_start_cleaning();
-void BugWiper_set_motor_brake();
-void BugWiper_state_machine();
+void BugWiper_init(void);
+void BugWiper_test_LED(void);
+void BugWiper_read_motor_current(void);
+void BugWiper_set_timer(void);
+void BugWiper_set_winding_in(void);
+void BugWiper_set_start_cleaning(void);
+void BugWiper_set_motor_brake(void);
+void BugWiper_state_machine(void);
 void BugWiper_calculate(int64_t count, bool button_cleaning, bool button_winding_in, bool sw_cable_loose);
 
 extern volatile uint16_t BW_ADC_current_sense;

@@ -54,6 +54,19 @@ void BugWiper_init(void) {
 #endif
 }
 
+// TEST Functions
+void BugWiper_test_LED(void)
+{
+  DEBUG_INFO("Test LEDs")
+  rgbLedWrite(LED_pin, RGB_BRIGHTNESS, 0, 0);  // Red
+  delay(500);
+  rgbLedWrite(LED_pin, 0, RGB_BRIGHTNESS, 0);  // Green
+  delay(500);
+  rgbLedWrite(LED_pin, 0, 0, RGB_BRIGHTNESS);  // Blue
+  delay(500);
+  rgbLedWrite(LED_pin, 0, 0, 0);  // Off / black
+}
+
 void BugWiper_read_motor_current(void) {
   BW_ADC_current_sense = analogRead(motor_current_pin);
 }
@@ -110,7 +123,7 @@ void BugWiper_set_motor_power(void) {
 
 void BugWiper_LED_blinking(void) {
   if (timer_LED >= LED_time) {
-    digitalWrite(LED_pin, !digitalRead(LED_pin));
+    //digitalWrite(LED_pin, !digitalRead(LED_pin)); Fixme
     timer_LED = 0;
   }
 }
