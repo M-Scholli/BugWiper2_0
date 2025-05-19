@@ -33,12 +33,20 @@
 #define POSITION_WINGTIP 6500         // End of the Wing in mm
 #define LENGTH_SLOW 200               // Distance to slow down 
 
+#define MOTOR_IN1_PIN 10
+#define MOTOR_IN2_PIN 11
+#define MOTOR_INH1_PIN 12
+#define MOTOR_INH2_PIN 13
+#define MOTOR_IS1_PIN 6
+#define MOTOR_IS2_PIN 7
+
 enum direction { OUT = 0,
                  IN,
                  STOP };
 
 void BugWiper_init(void);
 void BugWiper_test_LED(void);
+void BugWiper_test_Motor(void);
 void BugWiper_read_motor_current(void);
 void BugWiper_set_timer(void);
 void BugWiper_set_winding_in(void);

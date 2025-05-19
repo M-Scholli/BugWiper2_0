@@ -40,12 +40,6 @@
 //Motor PINs
   #define ADC_NTC_PIN 5
   #define ADC_VBat_PIN 4
-  #define MOTOR_IN1_PIN 10
-  #define MOTOR_IN2_PIN 11
-  #define MOTOR_INH1_PIN 12
-  #define MOTOR_INH2_PIN 13
-  #define MOTOR_IS1_PIN 6
-  #define MOTOR_IS2_PIN 7
   #define MOTOR_CURRENT_SENSE_PIN 1
   #define MOTOR_ENCODER_1_PIN 16
   #define MOTOR_ENCODER_2_PIN 17
@@ -223,6 +217,7 @@ void setup() {
       DEBUG_INFO("Close the SAFETY SWITCH to operate the BugWiper");
     }
     BugWiper_test_LED();
+    BugWiper_test_Motor();
 }
 
 uint16_t counter_output=0;

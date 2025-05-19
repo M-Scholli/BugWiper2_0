@@ -40,8 +40,7 @@ This project is an open source electronic bug wiper system.
 
 ### Installed Librarys:
 - ESP32Encoder 0.11.6 by Kevin Harrington: https://github.com/madhephaestus/ESP32Encoder
-- Manual Installed ESPAsyncWebServer by lacamera modified by Ed Nieuwenhuys to work with EPS32 V3: https://github.com/ednieuw/ESPAsyncWebServer
-- Async TCP 3.1.4 by Me-No-Dev https://github.com/mathieucarbou/AsyncTCP
+- Manual Installed arduino-motix-btn99x0 from: https://github.com/M-Scholli/arduino-motix-btn99x0/tree/add_ESP32_support
 
 
 

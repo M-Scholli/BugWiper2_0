@@ -3,6 +3,7 @@
 #include <Arduino.h>
 #include "my_debug.h"
 #include "BugWiper.h"
+#include "btn99x0_motor_control.hpp"
 
 volatile uint16_t BW_ADC_current_sense;
 
@@ -33,6 +34,33 @@ bool motor_inverted;
 bool cable_loose;
 enum direction moror_direction;
 
+using namespace btn99x0;
+
+io_pins_t hb1_io_pins =
+{
+    MOTOR_IS1_PIN,
+    MOTOR_IN1_PIN,
+    MOTOR_INH1_PIN
+};
+
+io_pins_t hb2_io_pins =
+{
+    MOTOR_IS2_PIN,
+    MOTOR_IN2_PIN,
+    MOTOR_INH2_PIN
+};
+
+hw_conf_t hw_conf =
+{
+    1000, // Rsense in Ohm
+    3.3,  // VOltage Range
+    4095  // ADC Steps
+};
+
+DCShield shield(hb1_io_pins,hb2_io_pins,hw_conf);
+MotorControl btn_motor_control(shield);
+HalfBridge HalfBridge_1= shield.get_half_bridge(DCShield::HALF_BRIDGE_1);
+HalfBridge HalfBridge_2 = shield.get_half_bridge(DCShield::HALF_BRIDGE_2);
 
 void BugWiper_init(void) {
   DEBUG_INFO("Init BugWiper:");
@@ -65,6 +93,31 @@ void BugWiper_test_LED(void)
   rgbLedWrite(LED_pin, 0, 0, RGB_BRIGHTNESS);  // Blue
   delay(500);
   rgbLedWrite(LED_pin, 0, 0, 0);  // Off / black
+}
+
+void BugWiper_test_Motor(void)
+{
+    DEBUG_INFO("Run forward for 1 sec...");
+    btn_motor_control.set_speed(180);
+    delay(1000);
+
+    DEBUG_INFO("Load current (A): ");
+    DEBUG_INFO(HalfBridge_1.get_load_current_in_amps());
+    DEBUG_INFO(HalfBridge_2.get_load_current_in_amps());
+    DEBUG_INFO(((float)analogReadMilliVolts(motor_current_pin)*0.005));
+    delay(1000);
+
+    DEBUG_INFO("Freewheel for 1 sec...");
+    btn_motor_control.freewheel();
+    delay(1000);
+
+    DEBUG_INFO("Run backward for 1 sec...");
+    btn_motor_control.set_speed(-180);
+    delay(2000);
+
+    DEBUG_INFO("Brake for 1 sec...");
+    btn_motor_control.brake();
+    delay(1000);
 }
 
 void BugWiper_read_motor_current(void) {
