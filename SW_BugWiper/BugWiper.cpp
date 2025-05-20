@@ -121,8 +121,11 @@ void BugWiper_test_Motor(void)
     DEBUG_INFO("Encoder count = " + String((int32_t)BW_motor_encoder.getCount()));
 
     DEBUG_INFO("Run backward for 2 sec...");
+    DEBUG_INFO("Encoder count = " + String((int32_t)BW_motor_encoder.getCount()));
     btn_motor_control.set_speed(-180);
-    delay(1000);
+    delay(500);
+    DEBUG_INFO("Encoder count = " + String((int32_t)BW_motor_encoder.getCount()));
+    delay(500);
     DEBUG_INFO("Encoder count = " + String((int32_t)BW_motor_encoder.getCount()));
     DEBUG_INFO("Load current (A): ");
     DEBUG_INFO(HalfBridge_1.get_load_current_in_amps());
