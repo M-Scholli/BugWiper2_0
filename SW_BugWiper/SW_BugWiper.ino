@@ -5,20 +5,11 @@
 
 #define BugWiperPCB 1
 
-#define ESP32_S3_DevKit 0
-
 #if BugWiperPCB
 #define BTN9960_CONTROLLER 1
 #endif
 
 #define FIRMWARE_VERSION "V0.0.2"
-#define DEBUG_SERIAL_OUT 2
-
-#define TRACE_LEVEL_INFO       4
-#define TRACE_LEVEL_WARNING    3
-#define TRACE_LEVEL_ERROR      2
-#define TRACE_LEVEL_FATAL      1
-#define TRACE_LEVEL_NO_TRACE   0
 
 // Pin discription
 // ESP32-Wroom-32: 
@@ -30,7 +21,6 @@
 // 39,40,41&42 (JTAG); 43 & 44 (UART 0 for serial debug interface); 45 & 46 (Strapping Pins / Pull-down)  48 Board LED
 
 //Button PINs
-#if BugWiperPCB
   #define BUTTON_CLEANING_A_PIN 14
   #define BUTTON_WINDING_IN_A_PIN 21
   #define SW_CABLE_LOOSE_A_PIN 15
@@ -40,41 +30,9 @@
 //Motor PINs
   #define ADC_NTC_PIN 5
   #define ADC_VBat_PIN 4
-  #define MOTOR_CURRENT_SENSE_PIN 1
-  #define MOTOR_ENCODER_1_PIN 16
-  #define MOTOR_ENCODER_2_PIN 17
 //SD Card
   #define SD_Detect_PIN 2
-#elif ESP32_S3_DevKit
-  #define BUTTON_CLEANING_A_PIN 5
-  #define BUTTON_WINDING_IN_A_PIN 6
-  #define SW_CABLE_LOOSE_A_PIN 10
-  #define SAFETY_SWITCH_PIN 11  // Saftyswitch to deaktivate the BugWiper
-//LED configuration
-  #define RGB_BUILD_IN 48
-  #define LED_PIN 48
-//Motor PINs
-  #define MOTOR_IN1_PIN 12
-  #define MOTOR_IN2_PIN 13
-  #define MOTOR_EN_PIN 14  //PWM Pin
-  #define MOTOR_CURRENT_SENSE_PIN 16
-  #define MOTOR_ENCODER_1_PIN 1
-  #define MOTOR_ENCODER_2_PIN 2
-#else
-  #define BUTTON_CLEANING_A_PIN 21
-  #define BUTTON_WINDING_IN_A_PIN 18
-  #define SW_CABLE_LOOSE_A_PIN 23
-  #define SAFETY_SWITCH_PIN 16  // Saftyswitch to deaktivate the BugWiper
-//LED configuration
-  #define LED_PIN 2
-//Motor PINs
-  #define MOTOR_IN1_PIN 12
-  #define MOTOR_IN2_PIN 13
-  #define MOTOR_EN_PIN 14  //PWM Pin
-  #define MOTOR_CURRENT_SENSE_PIN 36
-  #define MOTOR_ENCODER_1_PIN 26
-  #define MOTOR_ENCODER_2_PIN 27
-#endif
+
 
 // Kalibrierung des Putzvorganges
 #define TIME_LONG_PRESS 400           //time in ms for long button press
@@ -151,10 +109,6 @@ void init_io(void) {
   motor_current_pin = (gpio_num_t)MOTOR_CURRENT_SENSE_PIN;
   motor_in1_pin = (gpio_num_t)MOTOR_IN1_PIN;
   motor_in2_pin = (gpio_num_t)MOTOR_IN2_PIN;
-  motor_inh1_pin = (gpio_num_t)MOTOR_INH1_PIN;
-  motor_inh2_pin = (gpio_num_t)MOTOR_INH2_PIN;
-  motor_is1_pin = (gpio_num_t)MOTOR_IS1_PIN;
-  motor_is2_pin = (gpio_num_t)MOTOR_IS2_PIN;
   pinMode(SW_CABLE_LOOSE_A_PIN, INPUT_PULLUP);
   pinMode(SAFETY_SWITCH_PIN, INPUT_PULLUP);
   pinMode(BUTTON_WINDING_IN_A_PIN, INPUT_PULLUP);
