@@ -1,5 +1,4 @@
 #include <Arduino.h>
-#include <ESP32Encoder.h>
 #include "BugWiper.h"
 #include "my_debug.h"
 
@@ -61,8 +60,6 @@ uint16_t timer_button_long_press_a = 0;  // Time since start of long pressing bu
 uint8_t timer_button_cable_loose_a = 0;
 uint8_t timer_button_winding_in_a = 0;
 uint8_t timer_button_start_cleaning_a = 0;
-ESP32Encoder encoder_motor_a;
-
 
 hw_timer_t *Timer0_Cfg = NULL;
 volatile uint16_t counter_timer = 0;
@@ -80,11 +77,6 @@ void IRAM_ATTR Timer0_ISR(void) {
     counter_timer = 0;
     BugWiper_set_timer();
   }
-}
-
-void Encoder_init(void) {
-  encoder_motor_a.attachHalfQuad(MOTOR_ENCODER_1_PIN, MOTOR_ENCODER_2_PIN);
-  encoder_motor_a.setCount(0);
 }
 
 void Timer_init(void) {
@@ -160,7 +152,6 @@ void setup() {
     DEBUG_INIT(115200);
     delay(500);
     DEBUG_INFO("BugWiper start programm");
-    Encoder_init();
     init_io();
     BugWiper_init();
     Timer_init();
@@ -178,10 +169,10 @@ uint16_t counter_output=0;
 // The loop function is called in an endless loop
 void loop() { 
     read_Buttons();
-    BugWiper_calculate(encoder_motor_a.getCount(), 0, 0, 0);
+    BugWiper_calculate(0, 0, 0);
   if (counter_output > 10000) {
     DEBUG_INFO("ADC value = " + String(BW_ADC_current_sense));
-    DEBUG_INFO("Encoder count = " + String((int32_t)encoder_motor_a.getCount()));
+    DEBUG_INFO("Encoder count = " + String((int32_t)BW_motor_encoder.getCount()));
     counter_output = 0;
   }
   counter_output++;

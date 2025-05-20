@@ -1,5 +1,6 @@
 #include <sys/_stdint.h>
 #include <Arduino.h>
+#include <ESP32Encoder.h>
 
 #define PWM_FREQ 10000
 #define PWM_RESOLUTION_BITS 8
@@ -39,6 +40,9 @@
 #define MOTOR_INH2_PIN 13
 #define MOTOR_IS1_PIN 6
 #define MOTOR_IS2_PIN 7
+#define MOTOR_CURRENT_SENSE_PIN 1
+#define MOTOR_ENCODER_1_PIN 16
+#define MOTOR_ENCODER_2_PIN 17
 
 enum direction { OUT = 0,
                  IN,
@@ -53,8 +57,9 @@ void BugWiper_set_winding_in(void);
 void BugWiper_set_start_cleaning(void);
 void BugWiper_set_motor_brake(void);
 void BugWiper_state_machine(void);
-void BugWiper_calculate(int64_t count, bool button_cleaning, bool button_winding_in, bool sw_cable_loose);
+void BugWiper_calculate(bool button_cleaning, bool button_winding_in, bool sw_cable_loose);
 
+extern ESP32Encoder BW_motor_encoder;
 extern volatile uint16_t BW_ADC_current_sense;
 extern volatile uint32_t BW_timer_cleaning;
 extern uint16_t BW_state_machine_state;
@@ -63,7 +68,3 @@ extern gpio_num_t motor_current_pin;
 extern gpio_num_t motor_pwm_pin;
 extern gpio_num_t motor_in1_pin;
 extern gpio_num_t motor_in2_pin;
-extern gpio_num_t motor_inh1_pin;
-extern gpio_num_t motor_inh2_pin;
-extern gpio_num_t motor_is1_pin;
-extern gpio_num_t motor_is2_pin;

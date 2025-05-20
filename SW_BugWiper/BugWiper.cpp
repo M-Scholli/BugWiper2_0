@@ -30,6 +30,8 @@ bool motor_inverted;
 bool cable_loose;
 enum direction moror_direction;
 
+ESP32Encoder BW_motor_encoder;
+
 using namespace btn99x0;
 
 io_pins_t hb1_io_pins =
@@ -58,6 +60,11 @@ MotorControl btn_motor_control(shield);
 HalfBridge HalfBridge_1= shield.get_half_bridge(DCShield::HALF_BRIDGE_1);
 HalfBridge HalfBridge_2 = shield.get_half_bridge(DCShield::HALF_BRIDGE_2);
 
+void Encoder_init(void) {
+  BW_motor_encoder.attachHalfQuad(MOTOR_ENCODER_1_PIN, MOTOR_ENCODER_2_PIN);
+  BW_motor_encoder.setCount(0);
+}
+
 void BugWiper_init(void) {
   DEBUG_INFO("Init BugWiper:");
   pinMode(LED_pin, OUTPUT);
@@ -66,6 +73,7 @@ void BugWiper_init(void) {
   digitalWrite(LED_pin, 0);
   digitalWrite(motor_in1_pin, 1);
   digitalWrite(motor_in2_pin, 1);
+  Encoder_init();
 #if ESP_ARDUINO_VERSION >= ESP_ARDUINO_VERSION_VAL(3, 0, 0)
   // Code for version 3.x
   ledcAttach(motor_pwm_pin, PWM_FREQ, PWM_RESOLUTION_BITS);
@@ -93,27 +101,40 @@ void BugWiper_test_LED(void)
 
 void BugWiper_test_Motor(void)
 {
-    DEBUG_INFO("Run forward for 1 sec...");
+    DEBUG_INFO("Run forward for 2 sec...")
+    DEBUG_INFO("Encoder count = " + String((int32_t)BW_motor_encoder.getCount()));
     btn_motor_control.set_speed(180);
-    delay(1000);
-
+    delay(500);
+    DEBUG_INFO("Encoder count = " + String((int32_t)BW_motor_encoder.getCount()));
+    delay(500);
+    DEBUG_INFO("Encoder count = " + String((int32_t)BW_motor_encoder.getCount()));
     DEBUG_INFO("Load current (A): ");
     DEBUG_INFO(HalfBridge_1.get_load_current_in_amps());
     DEBUG_INFO(HalfBridge_2.get_load_current_in_amps());
     DEBUG_INFO(((float)analogReadMilliVolts(motor_current_pin)*0.005));
     delay(1000);
+    DEBUG_INFO("Encoder count = " + String((int32_t)BW_motor_encoder.getCount()));
 
     DEBUG_INFO("Freewheel for 1 sec...");
     btn_motor_control.freewheel();
     delay(1000);
+    DEBUG_INFO("Encoder count = " + String((int32_t)BW_motor_encoder.getCount()));
 
-    DEBUG_INFO("Run backward for 1 sec...");
+    DEBUG_INFO("Run backward for 2 sec...");
     btn_motor_control.set_speed(-180);
-    delay(2000);
+    delay(1000);
+    DEBUG_INFO("Encoder count = " + String((int32_t)BW_motor_encoder.getCount()));
+    DEBUG_INFO("Load current (A): ");
+    DEBUG_INFO(HalfBridge_1.get_load_current_in_amps());
+    DEBUG_INFO(HalfBridge_2.get_load_current_in_amps());
+    DEBUG_INFO(((float)analogReadMilliVolts(motor_current_pin)*0.005));
+    delay(1000);
+    DEBUG_INFO("Encoder count = " + String((int32_t)BW_motor_encoder.getCount()));
 
     DEBUG_INFO("Brake for 1 sec...");
     btn_motor_control.brake();
     delay(1000);
+    DEBUG_INFO("Encoder count = " + String((int32_t)BW_motor_encoder.getCount()));
 }
 
 void BugWiper_read_motor_current(void) {
@@ -350,7 +371,8 @@ void BugWiper_state_machine(void) {
   }
 }
 
-void BugWiper_calculate(int64_t count, bool button_cleaning, bool button_winding_in, bool sw_cable_loose) {
+void BugWiper_calculate(bool button_cleaning, bool button_winding_in, bool sw_cable_loose) {
+  int64_t count=BW_motor_encoder.getCount(),
   position = count * p_numerator / p_denominator;
   if (BW_state_machine_state < 10) {
     if (button_cleaning) {
