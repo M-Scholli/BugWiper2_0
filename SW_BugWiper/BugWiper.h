@@ -2,10 +2,21 @@
 #include <Arduino.h>
 #include <ESP32Encoder.h>
 
+#define BugWiperPCB 1
+
+#if BugWiperPCB
+#define BTN9960_CONTROLLER 1
+#elif
+#define BTS7960B_CONTROLLER 1
+#endif
+
 #define PWM_FREQ 10000
 #define PWM_RESOLUTION_BITS 8
-#define MOTOR_CURRENT_STOP 2500
+#define MOTOR_CURRENT_STOP 2300
+//LED configuration
+#define RGB_LED_PIN 9
 #define RGB_BRIGHTNESS 64 // Change white brightness (max 255)
+
 #define LED_TIME_CLEANING 500    //time blinking LED
 #define LED_TIME_WINDING_IN 250  //time blinking LED
 
@@ -30,23 +41,52 @@
 #define TIME_MAX_CLEANING 90000       //maximale cleaning time in ms
 #define TIME_MAX_WINDING_IN 50000     //maximale winding in time in ms
 #define TIME_BUTTON_DEBOUNCE 50       //time in ms for button debounce
-#define POSITION_STARTING 200         // Slow start lenght in mm
-#define POSITION_WINGTIP 6500         // End of the Wing in mm
+
+#define TIME_LONG_PRESS 400           //time in ms for long button press
+
+#define TIME_BUTTON_DEBOUNCE 50       //time in ms for button debounce
+
 #define LENGTH_SLOW 200               // Distance to slow down 
 
+//Motor PINs
 #define MOTOR_IN1_PIN 10
 #define MOTOR_IN2_PIN 11
 #define MOTOR_INH1_PIN 12
 #define MOTOR_INH2_PIN 13
 #define MOTOR_IS1_PIN 6
 #define MOTOR_IS2_PIN 7
+#define MOTOR_HB1_DK  28900
+#define MOTOR_HB2_DK  28900
+
 #define MOTOR_CURRENT_SENSE_PIN 1
+#define CURRENT_CAL_FACTOR 
+
+
+#define ADC_NTC_PIN 5
+#define ADC_VBat_PIN 4
+
+//PWM configuration
+#define PWM_CHANNEL_A 0
+
+//Button PINs
+#define BUTTON_CLEANING_PIN 21
+#define BUTTON_WINDING_IN_PIN 14
+#define SW_CABLE_LOOSE_PIN 18
+#define SAFETY_SWITCH_PIN 47  // Saftyswitch to deaktivate the BugWiper
+
+// Encoder 
 #define MOTOR_ENCODER_1_PIN 16
 #define MOTOR_ENCODER_2_PIN 17
+#define CPR_Encoder 32
+#define GEAR_RATIO 18
+#define SPOOL_CIRCUMFERENCE 75.4 // in mm
+#define POSITION_STARTING 200         // Slow start lenght in mm
+#define POSITION_WINGTIP 6500         // End of the Wing in mm
 
 enum direction { OUT = 0,
                  IN,
-                 STOP };
+                 STOP,
+                 Freewheeling };
 
 void BugWiper_init(void);
 void BugWiper_test_LED(void);
@@ -60,9 +100,11 @@ void BugWiper_state_machine(void);
 void BugWiper_calculate(bool button_cleaning, bool button_winding_in, bool sw_cable_loose);
 
 extern ESP32Encoder BW_motor_encoder;
-extern volatile uint16_t BW_ADC_current_sense;
+extern volatile uint32_t BW_ADC_current_sense;
 extern volatile uint32_t BW_timer_cleaning;
 extern uint16_t BW_state_machine_state;
+extern volatile int32_t BW_position;
+extern volatile int64_t motor_enc_count; // counts from encoder
 extern gpio_num_t LED_pin;
 extern gpio_num_t motor_current_pin;
 extern gpio_num_t motor_pwm_pin;
