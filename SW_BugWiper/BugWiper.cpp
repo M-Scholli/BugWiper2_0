@@ -74,19 +74,18 @@ void Encoder_init(void) {
 }
 
 void rgbLedWrite_colour(struct RBG_COLOUR colour) {
-  rgbLedWrite(RGB_LED_PIN, colour.r, colour.g, colour.b);
+  rgbLedWrite(RGB_LED_PIN,colour.g, colour.r, colour.b);
 }
 
 // TEST Functions
 void BugWiper_test_LED(void) {
   DEBUG_INFO("Test LEDs")
-  rgbLedWrite_colour(COLOUR_RED);
-  delay(200);
-  rgbLedWrite_colour(COLOUR_GREEN); // Green
-  delay(200);
-  rgbLedWrite(RGB_LED_PIN, 0, 0, RGB_BRIGHTNESS);  // Blue
-  delay(200);
-  rgbLedWrite(RGB_LED_PIN, 0, 0, 0);  // Off / black
+
+  for (uint8_t i=0; i<5; i++) {
+    rgbLedWrite_colour(ModeLED_Colour[i]);
+    delay(500);
+  }
+  rgbLedWrite_colour(ModeLED_Colour[0]);
 }
 
 void BugWiper_test_Motor(void) {
@@ -221,11 +220,15 @@ void BugWiper_set_winding_in(void) {
   time_pwm_ramp = TIME_PWM_RAMP_WINDING_IN;
   motor_power_dest = MAX_POWER_WINDING_IN;
   BugWiper_set_motor_dir(OUT);
+  BW_mode = M_WINDING_IN;
+  rgbLedWrite_colour(ModeLED_Colour[BW_mode]);
   DEBUG_INFO("Start winding in");
 }
 
 void BugWiper_set_start_cleaning(void) {
   BW_state_machine_state = 10;
+  BW_mode = M_CLEANING;
+  rgbLedWrite_colour(ModeLED_Colour[BW_mode]);
   DEBUG_INFO("Start cleaning");
 }
 
@@ -373,6 +376,10 @@ void BugWiper_state_machine(void) {
       BugWiper_set_motor_brake();
       BW_state_machine_state++;
       break;
+    case 100: // STOP FUNCTION
+      BugWiper_set_motor_brake();
+      BW_state_machine_state++;
+      break;
   }
 }
 
@@ -414,12 +421,26 @@ void button_debounce(void) {
 }
 
 void read_Buttons(void) {
-  if (BW_state_machine_state < 10) {  // FIXME safety pin
-    if (timer_button_winding_in >= TIME_BUTTON_DEBOUNCE && BW_state_machine_state == 0) {
+  if (BW_mode==M_IDLE) {  // FIXME safety pin
+    if (timer_button_winding_in >= TIME_BUTTON_DEBOUNCE) {
       BugWiper_set_winding_in();
     }
-    if (BW_state_machine_state == 0 && timer_button_start_cleaning >= TIME_BUTTON_DEBOUNCE) {
+    if (timer_button_start_cleaning >= TIME_BUTTON_DEBOUNCE) {
       BugWiper_set_start_cleaning();
+    }
+  }
+  if (BW_mode==M_CLEANING) {
+    if (timer_button_winding_in >= TIME_BUTTON_DEBOUNCE) {
+      BW_mode=M_STOP;
+      BW_state_machine_state = 100;
+      rgbLedWrite_colour(ModeLED_Colour[BW_mode]);
+    }
+  }
+  if (BW_mode==M_WINDING_IN) {
+    if (timer_button_start_cleaning >= TIME_BUTTON_DEBOUNCE) {
+      BW_mode=M_STOP;
+      BW_state_machine_state = 100;
+      rgbLedWrite_colour(ModeLED_Colour[BW_mode]);
     }
   }
   // prevents a imediate second start cleaning after finish the first one

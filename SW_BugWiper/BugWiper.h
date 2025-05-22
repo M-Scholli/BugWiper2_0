@@ -116,6 +116,14 @@ void BugWiper_set_motor_brake(void);
 void BugWiper_state_machine(void);
 void BugWiper_calculate(bool button_cleaning, bool button_winding_in, bool sw_cable_loose);
 
+static const struct RBG_COLOUR ModeLED_Colour[]={
+  {0,0,0},
+  {0,100,0},
+  {0,0,100},
+  {100,30,5},
+  {100,0,0}
+};
+
 extern ESP32Encoder BW_motor_encoder;
 extern volatile uint32_t BW_ADC_current_sense;
 extern volatile uint32_t BW_timer_cleaning;
