@@ -16,6 +16,8 @@ volatile uint32_t BW_timer_cleaning;
 volatile int64_t motor_enc_count;  // counts from encoder
 volatile int32_t BW_position;      // position in mm converted from the encoder
 
+enum BW_MODE BW_mode = M_IDLE;
+
 uint16_t timer_button_cable_loose = 0;
 uint16_t timer_button_winding_in = 0;
 uint16_t timer_button_start_cleaning = 0;
@@ -71,15 +73,19 @@ void Encoder_init(void) {
   BW_motor_encoder.setCount(0);
 }
 
+void rgbLedWrite_colour(struct RBG_COLOUR colour) {
+  rgbLedWrite(RGB_LED_PIN, colour.r, colour.g, colour.b);
+}
+
 // TEST Functions
 void BugWiper_test_LED(void) {
   DEBUG_INFO("Test LEDs")
-  rgbLedWrite(RGB_LED_PIN, RGB_BRIGHTNESS, 0, 0);  // Red
-  delay(500);
-  rgbLedWrite(RGB_LED_PIN, 0, RGB_BRIGHTNESS, 0);  // Green
-  delay(500);
+  rgbLedWrite_colour(COLOUR_RED);
+  delay(200);
+  rgbLedWrite_colour(COLOUR_GREEN); // Green
+  delay(200);
   rgbLedWrite(RGB_LED_PIN, 0, 0, RGB_BRIGHTNESS);  // Blue
-  delay(500);
+  delay(200);
   rgbLedWrite(RGB_LED_PIN, 0, 0, 0);  // Off / black
 }
 
@@ -450,7 +456,7 @@ void BugWiper_Task1_fast(void* parameter) {
 void BugWiper_Task2_slow(void* parameter) {
   const TickType_t taskPeriod = 20;  // 20ms <--> 50Hz
   TickType_t xLastWakeTime = xTaskGetTickCount();
-  BugWiper_test_Motor();
+  //BugWiper_test_Motor();
   for (;;) {
 
     //

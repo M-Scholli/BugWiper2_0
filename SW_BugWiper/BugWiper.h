@@ -1,3 +1,4 @@
+#include <stdint.h>
 #include <sys/_stdint.h>
 #include <Arduino.h>
 #include <ESP32Encoder.h>
@@ -16,6 +17,10 @@
 //LED configuration
 #define RGB_LED_PIN 9
 #define RGB_BRIGHTNESS 64 // Change white brightness (max 255)
+#define COLOUR_RED {64,0,0}
+#define COLOUR_GREEN {0,64,0}
+#define COLOUR_BLUE {0,0,64}
+
 
 #define LED_TIME_CLEANING 500    //time blinking LED
 #define LED_TIME_WINDING_IN 250  //time blinking LED
@@ -87,6 +92,18 @@ enum direction { OUT = 0,
                  IN,
                  STOP,
                  Freewheeling };
+
+enum BW_MODE { M_IDLE = 0,
+               M_CLEANING,
+               M_WINDING_IN,
+               M_WAIT,
+               M_STOP };
+
+struct RBG_COLOUR {
+  uint8_t r;
+  uint8_t g;
+  uint8_t b;
+};
 
 void BugWiper_init(void);
 void BugWiper_test_LED(void);
