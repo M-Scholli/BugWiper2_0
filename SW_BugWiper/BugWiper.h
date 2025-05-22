@@ -32,11 +32,12 @@
 #define MAX_POWER_BRAKE 255           //max power of the motorbrake
 #define LOOSE_POWER_BRAKE 240         //power of the brake when loose cable detected
 #define TIME_PWM_RAMP_BRAKE 2         //time of PWM power inrements for braking ramp
-#define TIME_PWM_RAMP_START 120
-#define TIME_PWN_RAMP_SLOW 80
-#define TIME_PWM_RAMP_CLEANING 80     //time of PWM power inrements for start cleaning ramp
-#define TIME_PWM_RAMP_WINDING_IN 20   //time of PWM power inrements for start winding in ramp
-#define TIME_PWM_RAMP_LOOSE_CABLE 30  //time of PWM power inrements after loose cable ramp
+#define TIME_PWM_RAMP_START 12
+#define TIME_PWN_RAMP_SLOW 8
+#define TIME_PWM_RAMP_CLEANING 8     //time of PWM power inrements for start cleaning ramp
+#define TIME_PWM_RAMP_WINDING_IN 2   //time of PWM power inrements for start winding in ramp
+#define TIME_PWM_RAMP_LOOSE_CABLE 3  //time of PWM power inrements after loose cable ramp
+
 #define TIME_MIN_CLEANING 300         //minimal cleaning time in ms
 #define TIME_MAX_CLEANING 90000       //maximale cleaning time in ms
 #define TIME_MAX_WINDING_IN 50000     //maximale winding in time in ms
@@ -60,7 +61,6 @@
 
 #define MOTOR_CURRENT_SENSE_PIN 1
 #define CURRENT_CAL_FACTOR 
-
 
 #define ADC_NTC_PIN 5
 #define ADC_VBat_PIN 4

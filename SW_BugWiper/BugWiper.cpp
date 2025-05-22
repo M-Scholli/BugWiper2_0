@@ -207,7 +207,7 @@ void BugWiper_set_motor_brake(void) {
 }
 
 void BugWiper_set_winding_in(void) {
-  BW_state_machine_state = 2;
+  BW_state_machine_state = 50;
   timer_LED = 0;
   timer_motor_power = 0;
   BW_timer_cleaning = 0;
@@ -386,22 +386,6 @@ void BugWiper_read_Encoder(void) {
   BW_position = int32_t((float)motor_enc_count * SPOOL_CIRCUMFERENCE / (CPR_Encoder * GEAR_RATIO));
 }
 
-void BugWiper_calculate(void) {
-  // FIXME
-  // if (BW_state_machine_state < 10) {
-  //   if (button_cleaning) {
-  //     BW_state_machine_state = 10;
-  //   }
-  //   if (button_winding_in) {
-  //     BW_state_machine_state = 50;
-  //   }
-  // }
-  //set_timer();
-  BugWiper_state_machine();
-  BugWiper_set_motor_power();
-  BugWiper_LED_blinking();
-}
-
 void button_debounce(void) {
   button_cable_loose = digitalRead(SW_CABLE_LOOSE_PIN);
   if (button_cable_loose == 0 && timer_button_cable_loose < 255) {
@@ -428,7 +412,7 @@ void read_Buttons(void) {
     if (timer_button_winding_in >= TIME_BUTTON_DEBOUNCE && BW_state_machine_state == 0) {
       BugWiper_set_winding_in();
     }
-    if (BW_state_machine_state == 0 && timer_button_long_press >= TIME_LONG_PRESS) {
+    if (BW_state_machine_state == 0 && timer_button_start_cleaning >= TIME_BUTTON_DEBOUNCE) {
       BugWiper_set_start_cleaning();
     }
   }
@@ -457,6 +441,7 @@ void BugWiper_Task1_fast(void* parameter) {
     BugWiper_set_timer();
     BugWiper_read_motor_current();
     BugWiper_read_Encoder();
+    BugWiper_set_motor_power();
 
     vTaskDelayUntil(&xLastWakeTime, taskPeriod);
   }
@@ -472,7 +457,8 @@ void BugWiper_Task2_slow(void* parameter) {
     // Do Stuff (needs to take less than 20ms)
     //
     read_Buttons();
-    BugWiper_calculate();
+    BugWiper_state_machine();
+    BugWiper_LED_blinking();
 
     vTaskDelayUntil(&xLastWakeTime, taskPeriod);
   }

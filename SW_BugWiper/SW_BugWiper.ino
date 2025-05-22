@@ -42,6 +42,7 @@ void loop() {
     DEBUG_INFO("ADC value = " + String(BW_ADC_current_sense));
     DEBUG_INFO("Encoder count = " + String((int32_t)motor_enc_count));
     DEBUG_INFO("Position = " + String(BW_position));
+    DEBUG_INFO("State:" + String(BW_state_machine_state));
 }
 
 
