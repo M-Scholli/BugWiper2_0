@@ -348,6 +348,16 @@ void BugWiper_state_machine(void) {
       BW_state_machine_state++;
       break;
     case 41:
+      if (BW_position > POSITION_SLOW_WINGTIP) {
+        BW_state_machine_state = 45;
+      }
+      break;
+    case 45:
+      motor_power = MAX_POWER_NEAR_END;
+      motor_power_dest = MAX_POWER_NEAR_END;
+      BW_state_machine_state++;
+      break;
+    case 46:
       if (BW_position > POSITION_WINGTIP) {
         BW_state_machine_state = 50;
       }
@@ -365,6 +375,7 @@ void BugWiper_state_machine(void) {
       if (BW_position < LENGTH_SLOW) {
         BW_state_machine_state = 60;
       }
+      break;
     case 60:
       motor_power_dest = MAX_POWER_NEAR_END;
       time_pwm_ramp = TIME_PWN_RAMP_SLOW;
@@ -372,7 +383,7 @@ void BugWiper_state_machine(void) {
       break;
     case 61:
       if (1) {
-        BW_state_machine_state = 70;
+        BW_state_machine_state = 80;
       }
       break;
     case 80:
