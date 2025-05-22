@@ -86,7 +86,9 @@
 #define GEAR_RATIO 18
 #define SPOOL_CIRCUMFERENCE 75.4 // in mm
 #define POSITION_STARTING 200         // Slow start lenght in mm
+#define POSITION_SLOW_WINGTIP 6000
 #define POSITION_WINGTIP 6500         // End of the Wing in mm
+#define POSITION_SLOW_FUSELAGE 6500         // End of the Wing in mm
 
 enum direction { OUT = 0,
                  IN,
@@ -126,9 +128,13 @@ static const struct RBG_COLOUR ModeLED_Colour[]={
 
 extern ESP32Encoder BW_motor_encoder;
 extern volatile uint32_t BW_ADC_current_sense;
+extern volatile uint16_t BW_ADC_btn_hb1;
+extern volatile uint16_t BW_ADC_btn_hb2;
+
 extern volatile uint32_t BW_timer_cleaning;
 extern uint16_t BW_state_machine_state;
 extern volatile int32_t BW_position;
+extern volatile int32_t BW_speed;
 extern volatile int64_t motor_enc_count; // counts from encoder
 extern gpio_num_t LED_pin;
 extern gpio_num_t motor_current_pin;

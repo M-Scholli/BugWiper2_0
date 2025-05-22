@@ -39,9 +39,9 @@ void loop() {
     //read_Buttons();
     //BugWiper_calculate(0, 0, 0);
     delay(1000);
-    DEBUG_INFO("ADC value = " + String(BW_ADC_current_sense));
+    DEBUG_INFO("ADC value = " + String(BW_ADC_current_sense) + " HB1:" + String(BW_ADC_btn_hb1)+" HB2:" + String(BW_ADC_btn_hb2));
     DEBUG_INFO("Encoder count = " + String((int32_t)motor_enc_count));
-    DEBUG_INFO("Position = " + String(BW_position));
+    DEBUG_INFO("Position = " + String(BW_position) + " Speed:" + String(BW_speed));
     DEBUG_INFO("State:" + String(BW_state_machine_state));
 }
 

@@ -9,12 +9,15 @@
 
 volatile uint32_t BW_ADC_current_sense;
 volatile uint16_t BW_ADC_current_mA;
+volatile uint16_t BW_ADC_btn_hb1;
+volatile uint16_t BW_ADC_btn_hb2;
 
 uint16_t BW_state_machine_state;
 volatile uint32_t BW_timer_cleaning;
 
 volatile int64_t motor_enc_count;  // counts from encoder
 volatile int32_t BW_position;      // position in mm converted from the encoder
+volatile int32_t BW_speed;
 
 enum BW_MODE BW_mode = M_IDLE;
 
@@ -386,6 +389,8 @@ void BugWiper_state_machine(void) {
 void BugWiper_read_motor_current(void) {
   BW_ADC_current_sense = analogReadMilliVolts(MOTOR_CURRENT_SENSE_PIN);  //FIXME
   BW_ADC_current_mA = BW_ADC_current_sense * 5;
+  BW_ADC_btn_hb1 = HalfBridge_1.get_load_current_in_amps();
+  BW_ADC_btn_hb2 = HalfBridge_2.get_load_current_in_amps();
 }
 
 void BugWiper_set_timer(void) {
@@ -396,7 +401,9 @@ void BugWiper_set_timer(void) {
 
 void BugWiper_read_Encoder(void) {
   motor_enc_count = BW_motor_encoder.getCount();
+  uint32_t BW_position_old = BW_position;
   BW_position = int32_t((float)motor_enc_count * SPOOL_CIRCUMFERENCE / (CPR_Encoder * GEAR_RATIO));
+  BW_speed= BW_position-BW_position_old;
 }
 
 void button_debounce(void) {
