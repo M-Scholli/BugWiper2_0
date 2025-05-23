@@ -8,9 +8,9 @@
 #include "btn99x0_motor_control.hpp"
 
 volatile uint32_t BW_ADC_current_sense;
-volatile uint16_t BW_ADC_current_mA;
-volatile uint16_t BW_ADC_btn_hb1;
-volatile uint16_t BW_ADC_btn_hb2;
+volatile double BW_ADC_current_mA;
+volatile double BW_ADC_btn_hb1;
+volatile double BW_ADC_btn_hb2;
 
 uint16_t BW_state_machine_state;
 volatile uint32_t BW_timer_cleaning;
@@ -62,7 +62,7 @@ io_pins_t hb2_io_pins = {
 
 hw_conf_t hw_conf = {
   1000,  // Rsense in Ohm
-  1.75,  // VOltage Range
+  3.1,  // VOltage Range
   8191   // ADC Steps
 };
 

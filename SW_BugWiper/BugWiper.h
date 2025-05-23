@@ -14,14 +14,12 @@
 #define PWM_FREQ 10000
 #define PWM_RESOLUTION_BITS 8
 #define MOTOR_CURRENT_STOP 2300
+
 //LED configuration
-#define RGB_LED_PIN 9
 #define RGB_BRIGHTNESS 64 // Change white brightness (max 255)
 #define COLOUR_RED {64,0,0}
 #define COLOUR_GREEN {0,64,0}
 #define COLOUR_BLUE {0,0,64}
-
-
 #define LED_TIME_CLEANING 500    //time blinking LED
 #define LED_TIME_WINDING_IN 250  //time blinking LED
 
@@ -53,6 +51,16 @@
 #define TIME_BUTTON_DEBOUNCE 50       //time in ms for button debounce
 
 #define LENGTH_SLOW 200               // Distance to slow down 
+
+// Pin discription
+// ESP32-Wroom-32: 
+// follwing pins are not allowed to use: 0 (Bootselect); 2 Board LED / must be low on boot; (1 & 3 UART USB-Serial); 
+// (5 must be high during boot);(15 Debugging Log on U0TXD During Booting);(6, 7, 8, 9, 10 & 11 connected to Flash);
+// Input Only Pins : 34,35,36,39
+// ESP32-S3-Wroom-1:
+// follwing pins are difficult to use: 0 (Bootselect); 3 (Strapping Pins Floating) ; 19 & 20 (USB-Jtag); 35,36&37 (Octal PSRAM (8MB));
+// 39,40,41&42 (JTAG); 43 & 44 (UART 0 for serial debug interface); 45 & 46 (Strapping Pins / Pull-down)  48 Board LED
+#define RGB_LED_PIN 9
 
 //Motor PINs
 #define MOTOR_IN1_PIN 10
@@ -128,8 +136,9 @@ static const struct RBG_COLOUR ModeLED_Colour[]={
 
 extern ESP32Encoder BW_motor_encoder;
 extern volatile uint32_t BW_ADC_current_sense;
-extern volatile uint16_t BW_ADC_btn_hb1;
-extern volatile uint16_t BW_ADC_btn_hb2;
+extern volatile double BW_ADC_current_mA;
+extern volatile double BW_ADC_btn_hb1;
+extern volatile double BW_ADC_btn_hb2;
 
 extern volatile uint32_t BW_timer_cleaning;
 extern uint16_t BW_state_machine_state;
