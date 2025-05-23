@@ -26,14 +26,14 @@
 #define LED_TIME_CLEANING 500    //time blinking LED
 #define LED_TIME_WINDING_IN 250  //time blinking LED
 
-#define START_POWER_CLEANING 30       //start power cleaning
+#define START_POWER_CLEANING 40       //start power cleaning
 #define START_POWER_WINDING_IN 70     //start power winding in
 #define START_POWER_LOOSE_CABLE 60    //start power after loose cable
 #ifdef TESTBENCH
-  #define MAX_POWER_START_CLEANING 100  //max power at startion winding out
+  #define MAX_POWER_START_CLEANING 120  //max power at startion winding out
   #define MAX_POWER_WINDING_OUT 150     //max power while cleaning
-  #define MAX_POWER_NEAR_END 70
-  #define MAX_POWER_WINDING_IN 150      //max power while winding in
+  #define MAX_POWER_NEAR_END 100
+  #define MAX_POWER_WINDING_IN 180      //max power while winding in
   #define MAX_POWER_GROUND 50          //max power on the ground
 #else
   #define MAX_POWER_START_CLEANING 150  //max power at startion winding out
@@ -122,8 +122,8 @@
 
 #ifdef TESTBENCH
   #define POSITION_STARTING 100         // Slow start lenght in mm
-  #define POSITION_SLOW_WINGTIP 500
-  #define POSITION_WINGTIP 800         // End of the Wing in mm
+  #define POSITION_SLOW_WINGTIP 700
+  #define POSITION_WINGTIP 1000         // End of the Wing in mm
   #define POSITION_SLOW_FUSELAGE 500   // End of the Wing in mm
   #define LENGTH_SLOW 200               // Distance to slow down 
 #else

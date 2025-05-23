@@ -404,6 +404,7 @@ void BugWiper_state_machine(void) {
       if (BW_state_machine_timer >= 3000){
         BW_state_machine_state = 0;
       }
+      break;
     case 100: // STOP FUNCTION
       DEBUG_ERROR("STOP BUGWIPER ERORR")
       BW_state_machine_timer = 0;
@@ -437,16 +438,24 @@ void BugWiper_read_ADCs_slow(void) {
 void BugWiper_check_end_reached(void){
   if (BW_ADC_current_mA >= BW_STOP_CURRENT)
   {
+    DEBUG_INFO("Finished: current:" + String(BW_ADC_current_mA) + " above " + String((float)BW_STOP_CURRENT));
     BW_state_machine_state = BW_STATE_FINISHED;
   }
   if (BW_mode == M_CLEANING || BW_mode == M_WINDING_IN)
   {
-    if (BW_state_machine_state > BW_STATE_CHECK_END && BW_speed < BW_STOP_SPEED)
+    if (BW_state_machine_state > BW_STATE_CHECK_END && abs(BW_speed) < BW_STOP_SPEED)
     {
+      DEBUG_INFO("Finished: Speed:" + String(abs(BW_speed)) + " below " + String((float)BW_STOP_SPEED));
       BW_state_machine_state = BW_STATE_FINISHED;
     }
-    if (BW_ADC_V_Bat <= BW_STOP_V_BAT || BW_ADC_T_ntc_degree > BW_STOP_T_MAX)
+    if (BW_ADC_V_Bat <= BW_STOP_V_BAT) 
     {
+      DEBUG_ERROR("Under Voltage: V BAT:" + String(BW_ADC_V_Bat) + " below " + String((float)BW_STOP_V_BAT) + "V");
+      BW_state_machine_state = BW_STATE_ERROR;
+    }
+    if (BW_ADC_T_ntc_degree > BW_STOP_T_MAX)
+    {
+      DEBUG_ERROR("Over Temperature: T NTC:" + String(BW_ADC_T_ntc_degree) + "above " + String((float)BW_STOP_T_MAX) + "DEG");
       BW_state_machine_state = BW_STATE_ERROR;
     }
   }
