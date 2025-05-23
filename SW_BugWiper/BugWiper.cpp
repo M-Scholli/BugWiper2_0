@@ -473,7 +473,7 @@ void read_Buttons(void) {
 }
 
 void BugWiper_Task1_fast(void* parameter) {
-  const TickType_t taskPeriod = 5;  // 5ms <--> 200Hz
+  const TickType_t taskPeriod = 2;  // 2ms <--> 500Hz
   TickType_t xLastWakeTime = xTaskGetTickCount();
   Encoder_init();
 
