@@ -13,7 +13,7 @@ volatile double BW_ADC_btn_hb1;
 volatile double BW_ADC_btn_hb2;
 
 uint16_t BW_state_machine_state;
-volatile uint32_t BW_timer_cleaning;
+volatile uint32_t BW_state_machine_timer;
 
 volatile int64_t motor_enc_count;  // counts from encoder
 volatile int32_t BW_position;      // position in mm converted from the encoder
@@ -215,10 +215,10 @@ void BugWiper_set_motor_brake(void) {
 }
 
 void BugWiper_set_winding_in(void) {
-  BW_state_machine_state = 50;
+  BW_state_machine_state = BW_STATE_START_WINDING_IN;
   timer_LED = 0;
   timer_motor_power = 0;
-  BW_timer_cleaning = 0;
+  BW_state_machine_timer = 0;
   motor_power = START_POWER_WINDING_IN;
   time_pwm_ramp = TIME_PWM_RAMP_WINDING_IN;
   motor_power_dest = MAX_POWER_WINDING_IN;
@@ -229,7 +229,7 @@ void BugWiper_set_winding_in(void) {
 }
 
 void BugWiper_set_start_cleaning(void) {
-  BW_state_machine_state = 10;
+  BW_state_machine_state = BW_STATE_START_CLEANING;
   BW_mode = M_CLEANING;
   rgbLedWrite_colour(ModeLED_Colour[BW_mode]);
   DEBUG_INFO("Start cleaning");
@@ -291,12 +291,17 @@ void BugWiper_set_start_cleaning(void) {
 void BugWiper_state_machine(void) {
   switch (BW_state_machine_state) {
     case 0:  // do nothing
+      BW_mode = M_IDLE;
+      rgbLedWrite_colour(ModeLED_Colour[BW_mode]);
+      BW_state_machine_state++;
+      break;
+    case 1: //wait
       break;
     // 1x starting winding out
     case 10:
       timer_motor_power = 0;
       timer_LED = 0;
-      BW_timer_cleaning = 0;
+      BW_state_machine_timer = 0;
       motor_power = START_POWER_CLEANING;
       time_pwm_ramp = TIME_PWM_RAMP_START;
       motor_power_dest = MAX_POWER_START_CLEANING;
@@ -383,16 +388,30 @@ void BugWiper_state_machine(void) {
       break;
     case 61:
       if (1) {
-        BW_state_machine_state = 80;
+        //BW_state_machine_state = 80;
       }
       break;
     case 80:
       BugWiper_set_motor_brake();
+      BW_state_machine_timer = 0;
+      BW_mode = M_FINISHED;
+      rgbLedWrite_colour(ModeLED_Colour[BW_mode]);
       BW_state_machine_state++;
       break;
+    case 81:
+      if (BW_state_machine_timer >= 3000){
+        BW_state_machine_state = 0;
+      }
     case 100: // STOP FUNCTION
+      DEBUG_ERROR("STOP BUGWIPER ERORR")
+      BW_state_machine_timer = 0;
       BugWiper_set_motor_brake();
       BW_state_machine_state++;
+      break;
+    case 101:
+      if (BW_state_machine_timer >= 3000){
+        BW_state_machine_state = 0;
+      }
       break;
   }
 }
@@ -404,17 +423,28 @@ void BugWiper_read_motor_current(void) {
   BW_ADC_btn_hb2 = HalfBridge_2.get_load_current_in_amps();
 }
 
+void BugWiper_check_end_reached(void){
+  if (BW_ADC_current_mA >= BW_STOP_CURRENT)
+  {
+    BW_state_machine_state = BW_STATE_FINISHED;
+  }
+  if (BW_state_machine_state > BW_STATE_CHECK_END && BW_speed < BW_STOP_SPEED)
+  {
+    BW_state_machine_state = BW_STATE_FINISHED;
+  }
+}
+
 void BugWiper_set_timer(void) {
-  BW_timer_cleaning = BW_timer_cleaning + 1;
-  timer_motor_power = timer_motor_power + 1;
-  timer_LED = timer_LED + 1;
+  BW_state_machine_timer ++;
+  timer_motor_power ++;
+  timer_LED ++;
 }
 
 void BugWiper_read_Encoder(void) {
+  uint32_t BW_enc_count_old = motor_enc_count;
   motor_enc_count = BW_motor_encoder.getCount();
-  uint32_t BW_position_old = BW_position;
   BW_position = int32_t((float)motor_enc_count * SPOOL_CIRCUMFERENCE / (CPR_Encoder * GEAR_RATIO));
-  BW_speed= BW_position-BW_position_old;
+  BW_speed= motor_enc_count - BW_enc_count_old;
 }
 
 void button_debounce(void) {
@@ -463,8 +493,13 @@ void read_Buttons(void) {
   }
   // prevents a imediate second start cleaning after finish the first one
   if (timer_button_winding_in <= 5 && timer_button_start_cleaning <= 5
-      && BW_state_machine_state == 3 && BW_timer_cleaning >= 200) {
+      && BW_state_machine_state == 3 && BW_state_machine_timer >= 200) {
     BW_state_machine_state = 0;
+  }
+  if (timer_button_cable_loose >= TIME_BUTTON_DEBOUNCE) {
+    cable_loose = true;
+  } else {
+    cable_loose = false;
   }
   // reset timer for long press of buttons
   if (timer_button_start_cleaning <= 5) {
@@ -502,6 +537,7 @@ void BugWiper_Task2_slow(void* parameter) {
     // Do Stuff (needs to take less than 20ms)
     //
     read_Buttons();
+    BugWiper_check_end_reached();
     BugWiper_state_machine();
     BugWiper_LED_blinking();
 

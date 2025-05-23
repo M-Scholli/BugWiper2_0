@@ -41,7 +41,7 @@ void loop() {
     adc_temp = (uint16_t) temp;
     temp = ((float)adc_temp*(float)adc_temp*(float)adc_temp*(-2.87638e-9))+((float)adc_temp*(float)adc_temp*(2.01243e-5))+((-0.0702)*(float)adc_temp)+109.013;
     DEBUG_INFO("ADC VBat= " + String((float)((float)analogReadMilliVolts(ADC_VBat_PIN)*0.0081)) + " NTC:" + String((float)analogReadMilliVolts(ADC_NTC_PIN)) + " =" + String(temp));
+    DEBUG_INFO("SW_C_loose= "+ String(cable_loose));
     DEBUG_INFO(" ");
 }
-
 
