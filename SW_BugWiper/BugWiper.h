@@ -62,10 +62,21 @@
 #define TIME_BUTTON_CLEAR 5
 
 // Stop function
-#define BW_STOP_CURRENT 2300
-#define BW_STOP_SPEED 3
-#define TIME_MAX_CLEANING 90000       //maximale cleaning time in ms
-#define TIME_MAX_WINDING_IN 50000     //maximale winding in time in ms
+#ifdef TESTBENCH
+  #define BW_STOP_CURRENT 1000
+  #define BW_STOP_SPEED 3
+  #define BW_STOP_V_BAT 10.0
+  #define BW_STOP_T_MAX 40
+  #define TIME_MAX_CLEANING 9000       //maximale cleaning time in ms
+  #define TIME_MAX_WINDING_IN 5000     //maximale winding in time in ms
+#else
+  #define BW_STOP_CURRENT 4500
+  #define BW_STOP_SPEED 3
+  #define BW_STOP_V_BAT 8.0
+  #define BW_STOP_T_MAX 70
+  #define TIME_MAX_CLEANING 90000       //maximale cleaning time in ms
+  #define TIME_MAX_WINDING_IN 50000     //maximale winding in time in ms
+#endif
 
 // Pin discription
 // ESP32-Wroom-32: 
@@ -172,6 +183,8 @@ static const struct RBG_COLOUR ModeLED_Colour[]={
 extern ESP32Encoder BW_motor_encoder;
 extern volatile uint32_t BW_ADC_current_sense;
 extern volatile double BW_ADC_current_mA;
+extern float BW_ADC_T_ntc_degree;
+extern float BW_ADC_V_Bat;
 extern volatile double BW_ADC_btn_hb1;
 extern volatile double BW_ADC_btn_hb2;
 

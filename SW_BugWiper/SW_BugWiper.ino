@@ -34,13 +34,7 @@ void loop() {
     DEBUG_INFO("Encoder count = " + String((int32_t)motor_enc_count));
     DEBUG_INFO("Position = " + String(BW_position) + " Speed:" + String(BW_speed));
     DEBUG_INFO("State:" + String(BW_state_machine_state));
-    float temp;
-    uint16_t adc_temp;
-    adc_temp = analogReadMilliVolts(ADC_NTC_PIN);
-    temp = (float)adc_temp * 4095.0 / 3100.0;
-    adc_temp = (uint16_t) temp;
-    temp = ((float)adc_temp*(float)adc_temp*(float)adc_temp*(-2.87638e-9))+((float)adc_temp*(float)adc_temp*(2.01243e-5))+((-0.0702)*(float)adc_temp)+109.013;
-    DEBUG_INFO("ADC VBat= " + String((float)((float)analogReadMilliVolts(ADC_VBat_PIN)*0.0081)) + " NTC:" + String((float)analogReadMilliVolts(ADC_NTC_PIN)) + " =" + String(temp));
+    DEBUG_INFO("ADC VBat= " + String(BW_ADC_V_Bat) + " NTC:" + String(BW_ADC_T_ntc_degree));
     DEBUG_INFO("SW_C_loose= "+ String(cable_loose));
     DEBUG_INFO(" ");
 }

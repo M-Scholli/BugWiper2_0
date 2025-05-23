@@ -9,6 +9,8 @@
 
 volatile uint32_t BW_ADC_current_sense;
 volatile double BW_ADC_current_mA;
+float BW_ADC_T_ntc_degree;
+float BW_ADC_V_Bat;
 volatile double BW_ADC_btn_hb1;
 volatile double BW_ADC_btn_hb2;
 
@@ -423,14 +425,30 @@ void BugWiper_read_motor_current(void) {
   BW_ADC_btn_hb2 = HalfBridge_2.get_load_current_in_amps();
 }
 
+void BugWiper_read_ADCs_slow(void) {
+  uint16_t adc_temp;
+  adc_temp = analogReadMilliVolts(ADC_NTC_PIN);
+  BW_ADC_T_ntc_degree = (float)adc_temp * 4095.0 / 3100.0;
+  adc_temp = (uint16_t) BW_ADC_T_ntc_degree;
+  BW_ADC_T_ntc_degree = ((float)adc_temp*(float)adc_temp*(float)adc_temp*(-2.87638e-9))+((float)adc_temp*(float)adc_temp*(2.01243e-5))+((-0.0702)*(float)adc_temp)+109.013;
+  BW_ADC_V_Bat=analogReadMilliVolts(ADC_VBat_PIN)*0.0081;
+}
+
 void BugWiper_check_end_reached(void){
   if (BW_ADC_current_mA >= BW_STOP_CURRENT)
   {
     BW_state_machine_state = BW_STATE_FINISHED;
   }
-  if (BW_state_machine_state > BW_STATE_CHECK_END && BW_speed < BW_STOP_SPEED)
+  if (BW_mode == M_CLEANING || BW_mode == M_WINDING_IN)
   {
-    BW_state_machine_state = BW_STATE_FINISHED;
+    if (BW_state_machine_state > BW_STATE_CHECK_END && BW_speed < BW_STOP_SPEED)
+    {
+      BW_state_machine_state = BW_STATE_FINISHED;
+    }
+    if (BW_ADC_V_Bat <= BW_STOP_V_BAT || BW_ADC_T_ntc_degree > BW_STOP_T_MAX)
+    {
+      BW_state_machine_state = BW_STATE_ERROR;
+    }
   }
 }
 
@@ -537,6 +555,7 @@ void BugWiper_Task2_slow(void* parameter) {
     // Do Stuff (needs to take less than 20ms)
     //
     read_Buttons();
+    BugWiper_read_ADCs_slow();
     BugWiper_check_end_reached();
     BugWiper_state_machine();
     BugWiper_LED_blinking();
