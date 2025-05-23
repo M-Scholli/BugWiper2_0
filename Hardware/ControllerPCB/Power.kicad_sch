@@ -2031,6 +2031,13 @@
     (effects (font (size 1.27 1.27)) (justify left top))
     (uuid 519db58b-719e-47f6-8886-0fa8ef9ff8f0)
   )
+  (text_box "1V ADC = 7.67V Bat\n12V Bat = 1.57V ADC\n"
+    (at 102.87 74.93 0) (size 24.13 7.62)
+    (stroke (width 0) (type default))
+    (fill (type none))
+    (effects (font (size 1.27 1.27)) (justify left top))
+    (uuid 5dcce357-8c00-4d0d-af3e-0c6ed14043d6)
+  )
   (text_box "BTN9990LV dk_LIS = 50k\nBTN9970LV dk_LIS = 40k\nBTN9960LV dk_LIS = 28,9k"
     (at 208.28 68.58 0) (size 33.02 11.43)
     (stroke (width 0) (type default))
