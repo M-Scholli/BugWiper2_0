@@ -99,7 +99,7 @@
 #define MOTOR_HB2_DK  28900
 
 #define MOTOR_CURRENT_SENSE_PIN 1
-#define CURRENT_CAL_FACTOR 
+#define CURRENT_CAL_FACTOR 5.0
 
 #define ADC_NTC_PIN 5
 #define ADC_VBat_PIN 4
@@ -181,8 +181,8 @@ static const struct RBG_COLOUR ModeLED_Colour[]={
 };
 
 extern ESP32Encoder BW_motor_encoder;
-extern volatile uint32_t BW_ADC_current_sense;
-extern volatile double BW_ADC_current_mA;
+extern uint32_t BW_ADC_current_sense;
+extern volatile double BW_ADC_current_mA_filtered;
 extern float BW_ADC_T_ntc_degree;
 extern float BW_ADC_V_Bat;
 extern volatile double BW_ADC_btn_hb1;

@@ -7,8 +7,15 @@
 #include "BugWiper.h"
 #include "btn99x0_motor_control.hpp"
 
-volatile uint32_t BW_ADC_current_sense;
-volatile double BW_ADC_current_mA;
+#define ADC_FILTER_SIZE 32
+uint32_t BW_ADC_current_sense;
+uint32_t ADC_current_filter_sum;
+uint32_t ADC_current_old_values[ADC_FILTER_SIZE];
+int8_t   ADC_filter_counter = 0;
+uint32_t BW_ADC_current_filtered;
+
+double BW_ADC_current_mA;
+volatile double BW_ADC_current_mA_filtered;
 float BW_ADC_T_ntc_degree;
 float BW_ADC_V_Bat;
 volatile double BW_ADC_btn_hb1;
@@ -431,10 +438,33 @@ void BugWiper_state_machine(void) {
 }
 
 void BugWiper_read_motor_current(void) {
-  BW_ADC_current_sense = analogReadMilliVolts(MOTOR_CURRENT_SENSE_PIN);  //FIXME
-  BW_ADC_current_mA = BW_ADC_current_sense * 5;
+  BW_ADC_current_sense = analogReadMilliVolts(MOTOR_CURRENT_SENSE_PIN);
+  BW_ADC_current_mA = BW_ADC_current_sense * CURRENT_CAL_FACTOR;
   BW_ADC_btn_hb1 = HalfBridge_1.get_load_current_in_amps();
   BW_ADC_btn_hb2 = HalfBridge_2.get_load_current_in_amps();
+}
+
+void BugWiper_ADC_filter_init(void) {
+  BW_ADC_current_sense = analogReadMilliVolts(MOTOR_CURRENT_SENSE_PIN);
+  ADC_current_filter_sum = 0;
+  uint8_t j;
+  for (j = 0; j < ADC_FILTER_SIZE; j++) {
+    ADC_current_old_values[j] = BW_ADC_current_sense;
+    ADC_current_filter_sum += BW_ADC_current_sense;
+  }
+}
+
+void BugWiper_ADC_filter(void) {
+	uint8_t i;
+  ADC_current_filter_sum -= ADC_current_old_values[ADC_filter_counter];
+  ADC_current_old_values[ADC_filter_counter] = BW_ADC_current_sense;
+  ADC_current_filter_sum += ADC_current_old_values[ADC_filter_counter];
+  BW_ADC_current_filtered = ADC_current_filter_sum / ADC_FILTER_SIZE;
+  BW_ADC_current_mA_filtered = BW_ADC_current_filtered * CURRENT_CAL_FACTOR;
+	ADC_filter_counter++;
+	if (ADC_filter_counter >= ADC_FILTER_SIZE) {
+		ADC_filter_counter = 0;
+	}
 }
 
 void BugWiper_read_ADCs_slow(void) {
@@ -559,6 +589,7 @@ void BugWiper_Task1_fast(void* parameter) {
     button_debounce();
     BugWiper_set_timer();
     BugWiper_read_motor_current();
+    BugWiper_ADC_filter();
     BugWiper_set_motor_power();
 
     vTaskDelayUntil(&xLastWakeTime, taskPeriod);
@@ -594,6 +625,7 @@ void BugWiper_init(void) {
   pinMode(RGB_LED_PIN, OUTPUT);
   //analogSetPinAttenuation(MOTOR_CURRENT_SENSE_PIN, ADC_6db);
   digitalWrite(RGB_LED_PIN, 0);
+  BugWiper_ADC_filter_init();
 
   //Encoder_init();
 #ifdef BTN9960_CONTROLLER
