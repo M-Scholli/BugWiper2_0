@@ -52,6 +52,8 @@
 
 #define TIME_MIN_CLEANING 300         //minimal cleaning time in ms
 
+#define TIME_FINISH_RESET 1500
+#define TIME_ERROR_RESET 3000
 #define TIME_LONG_PRESS 200           //time in ms for long button press
 #define TIME_BUTTON_DEBOUNCE 25       //time in ms for button debounce
 #define TIME_MAX_DEBOUNCE 50
@@ -61,6 +63,7 @@
 #ifdef TESTBENCH
   #define BW_STOP_CURRENT 6500
   #define BW_STOP_SPEED 1
+  #define BW_STOP_SPEED_COUNTS 20
   #define BW_STOP_V_BAT 9.0
   #define BW_STOP_T_MAX 50
   #define TIME_MAX_CLEANING 9000       //maximale cleaning time in ms
@@ -68,6 +71,7 @@
 #else
   #define BW_STOP_CURRENT 7500
   #define BW_STOP_SPEED 1
+  #define BW_STOP_SPEED_COUNTS 20
   #define BW_STOP_V_BAT 8.0
   #define BW_STOP_T_MAX 70
   #define TIME_MAX_CLEANING 90000       //maximale cleaning time in ms

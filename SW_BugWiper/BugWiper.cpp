@@ -29,6 +29,7 @@ volatile uint32_t BW_state_machine_timer_2;
 volatile int64_t motor_enc_count;  // counts from encoder
 volatile int32_t BW_position;      // position in mm converted from the encoder
 volatile int32_t BW_speed;
+int16_t BW_speed_counter;
 
 enum BW_MODE BW_mode = M_IDLE;
 
@@ -416,7 +417,7 @@ void BugWiper_state_machine(void) {
       BW_state_machine_state++;
       break;
     case 81:
-      if (BW_state_machine_timer >= 3000){
+      if (BW_state_machine_timer >= TIME_FINISH_RESET){
         BW_state_machine_state = 0;
       }
       break;
@@ -427,7 +428,7 @@ void BugWiper_state_machine(void) {
       BW_state_machine_state++;
       break;
     case 101:
-      if (BW_state_machine_timer >= 3000){
+      if (BW_state_machine_timer >= TIME_ERROR_RESET){
         BW_state_machine_state = 0;
       }
       break;
@@ -484,9 +485,16 @@ void BugWiper_check_end_reached(void){
   {
     if (BW_state_machine_state > BW_STATE_CHECK_END && abs(BW_speed) < BW_STOP_SPEED && BW_state_machine_timer > TIME_MIN_CLEANING)
     {
-      DEBUG_INFO("Finished: Speed:" + String(abs(BW_speed)) + " below " + String((float)BW_STOP_SPEED));
-      BW_state_machine_state = BW_STATE_FINISHED;
-      BW_mode = M_FINISHED;
+      BW_speed_counter++;
+      if(BW_speed_counter >= BW_STOP_SPEED_COUNTS) {
+        DEBUG_INFO("Finished: Speed:" + String(abs(BW_speed)) + " below " + String((float)BW_STOP_SPEED));
+        BW_state_machine_state = BW_STATE_FINISHED;
+        BW_mode = M_FINISHED;
+       }
+    } else {
+      if (BW_speed_counter > 1) {
+        BW_speed_counter--;
+      }
     }
     if (BW_ADC_V_Bat <= BW_STOP_V_BAT) 
     {
