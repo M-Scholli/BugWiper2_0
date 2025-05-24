@@ -47,8 +47,8 @@
 #define TIME_PWM_RAMP_START 8
 #define TIME_PWN_RAMP_SLOW 8
 #define TIME_PWM_RAMP_CLEANING 6     //time of PWM power inrements for start cleaning ramp
-#define TIME_PWM_RAMP_WINDING_IN 2   //time of PWM power inrements for start winding in ramp
-#define TIME_PWM_RAMP_LOOSE_CABLE 3  //time of PWM power inrements after loose cable ramp
+#define TIME_PWM_RAMP_WINDING_IN 4   //time of PWM power inrements for start winding in ramp
+#define TIME_PWM_RAMP_LOOSE_CABLE 4  //time of PWM power inrements after loose cable ramp
 
 #define TIME_MIN_CLEANING 300         //minimal cleaning time in ms
 
@@ -59,14 +59,14 @@
 
 // Stop function
 #ifdef TESTBENCH
-  #define BW_STOP_CURRENT 5500
+  #define BW_STOP_CURRENT 6500
   #define BW_STOP_SPEED 1
   #define BW_STOP_V_BAT 9.0
   #define BW_STOP_T_MAX 50
   #define TIME_MAX_CLEANING 9000       //maximale cleaning time in ms
   #define TIME_MAX_WINDING_IN 5000     //maximale winding in time in ms
 #else
-  #define BW_STOP_CURRENT 6500
+  #define BW_STOP_CURRENT 7500
   #define BW_STOP_SPEED 1
   #define BW_STOP_V_BAT 8.0
   #define BW_STOP_T_MAX 70
@@ -133,9 +133,10 @@
 // STATE MACHINE STATE
 #define BW_STATE_IDLE 0
 #define BW_STATE_START_CLEANING 10
-#define BW_STATE_START_WINDING_IN 50
-#define BW_STATE_CHECK_END 60
+#define BW_STATE_START_WINDING_IN 60
+#define BW_STATE_CHECK_END 61
 #define BW_STATE_FINISHED 80
+#define BW_STATE_STOP 100
 #define BW_STATE_ERROR 100
 
 enum direction { OUT = 0,
@@ -148,7 +149,8 @@ enum BW_MODE { M_IDLE = 0,
                M_WINDING_IN,
                M_WAIT,
                M_FINISHED,
-               M_STOP };
+               M_STOP,
+               M_ERROR };
 
 struct RBG_COLOUR {
   uint8_t r;
@@ -173,6 +175,7 @@ static const struct RBG_COLOUR ModeLED_Colour[]={
   {10,0,100},
   {100,30,5},
   {0,150,0},
+  {100,50,15},
   {100,0,0}
 };
 
@@ -190,4 +193,5 @@ extern volatile int32_t BW_position;
 extern volatile int32_t BW_speed;
 extern volatile int64_t motor_enc_count; // counts from encoder
 
+extern uint8_t motor_power;
 extern bool cable_loose;

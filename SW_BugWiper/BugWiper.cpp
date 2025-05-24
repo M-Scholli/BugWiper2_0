@@ -226,14 +226,15 @@ void BugWiper_set_motor_brake(void) {
 }
 
 void BugWiper_set_winding_in(void) {
-  BW_state_machine_state = BW_STATE_START_WINDING_IN;
+  BW_state_machine_state = BW_STATE_START_WINDING_IN + 1;
   timer_LED = 0;
   timer_motor_power = 0;
   BW_state_machine_timer = 0;
+  BW_state_machine_timer_2 = 0;
   motor_power = START_POWER_WINDING_IN;
   time_pwm_ramp = TIME_PWM_RAMP_WINDING_IN;
   motor_power_dest = MAX_POWER_WINDING_IN;
-  BugWiper_set_motor_dir(OUT);
+  BugWiper_set_motor_dir(IN);
   BW_mode = M_WINDING_IN;
   rgbLedWrite_colour(ModeLED_Colour[BW_mode]);
   DEBUG_INFO("Start winding in");
@@ -242,6 +243,8 @@ void BugWiper_set_winding_in(void) {
 void BugWiper_set_start_cleaning(void) {
   BW_motor_encoder.setCount(0);
   BW_state_machine_state = BW_STATE_START_CLEANING;
+  BW_state_machine_timer = 0;
+  BW_state_machine_timer_2 = 0;
   BW_mode = M_CLEANING;
   rgbLedWrite_colour(ModeLED_Colour[BW_mode]);
   DEBUG_INFO("Start cleaning");
@@ -321,7 +324,7 @@ void BugWiper_state_machine(void) {
       BugWiper_set_motor_dir(OUT);
       BW_state_machine_state++;
       break;
-    case 11:
+    case 11: // slow start cleaning
       if (BW_position > POSITION_STARTING) {
         BW_state_machine_state = 20;
       }
@@ -334,15 +337,15 @@ void BugWiper_state_machine(void) {
       time_pwm_ramp = TIME_PWM_RAMP_CLEANING;
       BW_state_machine_state++;
       break;
-    case 21:
-      if (BW_position > (POSITION_WINGTIP - LENGTH_SLOW)) {
+    case 21: // fast cleaning
+      if (BW_position > (POSITION_SLOW_WINGTIP)) {
         BW_state_machine_state = 40;
       }
       if (cable_loose) {
         BW_state_machine_state = 30;
       }
       break;
-    case 30:
+    case 30: // stop if cable is loose
       BugWiper_set_motor_dir(STOP);
       motor_power = LOOSE_POWER_BRAKE;
       motor_power_dest = LOOSE_POWER_BRAKE;
@@ -360,53 +363,47 @@ void BugWiper_state_machine(void) {
         }
       }
       break;
-    case 40:
-      motor_power_dest = MAX_POWER_NEAR_END;
+    case 40: // slow bevore wingtip
+      motor_power_dest = 0;
       time_pwm_ramp = TIME_PWN_RAMP_SLOW;
       BW_state_machine_state++;
       break;
     case 41:
-      if (BW_position > POSITION_SLOW_WINGTIP) {
-        BW_state_machine_state = 45;
+      if (BW_position > POSITION_WINGTIP || motor_power <= 10) {
+        BW_state_machine_state = 50;
+      }
+      if (cable_loose) {
+        BW_state_machine_state = 50;
       }
       break;
-    case 45:
-      motor_power = MAX_POWER_NEAR_END;
-      motor_power_dest = MAX_POWER_NEAR_END;
-      BW_state_machine_state++;
-      break;
-    case 46:
-      if (BW_position > POSITION_WINGTIP) {
+    case 50:
         DEBUG_INFO("Wingtip reached")
         BugWiper_set_motor_brake();
         BW_state_machine_timer_2 = 0;
-        BW_state_machine_state++;
-      }
-      break;
-    case 47:
-      if(BW_state_machine_timer_2 > 500) {
+    case 51:
+      if(BW_state_machine_timer_2 > 250) {
         BW_state_machine_state = BW_STATE_START_WINDING_IN;
       }
-    case 50:
+    case BW_STATE_START_WINDING_IN:
       timer_motor_power = 0;
       timer_LED = 0;
-      motor_power = START_POWER_WINDING_IN;
-      time_pwm_ramp = TIME_PWM_RAMP_WINDING_IN;
+      //motor_power = START_POWER_WINDING_IN;
+      time_pwm_ramp = TIME_PWM_RAMP_START;
       motor_power_dest = MAX_POWER_WINDING_IN;
       BugWiper_set_motor_dir(IN);
       BW_state_machine_state++;
       break;
-    case 51:
+    case 61: // winding in fast
       if (BW_position < LENGTH_SLOW) {
-        BW_state_machine_state = 60;
+        BW_state_machine_state = 70;
       }
       break;
-    case 60:
+    case 70:
       motor_power_dest = MAX_POWER_NEAR_END;
       time_pwm_ramp = TIME_PWN_RAMP_SLOW;
       BW_state_machine_state++;
       break;
-    case 61:
+    case 71: // winding in slow
       if (1) {
         //BW_state_machine_state = 80;
       }
@@ -481,6 +478,7 @@ void BugWiper_check_end_reached(void){
   {
     DEBUG_INFO("Finished: current:" + String(BW_ADC_current_mA) + " above " + String((float)BW_STOP_CURRENT));
     BW_state_machine_state = BW_STATE_FINISHED;
+    BW_mode = M_FINISHED;
   }
   if (BW_mode == M_CLEANING || BW_mode == M_WINDING_IN)
   {
@@ -488,16 +486,19 @@ void BugWiper_check_end_reached(void){
     {
       DEBUG_INFO("Finished: Speed:" + String(abs(BW_speed)) + " below " + String((float)BW_STOP_SPEED));
       BW_state_machine_state = BW_STATE_FINISHED;
+      BW_mode = M_FINISHED;
     }
     if (BW_ADC_V_Bat <= BW_STOP_V_BAT) 
     {
       DEBUG_ERROR("Under Voltage: V BAT:" + String(BW_ADC_V_Bat) + " below " + String((float)BW_STOP_V_BAT) + "V");
       BW_state_machine_state = BW_STATE_ERROR;
+      BW_mode = M_ERROR;
     }
     if (BW_ADC_T_ntc_degree > BW_STOP_T_MAX)
     {
       DEBUG_ERROR("Over Temperature: T NTC:" + String(BW_ADC_T_ntc_degree) + "above " + String((float)BW_STOP_T_MAX) + "DEG");
       BW_state_machine_state = BW_STATE_ERROR;
+      BW_mode = M_ERROR;
     }
   }
 }
@@ -549,14 +550,14 @@ void read_Buttons(void) {
   if (BW_mode==M_CLEANING) {
     if (timer_button_winding_in >= TIME_BUTTON_DEBOUNCE) {
       BW_mode=M_STOP;
-      BW_state_machine_state = 100;
+      BW_state_machine_state = BW_STATE_STOP;
       rgbLedWrite_colour(ModeLED_Colour[BW_mode]);
     }
   }
   if (BW_mode==M_WINDING_IN) {
     if (timer_button_start_cleaning >= TIME_BUTTON_DEBOUNCE) {
       BW_mode=M_STOP;
-      BW_state_machine_state = 100;
+      BW_state_machine_state = BW_STATE_STOP;
       rgbLedWrite_colour(ModeLED_Colour[BW_mode]);
     }
   }
