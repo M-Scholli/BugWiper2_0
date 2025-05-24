@@ -62,6 +62,7 @@
 // Stop function
 #ifdef TESTBENCH
   #define BW_STOP_CURRENT 6500
+  #define BW_STOP_CURRENT_COUNTS 5
   #define BW_STOP_SPEED 1
   #define BW_STOP_SPEED_COUNTS 20
   #define BW_STOP_V_BAT 9.0
@@ -70,6 +71,7 @@
   #define TIME_MAX_WINDING_IN 5000     //maximale winding in time in ms
 #else
   #define BW_STOP_CURRENT 7500
+  #define BW_STOP_CURRENT_COUNTS 5
   #define BW_STOP_SPEED 1
   #define BW_STOP_SPEED_COUNTS 20
   #define BW_STOP_V_BAT 8.0

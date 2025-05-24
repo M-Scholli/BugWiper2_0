@@ -15,6 +15,7 @@ int8_t   ADC_filter_counter = 0;
 uint32_t BW_ADC_current_filtered;
 
 double BW_ADC_current_mA;
+uint16_t BW_ADC_current_counter;
 volatile double BW_ADC_current_mA_filtered;
 float BW_ADC_T_ntc_degree;
 float BW_ADC_V_Bat;
@@ -477,9 +478,16 @@ void BugWiper_read_ADCs_slow(void) {
 void BugWiper_check_end_reached(void){
   if (BW_ADC_current_mA_filtered >= BW_STOP_CURRENT)
   {
-    DEBUG_INFO("Finished: current:" + String(BW_ADC_current_mA) + " above " + String((float)BW_STOP_CURRENT));
-    BW_state_machine_state = BW_STATE_FINISHED;
-    BW_mode = M_FINISHED;
+    BW_ADC_current_counter++;
+    if (BW_ADC_current_counter > BW_STOP_CURRENT_COUNTS) {
+      DEBUG_INFO("Finished: current:" + String(BW_ADC_current_mA) + " above " + String((float)BW_STOP_CURRENT));
+      BW_state_machine_state = BW_STATE_FINISHED;
+      BW_mode = M_FINISHED;
+    }
+  } else {
+    if (BW_ADC_current_counter > 0) {
+      BW_ADC_current_counter--;
+    }
   }
   if (BW_mode == M_CLEANING || BW_mode == M_WINDING_IN)
   {
