@@ -33,7 +33,7 @@
   #define MAX_POWER_START_CLEANING 120  //max power at startion winding out
   #define MAX_POWER_WINDING_OUT 150     //max power while cleaning
   #define MAX_POWER_NEAR_END 100
-  #define MAX_POWER_WINDING_IN 180      //max power while winding in
+  #define MAX_POWER_WINDING_IN 255      //max power while winding in
   #define MAX_POWER_GROUND 50          //max power on the ground
 #else
   #define MAX_POWER_START_CLEANING 150  //max power at startion winding out
@@ -63,15 +63,15 @@
 
 // Stop function
 #ifdef TESTBENCH
-  #define BW_STOP_CURRENT 1000
-  #define BW_STOP_SPEED 3
+  #define BW_STOP_CURRENT 3000
+  #define BW_STOP_SPEED 1
   #define BW_STOP_V_BAT 10.0
   #define BW_STOP_T_MAX 40
   #define TIME_MAX_CLEANING 9000       //maximale cleaning time in ms
   #define TIME_MAX_WINDING_IN 5000     //maximale winding in time in ms
 #else
   #define BW_STOP_CURRENT 4500
-  #define BW_STOP_SPEED 3
+  #define BW_STOP_SPEED 1
   #define BW_STOP_V_BAT 8.0
   #define BW_STOP_T_MAX 70
   #define TIME_MAX_CLEANING 90000       //maximale cleaning time in ms
@@ -138,7 +138,7 @@
 #define BW_STATE_IDLE 0
 #define BW_STATE_START_CLEANING 10
 #define BW_STATE_START_WINDING_IN 50
-#define BW_STATE_CHECK_END 70
+#define BW_STATE_CHECK_END 60
 #define BW_STATE_FINISHED 80
 #define BW_STATE_ERROR 100
 
@@ -173,8 +173,8 @@ void BugWiper_calculate(bool button_cleaning, bool button_winding_in, bool sw_ca
 
 static const struct RBG_COLOUR ModeLED_Colour[]={
   {0,0,0},
-  {0,100,0},
-  {0,0,100},
+  {0,100,30},
+  {10,0,100},
   {100,30,5},
   {0,150,0},
   {100,0,0}
