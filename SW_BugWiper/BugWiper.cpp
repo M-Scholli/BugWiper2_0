@@ -233,6 +233,7 @@ void BugWiper_set_winding_in(void) {
 }
 
 void BugWiper_set_start_cleaning(void) {
+  BW_motor_encoder.setCount(0);
   BW_state_machine_state = BW_STATE_START_CLEANING;
   BW_mode = M_CLEANING;
   rgbLedWrite_colour(ModeLED_Colour[BW_mode]);
