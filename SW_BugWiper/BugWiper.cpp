@@ -559,7 +559,6 @@ void BugWiper_Task1_fast(void* parameter) {
     button_debounce();
     BugWiper_set_timer();
     BugWiper_read_motor_current();
-    BugWiper_read_Encoder();
     BugWiper_set_motor_power();
 
     vTaskDelayUntil(&xLastWakeTime, taskPeriod);
@@ -577,6 +576,7 @@ void BugWiper_Task2_slow(void* parameter) {
     //
     read_Buttons();
     BugWiper_read_ADCs_slow();
+    BugWiper_read_Encoder();
     BugWiper_check_end_reached();
     BugWiper_state_machine();
     BugWiper_LED_blinking();
