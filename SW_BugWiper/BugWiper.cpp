@@ -16,6 +16,8 @@ volatile double BW_ADC_btn_hb2;
 
 uint16_t BW_state_machine_state;
 volatile uint32_t BW_state_machine_timer;
+volatile uint32_t BW_state_machine_timer_2;
+
 
 volatile int64_t motor_enc_count;  // counts from encoder
 volatile int32_t BW_position;      // position in mm converted from the encoder
@@ -304,6 +306,7 @@ void BugWiper_state_machine(void) {
       timer_motor_power = 0;
       timer_LED = 0;
       BW_state_machine_timer = 0;
+      BW_state_machine_timer_2 = 0;
       motor_power = START_POWER_CLEANING;
       time_pwm_ramp = TIME_PWM_RAMP_START;
       motor_power_dest = MAX_POWER_START_CLEANING;
@@ -366,9 +369,16 @@ void BugWiper_state_machine(void) {
       break;
     case 46:
       if (BW_position > POSITION_WINGTIP) {
-        BW_state_machine_state = 50;
+        DEBUG_INFO("Wingtip reached")
+        BugWiper_set_motor_brake();
+        BW_state_machine_timer_2 = 0;
+        BW_state_machine_state++;
       }
       break;
+    case 47:
+      if(BW_state_machine_timer_2 > 200) {
+        BW_state_machine_state = BW_STATE_START_WINDING_IN;
+      }
     case 50:
       timer_motor_power = 0;
       timer_LED = 0;
@@ -463,6 +473,7 @@ void BugWiper_check_end_reached(void){
 
 void BugWiper_set_timer(void) {
   BW_state_machine_timer ++;
+  BW_state_machine_timer_2 ++;
   timer_motor_power ++;
   timer_LED ++;
 }
