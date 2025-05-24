@@ -13,10 +13,8 @@
 #define BTS7960B_CONTROLLER 1
 #endif
 
-
 #define PWM_FREQ 10000
 #define PWM_RESOLUTION_BITS 8
-
 
 //LED configuration
 #define RGB_BRIGHTNESS 64 // Change white brightness (max 255)
@@ -26,12 +24,12 @@
 #define LED_TIME_CLEANING 500    //time blinking LED
 #define LED_TIME_WINDING_IN 250  //time blinking LED
 
-#define START_POWER_CLEANING 40       //start power cleaning
-#define START_POWER_WINDING_IN 70     //start power winding in
+#define START_POWER_CLEANING 50       //start power cleaning
+#define START_POWER_WINDING_IN 60     //start power winding in
 #define START_POWER_LOOSE_CABLE 60    //start power after loose cable
 #ifdef TESTBENCH
-  #define MAX_POWER_START_CLEANING 120  //max power at startion winding out
-  #define MAX_POWER_WINDING_OUT 150     //max power while cleaning
+  #define MAX_POWER_START_CLEANING 100  //max power at startion winding out
+  #define MAX_POWER_WINDING_OUT 200     //max power while cleaning
   #define MAX_POWER_NEAR_END 100
   #define MAX_POWER_WINDING_IN 255      //max power while winding in
   #define MAX_POWER_GROUND 50          //max power on the ground
@@ -46,15 +44,13 @@
 #define MAX_POWER_BRAKE 255           //max power of the motorbrake
 #define LOOSE_POWER_BRAKE 240         //power of the brake when loose cable detected
 #define TIME_PWM_RAMP_BRAKE 2         //time of PWM power inrements for braking ramp
-#define TIME_PWM_RAMP_START 12
+#define TIME_PWM_RAMP_START 8
 #define TIME_PWN_RAMP_SLOW 8
-#define TIME_PWM_RAMP_CLEANING 8     //time of PWM power inrements for start cleaning ramp
+#define TIME_PWM_RAMP_CLEANING 6     //time of PWM power inrements for start cleaning ramp
 #define TIME_PWM_RAMP_WINDING_IN 2   //time of PWM power inrements for start winding in ramp
 #define TIME_PWM_RAMP_LOOSE_CABLE 3  //time of PWM power inrements after loose cable ramp
 
-
 #define TIME_MIN_CLEANING 300         //minimal cleaning time in ms
-#define TIME_BUTTON_DEBOUNCE 50       //time in ms for button debounce
 
 #define TIME_LONG_PRESS 200           //time in ms for long button press
 #define TIME_BUTTON_DEBOUNCE 25       //time in ms for button debounce
@@ -63,14 +59,14 @@
 
 // Stop function
 #ifdef TESTBENCH
-  #define BW_STOP_CURRENT 3000
+  #define BW_STOP_CURRENT 5500
   #define BW_STOP_SPEED 1
-  #define BW_STOP_V_BAT 10.0
-  #define BW_STOP_T_MAX 40
+  #define BW_STOP_V_BAT 9.0
+  #define BW_STOP_T_MAX 50
   #define TIME_MAX_CLEANING 9000       //maximale cleaning time in ms
   #define TIME_MAX_WINDING_IN 5000     //maximale winding in time in ms
 #else
-  #define BW_STOP_CURRENT 4500
+  #define BW_STOP_CURRENT 6500
   #define BW_STOP_SPEED 1
   #define BW_STOP_V_BAT 8.0
   #define BW_STOP_T_MAX 70

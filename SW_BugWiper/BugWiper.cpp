@@ -384,7 +384,7 @@ void BugWiper_state_machine(void) {
       }
       break;
     case 47:
-      if(BW_state_machine_timer_2 > 200) {
+      if(BW_state_machine_timer_2 > 500) {
         BW_state_machine_state = BW_STATE_START_WINDING_IN;
       }
     case 50:
@@ -477,14 +477,14 @@ void BugWiper_read_ADCs_slow(void) {
 }
 
 void BugWiper_check_end_reached(void){
-  if (BW_ADC_current_mA >= BW_STOP_CURRENT)
+  if (BW_ADC_current_mA_filtered >= BW_STOP_CURRENT)
   {
     DEBUG_INFO("Finished: current:" + String(BW_ADC_current_mA) + " above " + String((float)BW_STOP_CURRENT));
     BW_state_machine_state = BW_STATE_FINISHED;
   }
   if (BW_mode == M_CLEANING || BW_mode == M_WINDING_IN)
   {
-    if (BW_state_machine_state > BW_STATE_CHECK_END && abs(BW_speed) < BW_STOP_SPEED)
+    if (BW_state_machine_state > BW_STATE_CHECK_END && abs(BW_speed) < BW_STOP_SPEED && BW_state_machine_timer > TIME_MIN_CLEANING)
     {
       DEBUG_INFO("Finished: Speed:" + String(abs(BW_speed)) + " below " + String((float)BW_STOP_SPEED));
       BW_state_machine_state = BW_STATE_FINISHED;
