@@ -4,6 +4,13 @@
 
   (paper "A4")
 
+  (title_block
+    (title "BugWiper 2.0 Controller PCB")
+    (date "2025-06-02")
+    (rev "V1.1")
+    (company "M. Scholjegerdes")
+  )
+
   (lib_symbols
     (symbol "BugWiper_Lib:AP7333-33SRG-7" (pin_names (offset 0.254)) (in_bom yes) (on_board yes)
       (property "Reference" "U" (at 0 10.16 0)
@@ -3608,6 +3615,13 @@
     (uuid ffa99c48-ee7a-4b46-a2fc-24435843a64a)
   )
 
+  (text_box "Encoder:\n16 PPR x 17:1 gear ratio = 272 PPR\n500RPM = 2.3 KHz Encoder Signal"
+    (at 217.17 121.92 0) (size 22.86 12.7)
+    (stroke (width 0) (type default))
+    (fill (type none))
+    (effects (font (size 1.27 1.27)) (justify left top))
+    (uuid 5ac0d99a-a903-45cd-b406-afb0398151ed)
+  )
   (text_box "The Jumpers can be cut and two 0603 resistors can be used as voltage deviders"
     (at 16.51 74.93 0) (size 39.37 7.62)
     (stroke (width 0) (type default))
@@ -7206,7 +7220,7 @@
     (property "Reference" "C37" (at 255.27 153.67 0)
       (effects (font (size 1.27 1.27)) (justify left))
     )
-    (property "Value" "10nF" (at 255.27 158.75 0)
+    (property "Value" "1nF" (at 255.27 158.75 0)
       (effects (font (size 1.27 1.27)) (justify left))
     )
     (property "Footprint" "BugWiper_lib:C_0603_1608Metric" (at 261.3152 160.02 0)
@@ -7359,7 +7373,7 @@
     (property "Reference" "C38" (at 261.62 153.67 0)
       (effects (font (size 1.27 1.27)) (justify left))
     )
-    (property "Value" "10nF" (at 261.62 158.75 0)
+    (property "Value" "1nF" (at 261.62 158.75 0)
       (effects (font (size 1.27 1.27)) (justify left))
     )
     (property "Footprint" "BugWiper_lib:C_0603_1608Metric" (at 267.6652 160.02 0)

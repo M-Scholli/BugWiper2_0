@@ -4,6 +4,13 @@
 
   (paper "A4")
 
+  (title_block
+    (title "BugWiper 2.0 Controller PCB")
+    (date "2025-06-02")
+    (rev "V1.1")
+    (company "M. Scholjegerdes")
+  )
+
   (lib_symbols
     (symbol "Amplifier_Current:INA180A2" (pin_names (offset 0.127)) (in_bom yes) (on_board yes)
       (property "Reference" "U" (at 3.81 3.81 0)
