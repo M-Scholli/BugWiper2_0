@@ -8,9 +8,17 @@
 //The setup function is called once at startup of the sketch
 void setup() {
   DEBUG_INIT(115200);
-  delay(200);
+  BugWiper_rgbLed_init();
+  delay(10);
   sdLoggerInit();
-  delay(500);
+  if (sdLoggerAvailable()) {
+    BugWiper_rgbLedWrite(GREEN);
+  } else {
+    BugWiper_rgbLedWrite(ORANGE);
+  }
+  delay(300);
+  BugWiper_rgbLedWrite(BLACK);
+  delay(200);
   DEBUG_INFO("BugWiper start programm");
   BugWiper_init();
   //Timer_init();

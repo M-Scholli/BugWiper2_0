@@ -11,7 +11,7 @@
 uint32_t BW_ADC_current_sense;
 uint32_t ADC_current_filter_sum;
 uint32_t ADC_current_old_values[ADC_FILTER_SIZE];
-int8_t   ADC_filter_counter = 0;
+int8_t ADC_filter_counter = 0;
 uint32_t BW_ADC_current_filtered;
 
 double BW_ADC_current_mA;
@@ -75,7 +75,7 @@ io_pins_t hb2_io_pins = {
 
 hw_conf_t hw_conf = {
   1000,  // Rsense in Ohm
-  3.1,  // VOltage Range
+  3.1,   // VOltage Range
   8191   // ADC Steps
 };
 
@@ -89,19 +89,19 @@ void Encoder_init(void) {
   BW_motor_encoder.setCount(0);
 }
 
-void rgbLedWrite_colour(struct RBG_COLOUR colour) {
-  rgbLedWrite(RGB_LED_PIN,colour.g, colour.r, colour.b);
+void BugWiper_rgbLedWrite(struct RGB_COLOUR colour) {
+  rgbLedWrite(RGB_LED_PIN, colour.g, colour.r, colour.b);
 }
 
 // TEST Functions
 void BugWiper_test_LED(void) {
   DEBUG_INFO("Test LEDs")
 
-  for (uint8_t i=0; i<5; i++) {
-    rgbLedWrite_colour(ModeLED_Colour[i]);
+  for (uint8_t i = 0; i < 5; i++) {
+    BugWiper_rgbLedWrite(ModeLED_Colour[i]);
     delay(500);
   }
-  rgbLedWrite_colour(ModeLED_Colour[0]);
+  BugWiper_rgbLedWrite(ModeLED_Colour[0]);
 }
 
 void BugWiper_test_Motor(void) {
@@ -238,7 +238,7 @@ void BugWiper_set_winding_in(void) {
   motor_power_dest = MAX_POWER_WINDING_IN;
   BugWiper_set_motor_dir(IN);
   BW_mode = M_WINDING_IN;
-  rgbLedWrite_colour(ModeLED_Colour[BW_mode]);
+  BugWiper_rgbLedWrite(ModeLED_Colour[BW_mode]);
   DEBUG_INFO("Start winding in");
 }
 
@@ -248,7 +248,7 @@ void BugWiper_set_start_cleaning(void) {
   BW_state_machine_timer = 0;
   BW_state_machine_timer_2 = 0;
   BW_mode = M_CLEANING;
-  rgbLedWrite_colour(ModeLED_Colour[BW_mode]);
+  BugWiper_rgbLedWrite(ModeLED_Colour[BW_mode]);
   DEBUG_INFO("Start cleaning");
 }
 
@@ -309,10 +309,10 @@ void BugWiper_state_machine(void) {
   switch (BW_state_machine_state) {
     case 0:  // do nothing
       BW_mode = M_IDLE;
-      rgbLedWrite_colour(ModeLED_Colour[BW_mode]);
+      BugWiper_rgbLedWrite(ModeLED_Colour[BW_mode]);
       BW_state_machine_state++;
       break;
-    case 1: //wait
+    case 1:  //wait
       break;
     // 1x starting winding out
     case 10:
@@ -326,7 +326,7 @@ void BugWiper_state_machine(void) {
       BugWiper_set_motor_dir(OUT);
       BW_state_machine_state++;
       break;
-    case 11: // slow start cleaning
+    case 11:  // slow start cleaning
       if (BW_position > POSITION_STARTING) {
         BW_state_machine_state = 20;
       }
@@ -339,7 +339,7 @@ void BugWiper_state_machine(void) {
       time_pwm_ramp = TIME_PWM_RAMP_CLEANING;
       BW_state_machine_state++;
       break;
-    case 21: // fast cleaning
+    case 21:  // fast cleaning
       if (BW_position > (POSITION_SLOW_WINGTIP)) {
         BW_state_machine_state = 40;
       }
@@ -347,7 +347,7 @@ void BugWiper_state_machine(void) {
         BW_state_machine_state = 30;
       }
       break;
-    case 30: // stop if cable is loose
+    case 30:  // stop if cable is loose
       BugWiper_set_motor_dir(STOP);
       motor_power = LOOSE_POWER_BRAKE;
       motor_power_dest = LOOSE_POWER_BRAKE;
@@ -365,7 +365,7 @@ void BugWiper_state_machine(void) {
         }
       }
       break;
-    case 40: // slow bevore wingtip
+    case 40:  // slow bevore wingtip
       motor_power_dest = 0;
       time_pwm_ramp = TIME_PWN_RAMP_SLOW;
       BW_state_machine_state++;
@@ -379,11 +379,11 @@ void BugWiper_state_machine(void) {
       }
       break;
     case 50:
-        DEBUG_INFO("Wingtip reached")
-        BugWiper_set_motor_brake();
-        BW_state_machine_timer_2 = 0;
+      DEBUG_INFO("Wingtip reached")
+      BugWiper_set_motor_brake();
+      BW_state_machine_timer_2 = 0;
     case 51:
-      if(BW_state_machine_timer_2 > 250) {
+      if (BW_state_machine_timer_2 > 250) {
         BW_state_machine_state = BW_STATE_START_WINDING_IN;
       }
     case BW_STATE_START_WINDING_IN:
@@ -395,7 +395,7 @@ void BugWiper_state_machine(void) {
       BugWiper_set_motor_dir(IN);
       BW_state_machine_state++;
       break;
-    case 61: // winding in fast
+    case 61:  // winding in fast
       if (BW_position < LENGTH_SLOW) {
         BW_state_machine_state = 70;
       }
@@ -405,7 +405,7 @@ void BugWiper_state_machine(void) {
       time_pwm_ramp = TIME_PWN_RAMP_SLOW;
       BW_state_machine_state++;
       break;
-    case 71: // winding in slow
+    case 71:  // winding in slow
       if (1) {
         //BW_state_machine_state = 80;
       }
@@ -414,22 +414,22 @@ void BugWiper_state_machine(void) {
       BugWiper_set_motor_brake();
       BW_state_machine_timer = 0;
       BW_mode = M_FINISHED;
-      rgbLedWrite_colour(ModeLED_Colour[BW_mode]);
+      BugWiper_rgbLedWrite(ModeLED_Colour[BW_mode]);
       BW_state_machine_state++;
       break;
     case 81:
-      if (BW_state_machine_timer >= TIME_FINISH_RESET){
+      if (BW_state_machine_timer >= TIME_FINISH_RESET) {
         BW_state_machine_state = 0;
       }
       break;
-    case 100: // STOP FUNCTION
+    case 100:  // STOP FUNCTION
       DEBUG_ERROR("STOP BUGWIPER ERORR")
       BW_state_machine_timer = 0;
       BugWiper_set_motor_brake();
       BW_state_machine_state++;
       break;
     case 101:
-      if (BW_state_machine_timer >= TIME_ERROR_RESET){
+      if (BW_state_machine_timer >= TIME_ERROR_RESET) {
         BW_state_machine_state = 0;
       }
       break;
@@ -454,30 +454,29 @@ void BugWiper_ADC_filter_init(void) {
 }
 
 void BugWiper_ADC_filter(void) {
-	uint8_t i;
+  uint8_t i;
   ADC_current_filter_sum -= ADC_current_old_values[ADC_filter_counter];
   ADC_current_old_values[ADC_filter_counter] = BW_ADC_current_sense;
   ADC_current_filter_sum += ADC_current_old_values[ADC_filter_counter];
   BW_ADC_current_filtered = ADC_current_filter_sum / ADC_FILTER_SIZE;
   BW_ADC_current_mA_filtered = BW_ADC_current_filtered * CURRENT_CAL_FACTOR;
-	ADC_filter_counter++;
-	if (ADC_filter_counter >= ADC_FILTER_SIZE) {
-		ADC_filter_counter = 0;
-	}
+  ADC_filter_counter++;
+  if (ADC_filter_counter >= ADC_FILTER_SIZE) {
+    ADC_filter_counter = 0;
+  }
 }
 
 void BugWiper_read_ADCs_slow(void) {
   uint16_t adc_temp;
   adc_temp = analogReadMilliVolts(ADC_NTC_PIN);
   BW_ADC_T_ntc_degree = (float)adc_temp * 4095.0 / 3100.0;
-  adc_temp = (uint16_t) BW_ADC_T_ntc_degree;
-  BW_ADC_T_ntc_degree = ((float)adc_temp*(float)adc_temp*(float)adc_temp*(-2.87638e-9))+((float)adc_temp*(float)adc_temp*(2.01243e-5))+((-0.0702)*(float)adc_temp)+109.013;
-  BW_ADC_V_Bat=analogReadMilliVolts(ADC_VBat_PIN)*0.0081;
+  adc_temp = (uint16_t)BW_ADC_T_ntc_degree;
+  BW_ADC_T_ntc_degree = ((float)adc_temp * (float)adc_temp * (float)adc_temp * (-2.87638e-9)) + ((float)adc_temp * (float)adc_temp * (2.01243e-5)) + ((-0.0702) * (float)adc_temp) + 109.013;
+  BW_ADC_V_Bat = analogReadMilliVolts(ADC_VBat_PIN) * 0.0081;
 }
 
-void BugWiper_check_end_reached(void){
-  if (BW_ADC_current_mA_filtered >= BW_STOP_CURRENT)
-  {
+void BugWiper_check_end_reached(void) {
+  if (BW_ADC_current_mA_filtered >= BW_STOP_CURRENT) {
     BW_ADC_current_counter++;
     if (BW_ADC_current_counter > BW_STOP_CURRENT_COUNTS) {
       DEBUG_INFO("Finished: current:" + String(BW_ADC_current_mA) + " above " + String((float)BW_STOP_CURRENT));
@@ -489,29 +488,25 @@ void BugWiper_check_end_reached(void){
       BW_ADC_current_counter--;
     }
   }
-  if (BW_mode == M_CLEANING || BW_mode == M_WINDING_IN)
-  {
-    if (BW_state_machine_state > BW_STATE_CHECK_END && abs(BW_speed) < BW_STOP_SPEED && BW_state_machine_timer > TIME_MIN_CLEANING)
-    {
+  if (BW_mode == M_CLEANING || BW_mode == M_WINDING_IN) {
+    if (BW_state_machine_state > BW_STATE_CHECK_END && abs(BW_speed) < BW_STOP_SPEED && BW_state_machine_timer > TIME_MIN_CLEANING) {
       BW_speed_counter++;
-      if(BW_speed_counter >= BW_STOP_SPEED_COUNTS) {
+      if (BW_speed_counter >= BW_STOP_SPEED_COUNTS) {
         DEBUG_INFO("Finished: Speed:" + String(abs(BW_speed)) + " below " + String((float)BW_STOP_SPEED));
         BW_state_machine_state = BW_STATE_FINISHED;
         BW_mode = M_FINISHED;
-       }
+      }
     } else {
       if (BW_speed_counter > 1) {
         BW_speed_counter--;
       }
     }
-    if (BW_ADC_V_Bat <= BW_STOP_V_BAT) 
-    {
+    if (BW_ADC_V_Bat <= BW_STOP_V_BAT) {
       DEBUG_ERROR("Under Voltage: V BAT:" + String(BW_ADC_V_Bat) + " below " + String((float)BW_STOP_V_BAT) + "V");
       BW_state_machine_state = BW_STATE_ERROR;
       BW_mode = M_ERROR;
     }
-    if (BW_ADC_T_ntc_degree > BW_STOP_T_MAX)
-    {
+    if (BW_ADC_T_ntc_degree > BW_STOP_T_MAX) {
       DEBUG_ERROR("Over Temperature: T NTC:" + String(BW_ADC_T_ntc_degree) + "above " + String((float)BW_STOP_T_MAX) + "DEG");
       BW_state_machine_state = BW_STATE_ERROR;
       BW_mode = M_ERROR;
@@ -520,17 +515,17 @@ void BugWiper_check_end_reached(void){
 }
 
 void BugWiper_set_timer(void) {
-  BW_state_machine_timer ++;
-  BW_state_machine_timer_2 ++;
-  timer_motor_power ++;
-  timer_LED ++;
+  BW_state_machine_timer++;
+  BW_state_machine_timer_2++;
+  timer_motor_power++;
+  timer_LED++;
 }
 
 void BugWiper_read_Encoder(void) {
   uint32_t BW_enc_count_old = motor_enc_count;
   motor_enc_count = BW_motor_encoder.getCount();
   BW_position = int32_t((float)motor_enc_count * SPOOL_CIRCUMFERENCE / (CPR_Encoder * GEAR_RATIO));
-  BW_speed= motor_enc_count - BW_enc_count_old;
+  BW_speed = motor_enc_count - BW_enc_count_old;
 }
 
 void button_debounce(void) {
@@ -555,7 +550,7 @@ void button_debounce(void) {
 }
 
 void read_Buttons(void) {
-  if (BW_mode==M_IDLE) {  // FIXME safety pin
+  if (BW_mode == M_IDLE) {  // FIXME safety pin
     if (timer_button_winding_in >= TIME_BUTTON_DEBOUNCE) {
       BugWiper_set_winding_in();
     }
@@ -563,18 +558,18 @@ void read_Buttons(void) {
       BugWiper_set_start_cleaning();
     }
   }
-  if (BW_mode==M_CLEANING) {
+  if (BW_mode == M_CLEANING) {
     if (timer_button_winding_in >= TIME_BUTTON_DEBOUNCE) {
-      BW_mode=M_STOP;
+      BW_mode = M_STOP;
       BW_state_machine_state = BW_STATE_STOP;
-      rgbLedWrite_colour(ModeLED_Colour[BW_mode]);
+      BugWiper_rgbLedWrite(ModeLED_Colour[BW_mode]);
     }
   }
-  if (BW_mode==M_WINDING_IN) {
+  if (BW_mode == M_WINDING_IN) {
     if (timer_button_start_cleaning >= TIME_BUTTON_DEBOUNCE) {
-      BW_mode=M_STOP;
+      BW_mode = M_STOP;
       BW_state_machine_state = BW_STATE_STOP;
-      rgbLedWrite_colour(ModeLED_Colour[BW_mode]);
+      BugWiper_rgbLedWrite(ModeLED_Colour[BW_mode]);
     }
   }
   // prevents a imediate second start cleaning after finish the first one
@@ -633,15 +628,18 @@ void BugWiper_Task2_slow(void* parameter) {
   }
 }
 
+void BugWiper_rgbLed_init(void) {
+  pinMode(RGB_LED_PIN, OUTPUT);
+  digitalWrite(RGB_LED_PIN, 0);
+}
+
 void BugWiper_init(void) {
   DEBUG_INFO("Init BugWiper:");
   pinMode(SW_CABLE_LOOSE_PIN, INPUT_PULLUP);
   pinMode(SAFETY_SWITCH_PIN, INPUT_PULLUP);
   pinMode(BUTTON_WINDING_IN_PIN, INPUT_PULLUP);
   pinMode(BUTTON_CLEANING_PIN, INPUT_PULLUP);
-  pinMode(RGB_LED_PIN, OUTPUT);
   //analogSetPinAttenuation(MOTOR_CURRENT_SENSE_PIN, ADC_6db);
-  digitalWrite(RGB_LED_PIN, 0);
   BugWiper_ADC_filter_init();
 
   //Encoder_init();
