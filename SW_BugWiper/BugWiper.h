@@ -172,7 +172,7 @@ inline constexpr RGB_COLOUR BLUE = { 0, 0, 100 };
 inline constexpr RGB_COLOUR YELLOW = { 100, 100, 0 };
 inline constexpr RGB_COLOUR CYAN = { 0, 100, 100 };
 inline constexpr RGB_COLOUR MAGENTA = { 100, 0, 100 };
-inline constexpr RGB_COLOUR ORANGE = { 100, 50, 15 };
+inline constexpr RGB_COLOUR ORANGE = { 80, 35, 0 };
 
 static const struct RGB_COLOUR ModeLED_Colour[] = {
   BLACK,

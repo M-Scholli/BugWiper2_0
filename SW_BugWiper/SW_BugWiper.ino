@@ -28,7 +28,7 @@ void setup() {
     DEBUG_WARNING("WARNING!!! SAFETY SWITCH open");
     DEBUG_INFO("Close the SAFETY SWITCH to operate the BugWiper");
   }
-  BugWiper_test_LED();
+  //BugWiper_test_LED();
 }
 
 // The loop function is called in an endless loop
