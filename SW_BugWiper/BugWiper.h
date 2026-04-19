@@ -188,6 +188,7 @@ static const struct RGB_COLOUR ModeLED_Colour[] = {
 void BugWiper_rgbLed_init(void);
 void BugWiper_init(void);
 void BugWiper_rgbLedWrite(struct RGB_COLOUR colour);
+void BugWiper_log(void);
 void BugWiper_test_LED(void);
 void BugWiper_test_Motor(void);
 void BugWiper_read_motor_current(void);

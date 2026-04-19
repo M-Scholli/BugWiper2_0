@@ -6,6 +6,8 @@
 #include "my_debug.h"
 #include "BugWiper.h"
 #include "btn99x0_motor_control.hpp"
+#include "sd_logger.h"
+
 
 #define ADC_FILTER_SIZE 32
 uint32_t BW_ADC_current_sense;
@@ -102,6 +104,30 @@ void BugWiper_test_LED(void) {
     delay(500);
   }
   BugWiper_rgbLedWrite(ModeLED_Colour[0]);
+}
+
+void BugWiper_log(void){
+  unsigned long t = millis();
+  DEBUG_INFO("Time:" + String(t));
+  DEBUG_INFO("ADC_Current:" + String(BW_ADC_current_mA_filtered) + " HB1:" + String(BW_ADC_btn_hb1) + " HB2:" + String(BW_ADC_btn_hb2));
+  DEBUG_INFO("Encoder_count:" + String((int32_t)motor_enc_count) + " Power:" + String(motor_power));
+  DEBUG_INFO("Position:" + String(BW_position) + " Speed:" + String(BW_speed));
+  DEBUG_INFO("State:" + String(BW_state_machine_state));
+  DEBUG_INFO("ADC_VBat:" + String(BW_ADC_V_Bat) + " NTC:" + String(BW_ADC_T_ntc_degree));
+  DEBUG_INFO("SW_loose:" + String(cable_loose));
+  sdLoggerLog(t, BW_state_machine_state, BW_position, BW_speed, BW_ADC_current_mA_filtered, BW_ADC_V_Bat);
+}
+
+void BugWiper_log_event(void){
+  unsigned long t = millis();
+  DEBUG_WARNING("Time:" + String(t));
+  DEBUG_WARNING("ADC_Current:" + String(BW_ADC_current_mA_filtered) + " HB1:" + String(BW_ADC_btn_hb1) + " HB2:" + String(BW_ADC_btn_hb2));
+  DEBUG_WARNING("Encoder_count:" + String((int32_t)motor_enc_count) + " Power:" + String(motor_power));
+  DEBUG_WARNING("Position:" + String(BW_position) + " Speed:" + String(BW_speed));
+  DEBUG_WARNING("State:" + String(BW_state_machine_state));
+  DEBUG_WARNING("ADC_VBat:" + String(BW_ADC_V_Bat) + " NTC:" + String(BW_ADC_T_ntc_degree));
+  DEBUG_WARNING("SW_loose:" + String(cable_loose));
+  sdLoggerLog(t, BW_state_machine_state, BW_position, BW_speed, BW_ADC_current_mA_filtered, BW_ADC_V_Bat);
 }
 
 void BugWiper_test_Motor(void) {
@@ -338,6 +364,7 @@ void BugWiper_state_machine(void) {
       motor_power_dest = MAX_POWER_WINDING_OUT;
       time_pwm_ramp = TIME_PWM_RAMP_CLEANING;
       BW_state_machine_state++;
+      BugWiper_log_event();
       break;
     case 21:  // fast cleaning
       if (BW_position > (POSITION_SLOW_WINGTIP)) {
@@ -353,15 +380,18 @@ void BugWiper_state_machine(void) {
       motor_power_dest = LOOSE_POWER_BRAKE;
       BW_state_machine_state++;
       DEBUG_INFO("Cable is loose");
+      BugWiper_log_event();
       break;
     case 31:
       if (!cable_loose) {
         if (BW_position < POSITION_STARTING) {
           BW_state_machine_state = 10;
+          BugWiper_log_event();
         } else {
           motor_power = START_POWER_CLEANING;
           BugWiper_set_motor_dir(OUT);
           BW_state_machine_state = 20;
+          BugWiper_log_event();
         }
       }
       break;
@@ -373,9 +403,11 @@ void BugWiper_state_machine(void) {
     case 41:
       if (BW_position > POSITION_WINGTIP || motor_power <= 10) {
         BW_state_machine_state = 50;
+        BugWiper_log_event();
       }
       if (cable_loose) {
         BW_state_machine_state = 50;
+        BugWiper_log_event();
       }
       break;
     case 50:
@@ -385,6 +417,7 @@ void BugWiper_state_machine(void) {
     case 51:
       if (BW_state_machine_timer_2 > 250) {
         BW_state_machine_state = BW_STATE_START_WINDING_IN;
+        BugWiper_log_event();
       }
     case BW_STATE_START_WINDING_IN:
       timer_motor_power = 0;
@@ -398,6 +431,7 @@ void BugWiper_state_machine(void) {
     case 61:  // winding in fast
       if (BW_position < LENGTH_SLOW) {
         BW_state_machine_state = 70;
+        BugWiper_log_event();
       }
       break;
     case 70:
@@ -420,12 +454,14 @@ void BugWiper_state_machine(void) {
     case 81:
       if (BW_state_machine_timer >= TIME_FINISH_RESET) {
         BW_state_machine_state = 0;
+        BugWiper_log_event();
       }
       break;
     case 100:  // STOP FUNCTION
       DEBUG_ERROR("STOP BUGWIPER ERORR")
       BW_state_machine_timer = 0;
       BugWiper_set_motor_brake();
+      BugWiper_log_event();
       BW_state_machine_state++;
       break;
     case 101:
@@ -480,6 +516,7 @@ void BugWiper_check_end_reached(void) {
     BW_ADC_current_counter++;
     if (BW_ADC_current_counter > BW_STOP_CURRENT_COUNTS) {
       DEBUG_INFO("Finished: current:" + String(BW_ADC_current_mA) + " above " + String((float)BW_STOP_CURRENT));
+      BugWiper_log_event();
       BW_state_machine_state = BW_STATE_FINISHED;
       BW_mode = M_FINISHED;
     }
@@ -493,6 +530,7 @@ void BugWiper_check_end_reached(void) {
       BW_speed_counter++;
       if (BW_speed_counter >= BW_STOP_SPEED_COUNTS) {
         DEBUG_INFO("Finished: Speed:" + String(abs(BW_speed)) + " below " + String((float)BW_STOP_SPEED));
+        BugWiper_log_event();
         BW_state_machine_state = BW_STATE_FINISHED;
         BW_mode = M_FINISHED;
       }
@@ -503,11 +541,13 @@ void BugWiper_check_end_reached(void) {
     }
     if (BW_ADC_V_Bat <= BW_STOP_V_BAT) {
       DEBUG_ERROR("Under Voltage: V BAT:" + String(BW_ADC_V_Bat) + " below " + String((float)BW_STOP_V_BAT) + "V");
+      BugWiper_log_event();
       BW_state_machine_state = BW_STATE_ERROR;
       BW_mode = M_ERROR;
     }
     if (BW_ADC_T_ntc_degree > BW_STOP_T_MAX) {
       DEBUG_ERROR("Over Temperature: T NTC:" + String(BW_ADC_T_ntc_degree) + "above " + String((float)BW_STOP_T_MAX) + "DEG");
+      BugWiper_log_event();
       BW_state_machine_state = BW_STATE_ERROR;
       BW_mode = M_ERROR;
     }
