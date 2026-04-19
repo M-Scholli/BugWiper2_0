@@ -159,7 +159,8 @@ enum BW_MODE { M_IDLE = 0,
                M_WAIT,
                M_FINISHED,
                M_STOP,
-               M_ERROR };
+               M_ERROR,
+               BW_MODE_COUNT };
 
 struct RGB_COLOUR {
   uint8_t r, g, b;
