@@ -5,7 +5,7 @@
 #define DEBUG_LEVEL_NO_TRACE  0
 
 #define NO_DEBUG  0
-#define DEBUG_LEVEL DEBUG_LEVEL_INFO
+#define DEBUG_LEVEL DEBUG_LEVEL_WARNING
 #define DEBUG_HW  USBSerial
 #if defined(NOTRACE)
 // Empty macro

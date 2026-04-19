@@ -602,6 +602,7 @@ void read_Buttons(void) {
     if (timer_button_winding_in >= TIME_BUTTON_DEBOUNCE) {
       BW_mode = M_STOP;
       BW_state_machine_state = BW_STATE_STOP;
+      DEBUG_WARNING("Button stop")
       BugWiper_rgbLedWrite(ModeLED_Colour[BW_mode]);
     }
   }
@@ -609,6 +610,7 @@ void read_Buttons(void) {
     if (timer_button_start_cleaning >= TIME_BUTTON_DEBOUNCE) {
       BW_mode = M_STOP;
       BW_state_machine_state = BW_STATE_STOP;
+      DEBUG_WARNING("Button stop")
       BugWiper_rgbLedWrite(ModeLED_Colour[BW_mode]);
     }
   }
