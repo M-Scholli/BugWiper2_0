@@ -1,3 +1,6 @@
+#ifndef BUGWIPER_H
+#define BUGWIPER_H
+
 #include <stdint.h>
 #include <sys/_stdint.h>
 #include <Arduino.h>
@@ -36,15 +39,6 @@
 #define MAX_POWER_WINDING_IN 255  //max power while winding in
 #define MAX_POWER_GROUND 50       //max power on the ground
 #endif
-#define START_POWER_BRAKE 210  //power on start of the motorbrake
-#define MAX_POWER_BRAKE 255    //max power of the motorbrake
-#define LOOSE_POWER_BRAKE 240  //power of the brake when loose cable detected
-#define TIME_PWM_RAMP_BRAKE 2  //time of PWM power inrements for braking ramp
-#define TIME_PWM_RAMP_START 8
-#define TIME_PWN_RAMP_SLOW 8
-#define TIME_PWM_RAMP_CLEANING 6     //time of PWM power inrements for start cleaning ramp
-#define TIME_PWM_RAMP_WINDING_IN 4   //time of PWM power inrements for start winding in ramp
-#define TIME_PWM_RAMP_LOOSE_CABLE 4  //time of PWM power inrements after loose cable ramp
 
 #define TIME_MIN_CLEANING 300  //minimal cleaning time in ms
 
@@ -132,32 +126,94 @@
 #define LENGTH_SLOW 200              // Distance to slow down
 #endif
 
-// STATE MACHINE STATE
-#define BW_STATE_IDLE 0
-#define BW_STATE_START_CLEANING 10
-#define BW_STATE_START_WINDING_IN 60
-#define BW_STATE_CHECK_END 61
-#define BW_STATE_FINISHED 80
-#define BW_STATE_STOP 100
-#define BW_STATE_ERROR 100
-
 enum direction { OUT = 0,
                  IN,
                  STOP,
                  Freewheeling };
 
-enum BW_MODE { M_IDLE = 0,
-               M_CLEANING,
-               M_WINDING_IN,
-               M_WAIT,
-               M_FINISHED,
-               M_STOP,
-               M_ERROR,
-               BW_MODE_COUNT };
+// Bug Wiper FSM operating modes
+enum BW_MODE {
+  M_IDLE = 0,             // Idle, motor off
 
+  M_REFERENCE_IN,         // Reference move inward, zero encoder
+  M_START_CLEAN_OUT,      // Slow start moving outward
+  M_CLEANING,             // Normal cleaning movement
+
+  M_DECEL_LOOSE,          // Decelerate after loose cable detected
+  M_WIGGLE_LOOSE,         // Wiggle motor to release wiper
+  M_RESTART_AFTER_LOOSE,  // Restart after successful wiggle
+
+  M_DECEL_END,            // Decelerate before wingtip end
+  M_WINDING_IN,           // Normal winding in
+
+  M_GROUND_OUT,        // Ground mode: limited outward move only
+
+  M_FINISHED,             // Cleaning finished
+
+  M_EMERGENCY_IN,         // Emergency winding in (override)
+  M_STOP,                 // Controlled stop
+  M_ERROR,                // Error state
+
+  BW_MODE_COUNT
+};
+
+// RGB COLOUR struct
 struct RGB_COLOUR {
   uint8_t r, g, b;
 };
+
+// Configuration parameters defining behavior per FSM mode
+struct ModeConfig {
+  // Motor behavior
+  direction dir;              // Initial motor direction on mode entry
+  uint8_t   startPower;       // Motor power at mode entry
+  uint8_t   maxPower;         // Maximum allowed motor power
+  uint16_t  pwmRampTime;      // Time between PWM ramp steps [ms]
+
+  // Time supervision
+  uint32_t  minTime;          // Minimum time to stay in this mode [ms]
+  uint32_t  maxTime;          // Maximum allowed time (0 = disabled) [ms]
+
+  // LED indication
+  RGB_COLOUR ledColor;        // LED color for this mode
+  uint16_t   ledBlinkTime;    // LED blink period (0 = steady)
+
+  // Behavior flags
+  bool allowLooseDetect;      // Enable loose cable detection
+  bool allowWiggle;           // Allow transition to wiggle mode
+  bool ignoreSafety;          // Ignore safety checks (emergency)
+
+  // FSM flow
+  BW_MODE defaultNext;   // Nominal next state (BW_MODE_COUNT = none)
+};
+
+
+// User initiated operation context
+enum UserCommand {
+  CMD_NONE,
+  CMD_CLEANING,
+  CMD_WINDING_IN
+};
+
+enum Step {
+  STEP_INIT,
+  STEP_RUNNING
+};
+
+extern Step step;
+
+
+struct PositionConfig {
+  int32_t startSlowOut;
+  int32_t slowZoneStart;
+  int32_t wingTip;
+  int32_t groundOutMax;
+};
+
+extern const PositionConfig positionConfig;
+
+
+extern const ModeConfig modeConfig[BW_MODE_COUNT];
 
 inline constexpr RGB_COLOUR BLACK = { 0, 0, 0 };
 inline constexpr RGB_COLOUR RED = { 100, 0, 0 };
@@ -168,16 +224,7 @@ inline constexpr RGB_COLOUR CYAN = { 0, 100, 100 };
 inline constexpr RGB_COLOUR MAGENTA = { 100, 0, 100 };
 inline constexpr RGB_COLOUR ORANGE = { 80, 35, 0 };
 
-static const struct RGB_COLOUR ModeLED_Colour[] = {
-  BLACK,
-  { 0, 100, 30 },
-  BLUE,
-  ORANGE,
-  GREEN,
-  ORANGE,
-  RED
-};
-
+const char* bwModeToString(BW_MODE mode);
 void BugWiper_rgbLed_init(void);
 void BugWiper_init(void);
 void BugWiper_rgbLedWrite(struct RGB_COLOUR colour);
@@ -188,9 +235,11 @@ void BugWiper_read_motor_current(void);
 void BugWiper_set_timer(void);
 void BugWiper_set_winding_in(void);
 void BugWiper_set_start_cleaning(void);
-void BugWiper_set_motor_brake(void);
 void BugWiper_state_machine(void);
 void BugWiper_calculate(bool button_cleaning, bool button_winding_in, bool sw_cable_loose);
+
+extern BW_MODE BugWiper_currentMode;
+extern uint32_t modeStartTime;
 
 extern ESP32Encoder BW_motor_encoder;
 extern uint32_t BW_ADC_current_sense;
@@ -201,10 +250,8 @@ extern volatile double BW_ADC_btn_hb1;
 extern volatile double BW_ADC_btn_hb2;
 
 extern volatile uint32_t BW_state_machine_timer;
-extern uint16_t BW_state_machine_state;
 extern volatile int32_t BW_position;
 extern volatile int32_t BW_speed;
 extern volatile int64_t motor_enc_count;  // counts from encoder
 
-extern uint8_t motor_power;
-extern bool cable_loose;
+#endif

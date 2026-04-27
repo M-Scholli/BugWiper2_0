@@ -36,7 +36,7 @@ void loop() {
   //read_Buttons();
   //BugWiper_calculate(0, 0, 0);
   sdLoggerHandleCard();
-  if(BW_state_machine_state!=0){
+  if(BugWiper_currentMode!=M_IDLE){
     BugWiper_log();
   }
   delay(500);

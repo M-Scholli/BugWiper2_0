@@ -8,8 +8,358 @@
 #include "btn99x0_motor_control.hpp"
 #include "sd_logger.h"
 
-
 #define ADC_FILTER_SIZE 32
+
+// String representation of BW_MODE for logging and debugging
+static const char* BW_MODE_STR[BW_MODE_COUNT] = {
+  "IDLE",
+  "REFERENCE_IN",
+  "START_CLEAN_OUT",
+  "CLEANING",
+  "DECEL_LOOSE",
+  "WIGGLE_LOOSE",
+  "RESTART_AFTER_LOOSE",
+  "DECEL_END",
+  "WINDING_IN",
+  "GROUND_OUT",
+  "FINISHED",
+  "EMERGENCY_IN",
+  "STOP",
+  "ERROR"
+};
+
+const char* bwModeToString(BW_MODE mode)
+{
+  if (mode >= BW_MODE_COUNT) {
+    return "INVALID_MODE";
+  }
+  return BW_MODE_STR[mode];
+}
+
+// Mode configuration table indexed by BW_MODE
+const ModeConfig modeConfig[BW_MODE_COUNT] = {
+
+  /* ------------------------------------------------------------
+   * M_IDLE
+   * ------------------------------------------------------------ */
+  {
+    // Motor behavior
+    .dir          = STOP,
+    .startPower   = 0,
+    .maxPower     = 0,
+    .pwmRampTime  = 0,
+
+    // Timing
+    .minTime = 0,
+    .maxTime = 0,
+
+    // LED
+    .ledColor     = BLACK,
+    .ledBlinkTime = 0,
+
+    // Behavior flags
+    .allowLooseDetect = false,
+    .allowWiggle      = false,
+    .ignoreSafety     = false
+  },
+
+  /* ------------------------------------------------------------
+   * M_REFERENCE_IN
+   * ------------------------------------------------------------ */
+  {
+    .dir          = IN,
+    .startPower   = 120,
+    .maxPower     = 200,
+    .pwmRampTime  = 6,
+
+    .minTime = 0,
+    .maxTime = 5000,
+
+    .ledColor     = CYAN,
+    .ledBlinkTime = 5,
+
+    .allowLooseDetect = false,
+    .allowWiggle      = false,
+    .ignoreSafety     = false,
+
+    
+    .defaultNext = M_START_CLEAN_OUT
+  },
+
+  /* ------------------------------------------------------------
+   * M_START_CLEAN_OUT
+   * ------------------------------------------------------------ */
+  {
+    .dir          = OUT,
+    .startPower   = 50,
+    .maxPower     = 120,
+    .pwmRampTime  = 6,
+
+    .minTime = 0,
+    .maxTime = 3000,
+
+    .ledColor     = GREEN,
+    .ledBlinkTime = LED_TIME_CLEANING,
+
+    .allowLooseDetect = true,
+    .allowWiggle      = true,
+    .ignoreSafety     = false,
+
+    .defaultNext = M_CLEANING
+  },
+
+  /* ------------------------------------------------------------
+   * M_CLEANING
+   * ------------------------------------------------------------ */
+  {
+    .dir          = OUT,
+    .startPower   = 50,
+    .maxPower     = 200,
+    .pwmRampTime  = 6,
+
+    .minTime = TIME_MIN_CLEANING,
+    .maxTime = TIME_MAX_CLEANING,
+
+    .ledColor     = GREEN,
+    .ledBlinkTime = LED_TIME_CLEANING,
+
+    .allowLooseDetect = true,
+    .allowWiggle      = true,
+    .ignoreSafety     = false,
+
+    .defaultNext = M_DECEL_END
+  },
+
+  /* ------------------------------------------------------------
+   * M_DECEL_LOOSE
+   * ------------------------------------------------------------ */
+  {
+    .dir          = STOP,
+    .startPower   = 0,
+    .maxPower     = 30,
+    .pwmRampTime  = 8,
+
+    .minTime = 0,
+    .maxTime = 2000,
+
+    .ledColor     = ORANGE,
+    .ledBlinkTime = 150,
+
+    .allowLooseDetect = false,
+    .allowWiggle      = true,
+    .ignoreSafety     = false,
+
+    .defaultNext = M_RESTART_AFTER_LOOSE
+  },
+
+  /* ------------------------------------------------------------
+   * M_WIGGLE_LOOSE
+   * ------------------------------------------------------------ */
+  {
+    .dir          = STOP,      // Direction handled internally
+    .startPower   = 0,
+    .maxPower     = 120,
+    .pwmRampTime  = 0,
+
+    .minTime = 0,
+    .maxTime = 2000,
+
+    .ledColor     = ORANGE,
+    .ledBlinkTime = 120,
+
+    .allowLooseDetect = false,
+    .allowWiggle      = false,
+    .ignoreSafety     = false,
+
+    .defaultNext = M_RESTART_AFTER_LOOSE
+  },
+
+  /* ------------------------------------------------------------
+   * M_RESTART_AFTER_LOOSE
+   * ------------------------------------------------------------ */
+  {
+    .dir          = OUT,
+    .startPower   = 50,
+    .maxPower     = 200,
+    .pwmRampTime  = 6,
+
+    .minTime = 0,
+    .maxTime = 3000,
+
+    .ledColor     = GREEN,
+    .ledBlinkTime = LED_TIME_CLEANING,
+
+    .allowLooseDetect = false,
+    .allowWiggle      = false,
+    .ignoreSafety     = false,
+
+    .defaultNext = M_CLEANING
+  },
+
+  /* ------------------------------------------------------------
+   * M_DECEL_END
+   * ------------------------------------------------------------ */
+  {
+    .dir          = STOP,
+    .startPower   = 0,
+    .maxPower     = 30,
+    .pwmRampTime  = 8,
+
+    .minTime = 0,
+    .maxTime = 3000,
+
+    .ledColor     = BLUE,
+    .ledBlinkTime = 0,
+
+    .allowLooseDetect = false,
+    .allowWiggle      = false,
+    .ignoreSafety     = false,
+
+    .defaultNext = M_WINDING_IN
+  },
+
+  /* ------------------------------------------------------------
+   * M_WINDING_IN
+   * ------------------------------------------------------------ */
+  {
+    .dir          = IN,
+    .startPower   = 10,
+    .maxPower     = 255,
+    .pwmRampTime  = 4,
+
+    .minTime = 0,
+    .maxTime = 5000,
+
+    .ledColor     = BLUE,
+    .ledBlinkTime = 250,
+
+    .allowLooseDetect = false,
+    .allowWiggle      = false,
+    .ignoreSafety     = false,
+
+    .defaultNext = M_FINISHED
+  },
+
+  /* ------------------------------------------------------------
+  * M_GROUND_OUT
+  * ------------------------------------------------------------ */
+  {
+    .dir          = OUT,
+    .startPower   = 10,
+    .maxPower     = 80,
+    .pwmRampTime  = 15,
+
+    .minTime = 0,
+    .maxTime = 3000,        // short timeout, no long running
+
+    .ledColor     = ORANGE,
+    .ledBlinkTime = 100,
+
+    .allowLooseDetect = true,
+    .allowWiggle      = false,
+    .ignoreSafety     = false,
+
+    .defaultNext = M_FINISHED
+  },
+
+  /* ------------------------------------------------------------
+   * M_FINISHED
+   * ------------------------------------------------------------ */
+  {
+    .dir          = STOP,
+    .startPower   = 0,
+    .maxPower     = 0,
+    .pwmRampTime  = 0,
+
+    .minTime = 0,
+    .maxTime = 0,
+
+    .ledColor     = GREEN,
+    .ledBlinkTime = 0,
+
+    .allowLooseDetect = false,
+    .allowWiggle      = false,
+    .ignoreSafety     = false,
+
+    .defaultNext = M_IDLE
+  },
+
+  /* ------------------------------------------------------------
+   * M_EMERGENCY_IN
+   * ------------------------------------------------------------ */
+  {
+    .dir          = IN,
+    .startPower   = 180,
+    .maxPower     = 200,
+    .pwmRampTime  = 0,
+
+    .minTime = 0,
+    .maxTime = 0,     // No timeout
+
+    .ledColor     = RED,
+    .ledBlinkTime = 100,
+
+    .allowLooseDetect = false,
+    .allowWiggle      = false,
+    .ignoreSafety     = true,
+
+    .defaultNext = M_IDLE
+  },
+
+  /* ------------------------------------------------------------
+   * M_STOP
+   * ------------------------------------------------------------ */
+  {
+    .dir          = STOP,
+    .startPower   = 0,
+    .maxPower     = 0,
+    .pwmRampTime  = 0,
+
+    .minTime = 0,
+    .maxTime = 0,
+
+    .ledColor     = ORANGE,
+    .ledBlinkTime = 0,
+
+    .allowLooseDetect = false,
+    .allowWiggle      = false,
+    .ignoreSafety     = false,
+
+    .defaultNext = M_FINISHED
+  },
+
+  /* ------------------------------------------------------------
+   * M_ERROR
+   * ------------------------------------------------------------ */
+  {
+    .dir          = STOP,
+    .startPower   = 0,
+    .maxPower     = 0,
+    .pwmRampTime  = 0,
+
+    .minTime = 0,
+    .maxTime = 0,
+
+    .ledColor     = RED,
+    .ledBlinkTime = 500,
+
+    .allowLooseDetect = false,
+    .allowWiggle      = false,
+    .ignoreSafety     = false,
+
+    .defaultNext = M_IDLE
+  }
+};
+
+
+BW_MODE BugWiper_currentMode = M_IDLE;
+
+Step step = STEP_INIT;
+
+uint32_t modeStartTime = 0;
+
+static UserCommand lastUserCommand = CMD_NONE;
+
 uint32_t BW_ADC_current_sense;
 uint32_t ADC_current_filter_sum;
 uint32_t ADC_current_old_values[ADC_FILTER_SIZE];
@@ -24,10 +374,8 @@ float BW_ADC_V_Bat;
 volatile double BW_ADC_btn_hb1;
 volatile double BW_ADC_btn_hb2;
 
-uint16_t BW_state_machine_state;
 volatile uint32_t BW_state_machine_timer;
 volatile uint32_t BW_state_machine_timer_2;
-
 
 volatile int64_t motor_enc_count;  // counts from encoder
 volatile int32_t BW_position;      // position in mm converted from the encoder
@@ -48,16 +396,25 @@ bool button_cable_loose;
 int motor_pwm_channel;
 gpio_num_t motor_pwm_pin;
 
-uint8_t motor_power;
-uint8_t motor_power_dest;
 volatile uint16_t timer_LED;
 uint16_t LED_time;
-uint8_t time_pwm_ramp;
 volatile uint8_t timer_motor_power;
 
 bool motor_inverted;
-bool cable_loose;
-enum direction motor_direction;
+
+
+const PositionConfig positionConfig = {
+  .startSlowOut  = POSITION_STARTING,
+  .slowZoneStart = POSITION_SLOW_WINGTIP,
+  .wingTip       = POSITION_WINGTIP,
+  .groundOutMax  = 800
+};
+
+
+static direction motor_direction;
+static uint8_t motor_power = 0;        // current power
+static uint8_t motor_power_dest = 0;   // target power
+static uint8_t time_pwm_ramp = 0;
 
 ESP32Encoder BW_motor_encoder;
 
@@ -95,15 +452,11 @@ void BugWiper_rgbLedWrite(struct RGB_COLOUR colour) {
   rgbLedWrite(RGB_LED_PIN, colour.g, colour.r, colour.b);
 }
 
-// TEST Functions
-void BugWiper_test_LED(void) {
-  DEBUG_INFO("Test LEDs")
 
-  for (uint8_t i = 0; i < 5; i++) {
-    BugWiper_rgbLedWrite(ModeLED_Colour[i]);
-    delay(500);
-  }
-  BugWiper_rgbLedWrite(ModeLED_Colour[0]);
+void setLED(const RGB_COLOUR& color, uint16_t blinkTime)
+{
+  BugWiper_rgbLedWrite(color);
+  LED_time = blinkTime;
 }
 
 void BugWiper_log(void){
@@ -112,10 +465,9 @@ void BugWiper_log(void){
   DEBUG_INFO("ADC_Current:" + String(BW_ADC_current_mA_filtered) + " HB1:" + String(BW_ADC_btn_hb1) + " HB2:" + String(BW_ADC_btn_hb2));
   DEBUG_INFO("Encoder_count:" + String((int32_t)motor_enc_count) + " Power:" + String(motor_power));
   DEBUG_INFO("Position:" + String(BW_position) + " Speed:" + String(BW_speed));
-  DEBUG_INFO("State:" + String(BW_state_machine_state));
+  DEBUG_WARNING(String("State: ") + bwModeToString(BugWiper_currentMode));
   DEBUG_INFO("ADC_VBat:" + String(BW_ADC_V_Bat) + " NTC:" + String(BW_ADC_T_ntc_degree));
-  DEBUG_INFO("SW_loose:" + String(cable_loose));
-  sdLoggerLog(t, BW_state_machine_state, BW_position, BW_speed, BW_ADC_current_mA_filtered, BW_ADC_V_Bat);
+  sdLoggerLog(t, BugWiper_currentMode, BW_position, BW_speed, BW_ADC_current_mA_filtered, BW_ADC_V_Bat);
 }
 
 void BugWiper_log_event(void){
@@ -124,10 +476,9 @@ void BugWiper_log_event(void){
   DEBUG_WARNING("ADC_Current:" + String(BW_ADC_current_mA_filtered) + " HB1:" + String(BW_ADC_btn_hb1) + " HB2:" + String(BW_ADC_btn_hb2));
   DEBUG_WARNING("Encoder_count:" + String((int32_t)motor_enc_count) + " Power:" + String(motor_power));
   DEBUG_WARNING("Position:" + String(BW_position) + " Speed:" + String(BW_speed));
-  DEBUG_WARNING("State:" + String(BW_state_machine_state));
+  DEBUG_WARNING(String("State: ") + bwModeToString(BugWiper_currentMode));
   DEBUG_WARNING("ADC_VBat:" + String(BW_ADC_V_Bat) + " NTC:" + String(BW_ADC_T_ntc_degree));
-  DEBUG_WARNING("SW_loose:" + String(cable_loose));
-  sdLoggerLog(t, BW_state_machine_state, BW_position, BW_speed, BW_ADC_current_mA_filtered, BW_ADC_V_Bat);
+  sdLoggerLog(t, BugWiper_currentMode, BW_position, BW_speed, BW_ADC_current_mA_filtered, BW_ADC_V_Bat);
 }
 
 void BugWiper_test_Motor(void) {
@@ -244,232 +595,43 @@ void BugWiper_LED_blinking(void) {
   }
 }
 
-void BugWiper_set_motor_brake(void) {
-  timer_motor_power = 0;
-  motor_power = START_POWER_BRAKE;
-  time_pwm_ramp = TIME_PWM_RAMP_BRAKE;
-  motor_power_dest = MAX_POWER_BRAKE;
-  BugWiper_set_motor_dir(STOP);
-  DEBUG_INFO("Start braking A");
-}
+void applyMotorState(direction dir, uint8_t targetPower)
+{
+  // Set desired motor direction
+  motor_direction = dir;
 
-void BugWiper_set_winding_in(void) {
-  BW_state_machine_state = BW_STATE_START_WINDING_IN + 1;
-  timer_LED = 0;
-  timer_motor_power = 0;
-  BW_state_machine_timer = 0;
-  BW_state_machine_timer_2 = 0;
-  motor_power = START_POWER_WINDING_IN;
-  time_pwm_ramp = TIME_PWM_RAMP_WINDING_IN;
-  motor_power_dest = MAX_POWER_WINDING_IN;
-  BugWiper_set_motor_dir(IN);
-  BW_mode = M_WINDING_IN;
-  BugWiper_rgbLedWrite(ModeLED_Colour[BW_mode]);
-  DEBUG_INFO("Start winding in");
-}
+  // Set desired power target
+  motor_power_dest = targetPower;
 
-void BugWiper_set_start_cleaning(void) {
-  BW_motor_encoder.setCount(0);
-  BW_state_machine_state = BW_STATE_START_CLEANING;
-  BW_state_machine_timer = 0;
-  BW_state_machine_timer_2 = 0;
-  BW_mode = M_CLEANING;
-  BugWiper_rgbLedWrite(ModeLED_Colour[BW_mode]);
-  DEBUG_INFO("Start cleaning");
-}
-
-/* main_state machine 
- 0 = ready
- 1 = cleaning prozess
- 2 = winding in prozess
- 3 = retighten
- 5 = finished
- 6 = ERROR
- 7 = Stopp
- */
-
-/* main state machine
-0X idling
-0 = init idling
-
-10X starting winding out
-
-20X winding out
-
-30X loose cable situation
-0 =  loose cable: init /  detected
-1 =  loose cable: stopping
-2 = lose cable: stopped
-3 = lose cable: restarting
-4 = full speed reached
-
-40x end of wing
-0 = direction change init 
-1 = direction change slow down
-2 = direction change full stop
-3 = direction cghange new direction inti
-4 = direction change restart
-5 = direction change full speed reached
-
-50x winding in
-0 = near fuselage position reached
-1 = near fuselage slow down
-2 = near fuselage slow speed reached
-3 = near fuselage no movemend detected
-4 = near fuselage stopping
-
-60x near fuselage
-0 = stopping init
-1 = stopping start
-2 = stopping full stop
-3 = stopping wait
-4 = stopping retighten
-5 = stopping stop finished
-
-70x stopping at fuselage
-
-80x retighten
-*/
-
-void BugWiper_state_machine(void) {
-  switch (BW_state_machine_state) {
-    case 0:  // do nothing
-      BW_mode = M_IDLE;
-      BugWiper_rgbLedWrite(ModeLED_Colour[BW_mode]);
-      BW_state_machine_state++;
-      break;
-    case 1:  //wait
-      break;
-    // 1x starting winding out
-    case 10:
-      timer_motor_power = 0;
-      timer_LED = 0;
-      BW_state_machine_timer = 0;
-      BW_state_machine_timer_2 = 0;
-      motor_power = START_POWER_CLEANING;
-      time_pwm_ramp = TIME_PWM_RAMP_START;
-      motor_power_dest = MAX_POWER_START_CLEANING;
-      BugWiper_set_motor_dir(OUT);
-      BW_state_machine_state++;
-      break;
-    case 11:  // slow start cleaning
-      if (BW_position > POSITION_STARTING) {
-        BW_state_machine_state = 20;
-      }
-      if (cable_loose) {
-        BW_state_machine_state = 30;
-      }
-      break;
-    case 20:
-      motor_power_dest = MAX_POWER_WINDING_OUT;
-      time_pwm_ramp = TIME_PWM_RAMP_CLEANING;
-      BW_state_machine_state++;
-      BugWiper_log_event();
-      break;
-    case 21:  // fast cleaning
-      if (BW_position > (POSITION_SLOW_WINGTIP)) {
-        BW_state_machine_state = 40;
-      }
-      if (cable_loose) {
-        BW_state_machine_state = 30;
-      }
-      break;
-    case 30:  // stop if cable is loose
-      BugWiper_set_motor_dir(STOP);
-      motor_power = LOOSE_POWER_BRAKE;
-      motor_power_dest = LOOSE_POWER_BRAKE;
-      BW_state_machine_state++;
-      DEBUG_INFO("Cable is loose");
-      BugWiper_log_event();
-      break;
-    case 31:
-      if (!cable_loose) {
-        if (BW_position < POSITION_STARTING) {
-          BW_state_machine_state = 10;
-          BugWiper_log_event();
-        } else {
-          motor_power = START_POWER_CLEANING;
-          BugWiper_set_motor_dir(OUT);
-          BW_state_machine_state = 20;
-          BugWiper_log_event();
-        }
-      }
-      break;
-    case 40:  // slow bevore wingtip
-      motor_power_dest = 0;
-      time_pwm_ramp = TIME_PWN_RAMP_SLOW;
-      BW_state_machine_state++;
-      break;
-    case 41:
-      if (BW_position > POSITION_WINGTIP || motor_power <= 10) {
-        BW_state_machine_state = 50;
-        BugWiper_log_event();
-      }
-      if (cable_loose) {
-        BW_state_machine_state = 50;
-        BugWiper_log_event();
-      }
-      break;
-    case 50:
-      DEBUG_INFO("Wingtip reached")
-      BugWiper_set_motor_brake();
-      BW_state_machine_timer_2 = 0;
-    case 51:
-      if (BW_state_machine_timer_2 > 250) {
-        BW_state_machine_state = BW_STATE_START_WINDING_IN;
-        BugWiper_log_event();
-      }
-    case BW_STATE_START_WINDING_IN:
-      timer_motor_power = 0;
-      timer_LED = 0;
-      //motor_power = START_POWER_WINDING_IN;
-      time_pwm_ramp = TIME_PWM_RAMP_START;
-      motor_power_dest = MAX_POWER_WINDING_IN;
-      BugWiper_set_motor_dir(IN);
-      BW_state_machine_state++;
-      break;
-    case 61:  // winding in fast
-      if (BW_position < LENGTH_SLOW) {
-        BW_state_machine_state = 70;
-        BugWiper_log_event();
-      }
-      break;
-    case 70:
-      motor_power_dest = MAX_POWER_NEAR_END;
-      time_pwm_ramp = TIME_PWN_RAMP_SLOW;
-      BW_state_machine_state++;
-      break;
-    case 71:  // winding in slow
-      if (1) {
-        //BW_state_machine_state = 80;
-      }
-      break;
-    case 80:
-      BugWiper_set_motor_brake();
-      BW_state_machine_timer = 0;
-      BW_mode = M_FINISHED;
-      BugWiper_rgbLedWrite(ModeLED_Colour[BW_mode]);
-      BW_state_machine_state++;
-      break;
-    case 81:
-      if (BW_state_machine_timer >= TIME_FINISH_RESET) {
-        BW_state_machine_state = 0;
-        BugWiper_log_event();
-      }
-      break;
-    case 100:  // STOP FUNCTION
-      DEBUG_ERROR("STOP BUGWIPER ERORR")
-      BW_state_machine_timer = 0;
-      BugWiper_set_motor_brake();
-      BugWiper_log_event();
-      BW_state_machine_state++;
-      break;
-    case 101:
-      if (BW_state_machine_timer >= TIME_ERROR_RESET) {
-        BW_state_machine_state = 0;
-      }
-      break;
+  // Immediate actions for brake / freewheel
+  if (dir == STOP) {
+    motor_power_dest = 0;
   }
+}
+
+bool stateTimedOut(uint32_t maxTime)
+{
+  if (maxTime == 0) return false;
+  return (millis() - modeStartTime) > maxTime;
+}
+
+void changeMode(BW_MODE newMode)
+{
+  DEBUG_INFO("FSM transition: %s -> %s",
+             bwModeToString(BugWiper_currentMode),
+             bwModeToString(newMode));
+
+  BugWiper_currentMode = newMode;
+  const ModeConfig& cfg = modeConfig[newMode];
+
+  modeStartTime = millis();
+  step = STEP_INIT;
+
+  // Apply LED for this mode
+  setLED(cfg.ledColor, cfg.ledBlinkTime);
+
+  // Apply initial motor state
+  applyMotorState(cfg.dir, cfg.startPower);
 }
 
 void BugWiper_read_motor_current(void) {
@@ -511,47 +673,68 @@ void BugWiper_read_ADCs_slow(void) {
   BW_ADC_V_Bat = analogReadMilliVolts(ADC_VBat_PIN) * 0.0081;
 }
 
-void BugWiper_check_end_reached(void) {
+bool BugWiper_check_end_reached(void) {
+  // Current-based detection
   if (BW_ADC_current_mA_filtered >= BW_STOP_CURRENT) {
     BW_ADC_current_counter++;
     if (BW_ADC_current_counter > BW_STOP_CURRENT_COUNTS) {
       DEBUG_INFO("Finished: current:" + String(BW_ADC_current_mA) + " above " + String((float)BW_STOP_CURRENT));
       BugWiper_log_event();
-      BW_state_machine_state = BW_STATE_FINISHED;
-      BW_mode = M_FINISHED;
+      return true;
     }
   } else {
     if (BW_ADC_current_counter > 0) {
       BW_ADC_current_counter--;
     }
   }
-  if (BW_mode == M_CLEANING || BW_mode == M_WINDING_IN) {
-    if (BW_state_machine_state > BW_STATE_CHECK_END && abs(BW_speed) < BW_STOP_SPEED && BW_state_machine_timer > TIME_MIN_CLEANING) {
-      BW_speed_counter++;
-      if (BW_speed_counter >= BW_STOP_SPEED_COUNTS) {
-        DEBUG_INFO("Finished: Speed:" + String(abs(BW_speed)) + " below " + String((float)BW_STOP_SPEED));
-        BugWiper_log_event();
-        BW_state_machine_state = BW_STATE_FINISHED;
-        BW_mode = M_FINISHED;
-      }
-    } else {
-      if (BW_speed_counter > 1) {
-        BW_speed_counter--;
-      }
-    }
-    if (BW_ADC_V_Bat <= BW_STOP_V_BAT) {
-      DEBUG_ERROR("Under Voltage: V BAT:" + String(BW_ADC_V_Bat) + " below " + String((float)BW_STOP_V_BAT) + "V");
+  
+  // Speed-based detection
+  if (abs(BW_speed) < BW_STOP_SPEED && BW_state_machine_timer > TIME_MIN_CLEANING) {
+    BW_speed_counter++;
+    if (BW_speed_counter >= BW_STOP_SPEED_COUNTS) {
+      DEBUG_INFO("Finished: Speed:" + String(abs(BW_speed)) + " below " + String((float)BW_STOP_SPEED));
       BugWiper_log_event();
-      BW_state_machine_state = BW_STATE_ERROR;
-      BW_mode = M_ERROR;
+      return true;
     }
-    if (BW_ADC_T_ntc_degree > BW_STOP_T_MAX) {
-      DEBUG_ERROR("Over Temperature: T NTC:" + String(BW_ADC_T_ntc_degree) + "above " + String((float)BW_STOP_T_MAX) + "DEG");
-      BugWiper_log_event();
-      BW_state_machine_state = BW_STATE_ERROR;
-      BW_mode = M_ERROR;
+  } else {
+    if (BW_speed_counter > 1) {
+      BW_speed_counter--;
     }
   }
+  return false;
+}
+
+bool motorSlowedDown(void) {
+  if ( BW_speed < BW_STOP_SPEED ) {
+    BW_speed_counter++;
+    if (BW_speed_counter >= BW_STOP_SPEED_COUNTS) {
+      DEBUG_INFO("Decel End Finished: Speed:" + String(BW_speed) + " below " + String((float)BW_STOP_SPEED));
+      BugWiper_log_event();
+      return true;
+    }
+  } else {
+    if (BW_speed_counter > 1) {
+      BW_speed_counter--;
+    }
+  }
+}
+
+bool BugWiper_safety_protection(void) {
+  // Undervoltage protection
+  if (BW_ADC_V_Bat <= BW_STOP_V_BAT) {
+    DEBUG_ERROR("Under Voltage: V BAT:" + String(BW_ADC_V_Bat) + " below " + String((float)BW_STOP_V_BAT) + "V");
+    BugWiper_log_event();
+    return true;
+  }
+
+  //Temperature protection
+  if (BW_ADC_T_ntc_degree > BW_STOP_T_MAX) {
+    DEBUG_ERROR("Over Temperature: T NTC:" + String(BW_ADC_T_ntc_degree) + "above " + String((float)BW_STOP_T_MAX) + "DEG");
+    BugWiper_log_event();
+    return true;
+  }
+
+  return false;
 }
 
 void BugWiper_set_timer(void) {
@@ -589,46 +772,239 @@ void button_debounce(void) {
   }
 }
 
-void read_Buttons(void) {
-  if (BW_mode == M_IDLE) {  // FIXME safety pin
-    if (timer_button_winding_in >= TIME_BUTTON_DEBOUNCE) {
-      BugWiper_set_winding_in();
-    }
-    if (timer_button_start_cleaning >= TIME_BUTTON_DEBOUNCE) {
-      BugWiper_set_start_cleaning();
-    }
+bool eventStopRequested(void)
+{
+  // Stop cleaning by pressing winding-in button
+  if (lastUserCommand == CMD_CLEANING &&
+      timer_button_winding_in >= TIME_BUTTON_DEBOUNCE) {
+
+    DEBUG_WARNING("Stop requested: cleaning");
+    return true;
   }
-  if (BW_mode == M_CLEANING) {
-    if (timer_button_winding_in >= TIME_BUTTON_DEBOUNCE) {
-      BW_mode = M_STOP;
-      BW_state_machine_state = BW_STATE_STOP;
-      DEBUG_WARNING("Button stop")
-      BugWiper_rgbLedWrite(ModeLED_Colour[BW_mode]);
-    }
+
+  // Stop winding-in by pressing cleaning button
+  if (lastUserCommand == CMD_WINDING_IN &&
+      timer_button_start_cleaning >= TIME_BUTTON_DEBOUNCE) {
+
+    DEBUG_WARNING("Stop requested: winding in");
+    return true;
   }
-  if (BW_mode == M_WINDING_IN) {
-    if (timer_button_start_cleaning >= TIME_BUTTON_DEBOUNCE) {
-      BW_mode = M_STOP;
-      BW_state_machine_state = BW_STATE_STOP;
-      DEBUG_WARNING("Button stop")
-      BugWiper_rgbLedWrite(ModeLED_Colour[BW_mode]);
-    }
+
+  return false;
+}
+
+bool buttonOutPressed(void) {
+  if (timer_button_winding_in >= TIME_BUTTON_DEBOUNCE) {
+    return true;
   }
-  // prevents a imediate second start cleaning after finish the first one
-  if (timer_button_winding_in <= 5 && timer_button_start_cleaning <= 5
-      && BW_state_machine_state == 3 && BW_state_machine_timer >= 200) {
-    BW_state_machine_state = 0;
+  return false;
+}
+
+bool buttonInPressed(void) {
+  if (timer_button_start_cleaning >= TIME_BUTTON_DEBOUNCE) {
+    return true;
   }
+  return false;
+}
+
+bool eventCableLoose(void) {
   if (timer_button_cable_loose >= TIME_BUTTON_DEBOUNCE) {
-    cable_loose = true;
+    return true;
   } else {
-    cable_loose = false;
-  }
-  // reset timer for long press of buttons
-  if (timer_button_start_cleaning <= 5) {
-    timer_button_long_press = 0;
+    return false;
   }
 }
+
+bool groundModeEnabled(void) {
+  return false;
+}
+
+
+// Handle global transitions with highest priority
+bool handleGlobalTransitions()
+{
+  // User stop request (opposite button)
+  if (eventStopRequested()) {
+    changeMode(M_STOP);
+    return true;
+  }
+
+  // System error conditions
+  if (BugWiper_safety_protection()) {
+    changeMode(M_ERROR);
+    return true;
+  }
+
+  return false;  // No global transition taken
+}
+
+void stateIdle()
+{
+  // Waiting for user input
+  if (groundModeEnabled() && buttonOutPressed()) {
+    lastUserCommand = CMD_CLEANING;   // ground out is still an "out" operation
+    changeMode(M_GROUND_OUT);
+  }
+  else if (buttonOutPressed()) {
+    lastUserCommand = CMD_CLEANING;
+    changeMode(M_REFERENCE_IN);
+  }
+  else if (buttonInPressed()) {
+    lastUserCommand = CMD_WINDING_IN;
+    changeMode(M_WINDING_IN);
+  }
+  lastUserCommand = CMD_NONE;
+}
+
+void stateReferenceIn(const ModeConfig&) {
+
+}
+
+void stateStartCleanOut(const ModeConfig& cfg)
+{
+  // Slow outward movement to tension the cable
+ // applyMotorState(cfg.dir, currentPower);
+
+  if (cfg.allowLooseDetect && eventCableLoose()) {
+    changeMode(M_DECEL_LOOSE);
+    return;
+  }
+
+  if (BW_position > positionConfig.startSlowOut) {
+    if (cfg.defaultNext != BW_MODE_COUNT) {
+      changeMode(cfg.defaultNext);  // usually M_CLEANING
+    }
+  }
+}
+
+void stateCleaning(const ModeConfig& cfg)
+{
+  // Normal outward cleaning movement
+  applyMotorState(cfg.dir, cfg.maxPower);
+
+  if (cfg.allowLooseDetect && eventCableLoose()) {
+    changeMode(M_DECEL_LOOSE);
+    return;
+  }
+
+  if (BW_position >= positionConfig.slowZoneStart) {
+    changeMode(cfg.defaultNext);
+    return;
+  }
+
+  if (stateTimedOut(cfg.maxTime)) {
+    changeMode(M_ERROR);
+    return;
+  }
+}
+
+
+void stateDecelLoose(const ModeConfig& cfg) {
+  if (!eventCableLoose()){
+    changeMode(cfg.defaultNext);
+  }
+}
+
+void stateWiggleLoose(const ModeConfig& cfg) {}
+
+void stateRestartAfterLoose(const ModeConfig& cfg) {}
+
+void stateDecelEnd(const ModeConfig& cfg)
+{
+  // Controlled deceleration before direction change
+  //updateDeceleration();
+
+  if (motorSlowedDown()) {
+    if (cfg.defaultNext != BW_MODE_COUNT) {
+      changeMode(cfg.defaultNext);
+    }
+  }
+}
+
+void stateWindingIn(const ModeConfig& cfg)
+{
+  if(BugWiper_check_end_reached()) {
+    changeMode(cfg.defaultNext);
+    }
+
+  if (stateTimedOut(cfg.maxTime)) {
+    changeMode(M_ERROR);
+  }
+}
+
+void stateGroundOut(const ModeConfig& cfg)
+{
+  // Ground / maintenance outward movement only
+
+  if (BW_position >= positionConfig.groundOutMax) {
+    changeMode(M_STOP);
+    return;
+  }
+
+  if (stateTimedOut(cfg.maxTime)) {
+    changeMode(M_STOP);
+    return;
+  }
+}
+
+void stateFinished(){
+
+}
+
+void stateEmergencyIn(const ModeConfig& cfg) {
+
+}
+
+void stateStop()
+{
+  applyMotorState(STOP, 0);
+  lastUserCommand = CMD_NONE;
+}
+
+void stateError()
+{
+  applyMotorState(STOP, 0);
+  lastUserCommand = CMD_NONE;
+}
+
+void BugWiper_processFSM()
+{
+  // ------------------------------------------------------------
+  // 1. Global priority transitions
+  // Emergency, Stop and Error have highest priority
+  // ------------------------------------------------------------
+  if (handleGlobalTransitions()) {
+    return;
+  }
+
+  // Fetch configuration for current mode
+  const ModeConfig& cfg = modeConfig[BugWiper_currentMode];
+
+  // ------------------------------------------------------------
+  // 2. State-specific logic
+  // ------------------------------------------------------------
+
+  switch (BugWiper_currentMode)
+  {
+    case M_IDLE:                  stateIdle();                  break;
+    case M_REFERENCE_IN:          stateReferenceIn(cfg);        break;
+    case M_START_CLEAN_OUT:       stateStartCleanOut(cfg);      break;
+    case M_CLEANING:              stateCleaning(cfg);           break;
+    case M_DECEL_LOOSE:           stateDecelLoose(cfg);         break;
+    case M_WIGGLE_LOOSE:          stateWiggleLoose(cfg);        break;
+    case M_RESTART_AFTER_LOOSE:   stateRestartAfterLoose(cfg);  break;
+    case M_DECEL_END:             stateDecelEnd(cfg);           break;
+    case M_WINDING_IN:            stateWindingIn(cfg);          break;
+    case M_GROUND_OUT:            stateGroundOut(cfg);          break;
+    case M_FINISHED:              stateFinished();              break;
+    case M_EMERGENCY_IN:          stateEmergencyIn(cfg);        break;
+    case M_STOP:                  stateStop();                  break;
+    case M_ERROR:                 stateError();                 break;
+    default:                      changeMode(M_ERROR);          break;
+  }
+
+}
+
 
 void BugWiper_Task1_fast(void* parameter) {
   const TickType_t taskPeriod = 2;  // 2ms <--> 500Hz
@@ -636,16 +1012,11 @@ void BugWiper_Task1_fast(void* parameter) {
   Encoder_init();
 
   for (;;) {
-
-    //
-    // Do Stuff (needs to take less than 20ms)
-    //
     button_debounce();
     BugWiper_set_timer();
     BugWiper_read_motor_current();
     BugWiper_ADC_filter();
     BugWiper_set_motor_power();
-
     vTaskDelayUntil(&xLastWakeTime, taskPeriod);
   }
 }
@@ -655,17 +1026,11 @@ void BugWiper_Task2_slow(void* parameter) {
   TickType_t xLastWakeTime = xTaskGetTickCount();
   //BugWiper_test_Motor();
   for (;;) {
-
-    //
-    // Do Stuff (needs to take less than 20ms)
-    //
-    read_Buttons();
     BugWiper_read_ADCs_slow();
     BugWiper_read_Encoder();
-    BugWiper_check_end_reached();
-    BugWiper_state_machine();
+    //BugWiper_check_end_reached();
+    BugWiper_processFSM();
     BugWiper_LED_blinking();
-
     vTaskDelayUntil(&xLastWakeTime, taskPeriod);
   }
 }

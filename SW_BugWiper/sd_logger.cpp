@@ -136,6 +136,7 @@ void sdLoggerHandleCard() {
     initSD();
   }
 
+
   if (!current && sdStatus == SD_OK) {
     if (logFile) logFile.close();
     setSDStatus(SD_NOT_PRESENT);
@@ -144,13 +145,15 @@ void sdLoggerHandleCard() {
   lastCardState = current;
 }
 
-void sdLoggerLog(unsigned long t, uint16_t state, int32_t pos, int32_t speed, double current, double voltage) {
+void sdLoggerLog(unsigned long t, BW_MODE mode, int32_t pos, int32_t speed, double current, double voltage) {
 
   if (sdStatus != SD_OK) return;
   if (!isCardInserted()) return;
 
-  if (!logFile.printf("%lu;%u;%d;%d;%.2f;%.1f\n",
-                      t, state, pos, speed, current, voltage)) {
+  const char* modeStr = bwModeToString(mode);
+
+  if (!logFile.printf("%lu;%s;%d;%d;%.2f;%.1f\n",
+                      t, modeStr, pos, speed, current, voltage)) {
     setSDStatus(SD_FILE_ERROR);
     logFile.close();
   } else {

@@ -2,6 +2,7 @@
 #define SD_LOGGER_H
 
 #include <Arduino.h>
+#include "BugWiper.h"
 
 // Initialisierung
 void sdLoggerInit();
@@ -10,7 +11,7 @@ void sdLoggerInit();
 void sdLoggerHandleCard();
 
 // Logging
-void sdLoggerLog(unsigned long t, uint16_t state, int32_t pos, int32_t speed, double current, double voltage);
+void sdLoggerLog(unsigned long t, BW_MODE mode, int32_t pos, int32_t speed, double current, double voltage);
 
 // Status
 bool sdLoggerAvailable();
