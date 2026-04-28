@@ -162,13 +162,25 @@ struct RGB_COLOUR {
   uint8_t r, g, b;
 };
 
+struct MotorCommand {
+  direction dir;
+  uint8_t   startPower;
+  uint8_t   targetPower;
+  uint8_t   rampTime;
+};
+
+struct MotorState {
+  direction dir;
+  uint8_t   power;
+  uint8_t   targetPower;
+  uint8_t   rampTime;
+  uint8_t   rampTimer;
+};
+
 // Configuration parameters defining behavior per FSM mode
-struct ModeConfig {
+typedef struct {
   // Motor behavior
-  direction dir;              // Initial motor direction on mode entry
-  uint8_t   startPower;       // Motor power at mode entry
-  uint8_t   maxPower;         // Maximum allowed motor power
-  uint16_t  pwmRampTime;      // Time between PWM ramp steps [ms]
+  MotorCommand motorCmd;
 
   // Time supervision
   uint32_t  minTime;          // Minimum time to stay in this mode [ms]
@@ -185,7 +197,7 @@ struct ModeConfig {
 
   // FSM flow
   BW_MODE defaultNext;   // Nominal next state (BW_MODE_COUNT = none)
-};
+} BW_ModeConfig;
 
 
 // User initiated operation context
@@ -195,13 +207,11 @@ enum UserCommand {
   CMD_WINDING_IN
 };
 
-enum Step {
-  STEP_INIT,
-  STEP_RUNNING
-};
-
-extern Step step;
-
+typedef enum {
+  SUB_INIT,
+  SUB_RUNNING,
+  SUB_DONE
+} BW_SubState;
 
 struct PositionConfig {
   int32_t startSlowOut;
@@ -213,7 +223,7 @@ struct PositionConfig {
 extern const PositionConfig positionConfig;
 
 
-extern const ModeConfig modeConfig[BW_MODE_COUNT];
+extern const BW_ModeConfig bw_modeConfig[BW_MODE_COUNT];
 
 inline constexpr RGB_COLOUR BLACK = { 0, 0, 0 };
 inline constexpr RGB_COLOUR RED = { 100, 0, 0 };
@@ -238,8 +248,8 @@ void BugWiper_set_start_cleaning(void);
 void BugWiper_state_machine(void);
 void BugWiper_calculate(bool button_cleaning, bool button_winding_in, bool sw_cable_loose);
 
-extern BW_MODE BugWiper_currentMode;
-extern uint32_t modeStartTime;
+extern BW_MODE bw_currentMode;
+extern uint32_t bw_modeStartTime;
 
 extern ESP32Encoder BW_motor_encoder;
 extern uint32_t BW_ADC_current_sense;

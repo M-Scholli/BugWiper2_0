@@ -37,17 +37,19 @@ const char* bwModeToString(BW_MODE mode)
 }
 
 // Mode configuration table indexed by BW_MODE
-const ModeConfig modeConfig[BW_MODE_COUNT] = {
+const BW_ModeConfig bw_modeConfig[BW_MODE_COUNT] = {
 
   /* ------------------------------------------------------------
    * M_IDLE
    * ------------------------------------------------------------ */
   {
     // Motor behavior
-    .dir          = STOP,
-    .startPower   = 0,
-    .maxPower     = 0,
-    .pwmRampTime  = 0,
+    .motorCmd = {
+      .dir         = STOP,
+      .startPower  = 0,
+      .targetPower = 0,
+      .rampTime    = 0
+    },
 
     // Timing
     .minTime = 0,
@@ -67,10 +69,12 @@ const ModeConfig modeConfig[BW_MODE_COUNT] = {
    * M_REFERENCE_IN
    * ------------------------------------------------------------ */
   {
-    .dir          = IN,
-    .startPower   = 120,
-    .maxPower     = 200,
-    .pwmRampTime  = 6,
+    .motorCmd = {
+      .dir         = IN,
+      .startPower  = 120,
+      .targetPower = 200,
+      .rampTime    = 6
+    },
 
     .minTime = 0,
     .maxTime = 5000,
@@ -90,10 +94,12 @@ const ModeConfig modeConfig[BW_MODE_COUNT] = {
    * M_START_CLEAN_OUT
    * ------------------------------------------------------------ */
   {
-    .dir          = OUT,
-    .startPower   = 50,
-    .maxPower     = 120,
-    .pwmRampTime  = 6,
+    .motorCmd = {
+      .dir         = OUT,
+      .startPower  = 40,
+      .targetPower = 120,
+      .rampTime    = 6
+    },
 
     .minTime = 0,
     .maxTime = 3000,
@@ -112,10 +118,12 @@ const ModeConfig modeConfig[BW_MODE_COUNT] = {
    * M_CLEANING
    * ------------------------------------------------------------ */
   {
-    .dir          = OUT,
-    .startPower   = 50,
-    .maxPower     = 200,
-    .pwmRampTime  = 6,
+    .motorCmd = {
+      .dir         = OUT,
+      .startPower  = 50,
+      .targetPower = 200,
+      .rampTime    = 6
+    },
 
     .minTime = TIME_MIN_CLEANING,
     .maxTime = TIME_MAX_CLEANING,
@@ -134,10 +142,12 @@ const ModeConfig modeConfig[BW_MODE_COUNT] = {
    * M_DECEL_LOOSE
    * ------------------------------------------------------------ */
   {
-    .dir          = STOP,
-    .startPower   = 0,
-    .maxPower     = 30,
-    .pwmRampTime  = 8,
+    .motorCmd = {
+      .dir         = STOP,
+      .startPower  = 0,
+      .targetPower = 0,
+      .rampTime    = 8
+    },
 
     .minTime = 0,
     .maxTime = 2000,
@@ -156,13 +166,15 @@ const ModeConfig modeConfig[BW_MODE_COUNT] = {
    * M_WIGGLE_LOOSE
    * ------------------------------------------------------------ */
   {
-    .dir          = STOP,      // Direction handled internally
-    .startPower   = 0,
-    .maxPower     = 120,
-    .pwmRampTime  = 0,
+    .motorCmd = {
+      .dir         = IN,
+      .startPower  = 50,
+      .targetPower = 100,
+      .rampTime    = 2
+    },
 
     .minTime = 0,
-    .maxTime = 2000,
+    .maxTime = 1000,
 
     .ledColor     = ORANGE,
     .ledBlinkTime = 120,
@@ -178,10 +190,12 @@ const ModeConfig modeConfig[BW_MODE_COUNT] = {
    * M_RESTART_AFTER_LOOSE
    * ------------------------------------------------------------ */
   {
-    .dir          = OUT,
-    .startPower   = 50,
-    .maxPower     = 200,
-    .pwmRampTime  = 6,
+    .motorCmd = {
+      .dir         = OUT,
+      .startPower  = 50,
+      .targetPower = 200,
+      .rampTime    = 6
+    },
 
     .minTime = 0,
     .maxTime = 3000,
@@ -200,13 +214,15 @@ const ModeConfig modeConfig[BW_MODE_COUNT] = {
    * M_DECEL_END
    * ------------------------------------------------------------ */
   {
-    .dir          = STOP,
-    .startPower   = 0,
-    .maxPower     = 30,
-    .pwmRampTime  = 8,
+    .motorCmd = {
+      .dir         = OUT,
+      .startPower  = 200,
+      .targetPower = 20,
+      .rampTime    = 3
+    },
 
     .minTime = 0,
-    .maxTime = 3000,
+    .maxTime = 500,
 
     .ledColor     = BLUE,
     .ledBlinkTime = 0,
@@ -222,10 +238,12 @@ const ModeConfig modeConfig[BW_MODE_COUNT] = {
    * M_WINDING_IN
    * ------------------------------------------------------------ */
   {
-    .dir          = IN,
-    .startPower   = 10,
-    .maxPower     = 255,
-    .pwmRampTime  = 4,
+    .motorCmd = {
+      .dir         = IN,
+      .startPower  = 10,
+      .targetPower = 255,
+      .rampTime    = 4
+    },
 
     .minTime = 0,
     .maxTime = 5000,
@@ -244,10 +262,12 @@ const ModeConfig modeConfig[BW_MODE_COUNT] = {
   * M_GROUND_OUT
   * ------------------------------------------------------------ */
   {
-    .dir          = OUT,
-    .startPower   = 10,
-    .maxPower     = 80,
-    .pwmRampTime  = 15,
+    .motorCmd = {
+      .dir         = OUT,
+      .startPower  = 10,
+      .targetPower = 80,
+      .rampTime    = 15
+    },
 
     .minTime = 0,
     .maxTime = 3000,        // short timeout, no long running
@@ -266,10 +286,12 @@ const ModeConfig modeConfig[BW_MODE_COUNT] = {
    * M_FINISHED
    * ------------------------------------------------------------ */
   {
-    .dir          = STOP,
-    .startPower   = 0,
-    .maxPower     = 0,
-    .pwmRampTime  = 0,
+    .motorCmd = {
+      .dir         = STOP,
+      .startPower  = 0,
+      .targetPower = 0,
+      .rampTime    = 0
+    },
 
     .minTime = 0,
     .maxTime = 0,
@@ -288,15 +310,17 @@ const ModeConfig modeConfig[BW_MODE_COUNT] = {
    * M_EMERGENCY_IN
    * ------------------------------------------------------------ */
   {
-    .dir          = IN,
-    .startPower   = 180,
-    .maxPower     = 200,
-    .pwmRampTime  = 0,
+    .motorCmd = {
+      .dir         = IN,
+      .startPower  = 50,
+      .targetPower = 250,
+      .rampTime    = 3
+    },
 
     .minTime = 0,
     .maxTime = 0,     // No timeout
 
-    .ledColor     = RED,
+    .ledColor     = ORANGE,
     .ledBlinkTime = 100,
 
     .allowLooseDetect = false,
@@ -310,13 +334,15 @@ const ModeConfig modeConfig[BW_MODE_COUNT] = {
    * M_STOP
    * ------------------------------------------------------------ */
   {
-    .dir          = STOP,
-    .startPower   = 0,
-    .maxPower     = 0,
-    .pwmRampTime  = 0,
+    .motorCmd = {
+      .dir         = STOP,
+      .startPower  = 0,
+      .targetPower = 0,
+      .rampTime    = 0
+    },
 
     .minTime = 0,
-    .maxTime = 0,
+    .maxTime = 2000,
 
     .ledColor     = ORANGE,
     .ledBlinkTime = 0,
@@ -332,13 +358,15 @@ const ModeConfig modeConfig[BW_MODE_COUNT] = {
    * M_ERROR
    * ------------------------------------------------------------ */
   {
-    .dir          = STOP,
-    .startPower   = 0,
-    .maxPower     = 0,
-    .pwmRampTime  = 0,
+    .motorCmd = {
+      .dir         = STOP,
+      .startPower  = 0,
+      .targetPower = 0,
+      .rampTime    = 0
+    },
 
     .minTime = 0,
-    .maxTime = 0,
+    .maxTime = 2000,
 
     .ledColor     = RED,
     .ledBlinkTime = 500,
@@ -352,11 +380,10 @@ const ModeConfig modeConfig[BW_MODE_COUNT] = {
 };
 
 
-BW_MODE BugWiper_currentMode = M_IDLE;
+BW_MODE bw_currentMode = M_IDLE;
+BW_SubState bw_subState = SUB_INIT;
 
-Step step = STEP_INIT;
-
-uint32_t modeStartTime = 0;
+uint32_t bw_modeStartTime = 0;
 
 static UserCommand lastUserCommand = CMD_NONE;
 
@@ -438,6 +465,9 @@ hw_conf_t hw_conf = {
   8191   // ADC Steps
 };
 
+MotorState bw_motorState;
+
+
 DCShield shield(hb1_io_pins, hb2_io_pins, hw_conf);
 MotorControl btn_motor_control(shield);
 HalfBridge HalfBridge_1 = shield.get_half_bridge(DCShield::HALF_BRIDGE_1);
@@ -465,9 +495,9 @@ void BugWiper_log(void){
   DEBUG_INFO("ADC_Current:" + String(BW_ADC_current_mA_filtered) + " HB1:" + String(BW_ADC_btn_hb1) + " HB2:" + String(BW_ADC_btn_hb2));
   DEBUG_INFO("Encoder_count:" + String((int32_t)motor_enc_count) + " Power:" + String(motor_power));
   DEBUG_INFO("Position:" + String(BW_position) + " Speed:" + String(BW_speed));
-  DEBUG_WARNING(String("State: ") + bwModeToString(BugWiper_currentMode));
+  DEBUG_WARNING(String("State: ") + bwModeToString(bw_currentMode));
   DEBUG_INFO("ADC_VBat:" + String(BW_ADC_V_Bat) + " NTC:" + String(BW_ADC_T_ntc_degree));
-  sdLoggerLog(t, BugWiper_currentMode, BW_position, BW_speed, BW_ADC_current_mA_filtered, BW_ADC_V_Bat);
+  sdLoggerLog(t, bw_currentMode, BW_position, BW_speed, BW_ADC_current_mA_filtered, BW_ADC_V_Bat);
 }
 
 void BugWiper_log_event(void){
@@ -476,9 +506,9 @@ void BugWiper_log_event(void){
   DEBUG_WARNING("ADC_Current:" + String(BW_ADC_current_mA_filtered) + " HB1:" + String(BW_ADC_btn_hb1) + " HB2:" + String(BW_ADC_btn_hb2));
   DEBUG_WARNING("Encoder_count:" + String((int32_t)motor_enc_count) + " Power:" + String(motor_power));
   DEBUG_WARNING("Position:" + String(BW_position) + " Speed:" + String(BW_speed));
-  DEBUG_WARNING(String("State: ") + bwModeToString(BugWiper_currentMode));
+  DEBUG_WARNING(String("State: ") + bwModeToString(bw_currentMode));
   DEBUG_WARNING("ADC_VBat:" + String(BW_ADC_V_Bat) + " NTC:" + String(BW_ADC_T_ntc_degree));
-  sdLoggerLog(t, BugWiper_currentMode, BW_position, BW_speed, BW_ADC_current_mA_filtered, BW_ADC_V_Bat);
+  sdLoggerLog(t, bw_currentMode, BW_position, BW_speed, BW_ADC_current_mA_filtered, BW_ADC_V_Bat);
 }
 
 void BugWiper_test_Motor(void) {
@@ -526,11 +556,44 @@ void BugWiper_test_Motor(void) {
   DEBUG_INFO("Encoder count = " + String((int32_t)BW_motor_encoder.getCount()));
 }
 
-// switch the motor to out, in or stops
-void BugWiper_set_motor_dir(enum direction dir) {
-  motor_direction = dir;
-#ifdef BTS7960B_CONTROLLER
-  switch (dir) {
+void bw_motorInit(const MotorCommand& cmd)
+{
+  bw_motorState.dir         = cmd.dir;
+  bw_motorState.power       = cmd.startPower;
+  bw_motorState.targetPower = cmd.targetPower;
+  bw_motorState.rampTime    = cmd.rampTime;
+  bw_motorState.rampTimer   = 0;
+}
+
+void bw_set_motor_power(void) {
+  if (bw_motorState.rampTimer >= bw_motorState.rampTime) {
+    if (bw_motorState.power < bw_motorState.targetPower) {
+      bw_motorState.power++;
+    } else if (bw_motorState.power > bw_motorState.targetPower) {
+      bw_motorState.power--;
+    }
+    bw_motorState.rampTimer = 0;
+  }
+#ifdef BTN9960_CONTROLLER
+  switch (motor_direction) {
+    case OUT:
+      btn_motor_control.set_speed(-bw_motorState.power);
+      break;
+    case IN:
+      btn_motor_control.set_speed(bw_motorState.power);
+      break;
+    case STOP:
+      btn_motor_control.brake();
+      break;
+    case Freewheeling:
+      btn_motor_control.freewheel();
+      break;
+    default:
+      btn_motor_control.brake();
+      break;
+  }
+#elif defined(BTS7960B_CONTROLLER)
+  switch (motor_direction) {
     case OUT:  // out
       digitalWrite(MOTOR_IN2_PIN, 0);
       digitalWrite(MOTOR_IN1_PIN, 1);
@@ -545,45 +608,18 @@ void BugWiper_set_motor_dir(enum direction dir) {
       digitalWrite(MOTOR_IN2_PIN, 0);
       digitalWrite(MOTOR_IN1_PIN, 0);
       break;
-  }
-#endif
-}
 
-void BugWiper_set_motor_power(void) {
-  if (timer_motor_power >= time_pwm_ramp) {
-    if (motor_power < motor_power_dest) {
-      motor_power++;
-    } else if (motor_power > motor_power_dest) {
-      motor_power--;
-    }
-    timer_motor_power = 0;
-  }
-#ifdef BTN9960_CONTROLLER
-  switch (motor_direction) {
-    case OUT:
-      btn_motor_control.set_speed(-motor_power);
-      break;
-    case IN:
-      btn_motor_control.set_speed(motor_power);
-      break;
-    case STOP:
-      btn_motor_control.brake();
-      break;
     case Freewheeling:
-      btn_motor_control.freewheel();
-      break;
-    default:
-      btn_motor_control.brake();
+      digitalWrite(MOTOR_IN2_PIN, 0);
+      digitalWrite(MOTOR_IN1_PIN, 0);
       break;
   }
-
-#elif defined(BTS7960B_CONTROLLER)
 #if ESP_ARDUINO_VERSION >= ESP_ARDUINO_VERSION_VAL(3, 0, 0)
   // Code for version 3.x
-  ledcWrite(motor_pwm_pin, motor_power);
+  ledcWrite(motor_pwm_pin, bw_motorState.power);
 #else
   // Code for version 2.x
-  ledcWrite(motor_pwm_channel, motor_power);
+  ledcWrite(motor_pwm_channel, bw_motorState.power);
 #endif
 #endif
 }
@@ -595,43 +631,10 @@ void BugWiper_LED_blinking(void) {
   }
 }
 
-void applyMotorState(direction dir, uint8_t targetPower)
-{
-  // Set desired motor direction
-  motor_direction = dir;
-
-  // Set desired power target
-  motor_power_dest = targetPower;
-
-  // Immediate actions for brake / freewheel
-  if (dir == STOP) {
-    motor_power_dest = 0;
-  }
-}
-
 bool stateTimedOut(uint32_t maxTime)
 {
   if (maxTime == 0) return false;
-  return (millis() - modeStartTime) > maxTime;
-}
-
-void changeMode(BW_MODE newMode)
-{
-  DEBUG_INFO("FSM transition: %s -> %s",
-             bwModeToString(BugWiper_currentMode),
-             bwModeToString(newMode));
-
-  BugWiper_currentMode = newMode;
-  const ModeConfig& cfg = modeConfig[newMode];
-
-  modeStartTime = millis();
-  step = STEP_INIT;
-
-  // Apply LED for this mode
-  setLED(cfg.ledColor, cfg.ledBlinkTime);
-
-  // Apply initial motor state
-  applyMotorState(cfg.dir, cfg.startPower);
+  return (millis() - bw_modeStartTime) > maxTime;
 }
 
 void BugWiper_read_motor_current(void) {
@@ -673,7 +676,7 @@ void BugWiper_read_ADCs_slow(void) {
   BW_ADC_V_Bat = analogReadMilliVolts(ADC_VBat_PIN) * 0.0081;
 }
 
-bool BugWiper_check_end_reached(void) {
+bool bw_check_end_reached(void) {
   // Current-based detection
   if (BW_ADC_current_mA_filtered >= BW_STOP_CURRENT) {
     BW_ADC_current_counter++;
@@ -819,10 +822,25 @@ bool groundModeEnabled(void) {
   return false;
 }
 
+void changeMode(BW_MODE newMode)
+{
+  DEBUG_INFO("FSM transition: %s -> %s",
+             bwModeToString(bw_currentMode),
+             bwModeToString(newMode));
+
+  bw_currentMode = newMode;
+  const BW_ModeConfig& cfg = bw_modeConfig[newMode];
+
+  bw_modeStartTime = millis();
+  bw_subState = SUB_INIT;
+
+  // Apply LED for this mode
+  setLED(cfg.ledColor, cfg.ledBlinkTime);
+}
+
 
 // Handle global transitions with highest priority
-bool handleGlobalTransitions()
-{
+bool handleGlobalTransitions() {
   // User stop request (opposite button)
   if (eventStopRequested()) {
     changeMode(M_STOP);
@@ -838,133 +856,343 @@ bool handleGlobalTransitions()
   return false;  // No global transition taken
 }
 
-void stateIdle()
-{
-  // Waiting for user input
-  if (groundModeEnabled() && buttonOutPressed()) {
-    lastUserCommand = CMD_CLEANING;   // ground out is still an "out" operation
-    changeMode(M_GROUND_OUT);
-  }
-  else if (buttonOutPressed()) {
-    lastUserCommand = CMD_CLEANING;
-    changeMode(M_REFERENCE_IN);
-  }
-  else if (buttonInPressed()) {
-    lastUserCommand = CMD_WINDING_IN;
-    changeMode(M_WINDING_IN);
-  }
-  lastUserCommand = CMD_NONE;
-}
+void stateIdle(const BW_ModeConfig& cfg) {
+  switch (bw_subState) {
 
-void stateReferenceIn(const ModeConfig&) {
+    case SUB_INIT:
+      bw_motorInit(cfg.motorCmd);
+      lastUserCommand = CMD_NONE;
+      bw_subState = SUB_RUNNING;
+      break;
 
-}
+    case SUB_RUNNING:
+      // Waiting for user input
+      if (groundModeEnabled() && buttonOutPressed()) {
+        lastUserCommand = CMD_CLEANING;   // ground out is still an "out" operation
+        changeMode(M_GROUND_OUT);
+      }
+      else if (buttonInPressed()) {
+        lastUserCommand = CMD_WINDING_IN;
+        changeMode(M_WINDING_IN);
+      }
+      else if (buttonOutPressed()) {
+        lastUserCommand = CMD_CLEANING;
+        bw_subState = SUB_DONE;
+      }
+      break;
 
-void stateStartCleanOut(const ModeConfig& cfg)
-{
-  // Slow outward movement to tension the cable
- // applyMotorState(cfg.dir, currentPower);
-
-  if (cfg.allowLooseDetect && eventCableLoose()) {
-    changeMode(M_DECEL_LOOSE);
-    return;
-  }
-
-  if (BW_position > positionConfig.startSlowOut) {
-    if (cfg.defaultNext != BW_MODE_COUNT) {
-      changeMode(cfg.defaultNext);  // usually M_CLEANING
-    }
-  }
-}
-
-void stateCleaning(const ModeConfig& cfg)
-{
-  // Normal outward cleaning movement
-  applyMotorState(cfg.dir, cfg.maxPower);
-
-  if (cfg.allowLooseDetect && eventCableLoose()) {
-    changeMode(M_DECEL_LOOSE);
-    return;
-  }
-
-  if (BW_position >= positionConfig.slowZoneStart) {
-    changeMode(cfg.defaultNext);
-    return;
-  }
-
-  if (stateTimedOut(cfg.maxTime)) {
-    changeMode(M_ERROR);
-    return;
-  }
-}
-
-
-void stateDecelLoose(const ModeConfig& cfg) {
-  if (!eventCableLoose()){
-    changeMode(cfg.defaultNext);
-  }
-}
-
-void stateWiggleLoose(const ModeConfig& cfg) {}
-
-void stateRestartAfterLoose(const ModeConfig& cfg) {}
-
-void stateDecelEnd(const ModeConfig& cfg)
-{
-  // Controlled deceleration before direction change
-  //updateDeceleration();
-
-  if (motorSlowedDown()) {
-    if (cfg.defaultNext != BW_MODE_COUNT) {
+    case SUB_DONE:
       changeMode(cfg.defaultNext);
-    }
+      break;
   }
 }
 
-void stateWindingIn(const ModeConfig& cfg)
-{
-  if(BugWiper_check_end_reached()) {
-    changeMode(cfg.defaultNext);
+void stateReferenceIn(const BW_ModeConfig& cfg) {
+
+  switch (bw_subState) {
+
+    case SUB_INIT:
+      bw_motorInit(cfg.motorCmd);
+      bw_subState = SUB_RUNNING;
+      break;
+
+    case SUB_RUNNING: {
+      bool endReached = bw_check_end_reached();
+      bool minTimeElapsed = (millis() - bw_modeStartTime) >= cfg.minTime;
+
+      // Transition condition: BOTH must be true
+      if (endReached && minTimeElapsed) {
+        bw_subState = SUB_DONE;
+      }
+      break;
     }
+
+    case SUB_DONE:
+      changeMode(cfg.defaultNext);
+      break;
+  }
+}
+
+void stateStartCleanOut(const BW_ModeConfig& cfg) {
+
+  if (cfg.allowLooseDetect && eventCableLoose()) {
+    changeMode(M_DECEL_LOOSE);
+    return;
+  }
 
   if (stateTimedOut(cfg.maxTime)) {
     changeMode(M_ERROR);
+    return;
+  }
+
+  switch (bw_subState) {
+
+    case SUB_INIT:
+      bw_motorInit(cfg.motorCmd);
+      bw_subState = SUB_RUNNING;
+      break;
+
+    case SUB_RUNNING:
+      if (BW_position >= positionConfig.slowZoneStart) {
+        bw_subState = SUB_DONE;
+      }
+      break;
+
+    case SUB_DONE:
+      changeMode(cfg.defaultNext);
+      break;
   }
 }
 
-void stateGroundOut(const ModeConfig& cfg)
-{
+void stateCleaning(const BW_ModeConfig& cfg) {
+  if (stateTimedOut(cfg.maxTime)) {
+    changeMode(M_ERROR);
+    return;
+  }
+
+  if (cfg.allowLooseDetect && eventCableLoose()) {
+    changeMode(M_DECEL_LOOSE);
+    return;
+  }
+
+  switch (bw_subState) {
+
+    case SUB_INIT:
+      bw_motorInit(cfg.motorCmd);
+      bw_subState = SUB_RUNNING;
+      break;
+
+    case SUB_RUNNING:
+      if (BW_position >= positionConfig.startSlowOut) {
+        bw_subState = SUB_DONE;
+      }
+      break;
+
+    case SUB_DONE:
+      changeMode(cfg.defaultNext);
+      break;
+  }
+}
+
+
+void stateDecelLoose(const BW_ModeConfig& cfg) {
+  if (BW_position >= positionConfig.slowZoneStart) {
+    changeMode(M_WIGGLE_LOOSE);
+    return;
+  }
+
+  switch (bw_subState) {
+
+    case SUB_INIT:
+      bw_motorInit(cfg.motorCmd);
+      bw_subState = SUB_RUNNING;
+      break;
+
+    case SUB_RUNNING:
+      if (!eventCableLoose()){
+        bw_subState = SUB_DONE;
+      }
+      break;
+
+    case SUB_DONE:
+      changeMode(cfg.defaultNext);
+      break;
+  }
+}
+
+void stateWiggleLoose(const BW_ModeConfig& cfg) {
+}
+
+void stateRestartAfterLoose(const BW_ModeConfig& cfg) {
+  if (cfg.allowLooseDetect && eventCableLoose()) {
+    changeMode(M_DECEL_LOOSE);
+    return;
+  }
+
+  if (stateTimedOut(cfg.maxTime)) {
+    changeMode(M_ERROR);
+    return;
+  }
+
+  switch (bw_subState) {
+
+    case SUB_INIT:
+      bw_motorInit(cfg.motorCmd);
+      bw_subState = SUB_RUNNING;
+      break;
+
+    case SUB_RUNNING:
+      if (BW_position >= positionConfig.slowZoneStart) {
+        bw_subState = SUB_DONE;
+      }
+      break;
+
+    case SUB_DONE:
+      changeMode(cfg.defaultNext);
+      break;
+  }
+}
+
+void stateDecelEnd(const BW_ModeConfig& cfg) {
+    switch (bw_subState) {
+
+    case SUB_INIT:
+      bw_motorInit(cfg.motorCmd);
+      bw_subState = SUB_RUNNING;
+      break;
+
+    case SUB_RUNNING:
+     if (motorSlowedDown()) {
+        bw_subState = SUB_DONE;
+      }
+      break;
+
+    case SUB_DONE:
+      changeMode(cfg.defaultNext);
+      break;
+  }
+}
+
+void stateWindingIn(const BW_ModeConfig& cfg) {
+  if (stateTimedOut(cfg.maxTime)) {
+    changeMode(M_ERROR);
+    return;
+  }
+
+  switch (bw_subState) {
+
+    case SUB_INIT:
+      bw_motorInit(cfg.motorCmd);
+      bw_subState = SUB_RUNNING;
+      break;
+
+    case SUB_RUNNING:
+      if(bw_check_end_reached()) {
+        bw_subState = SUB_DONE;
+      }
+      break;
+
+    case SUB_DONE:
+      changeMode(cfg.defaultNext);
+      break;
+  }
+}
+
+void stateGroundOut(const BW_ModeConfig& cfg) {
   // Ground / maintenance outward movement only
 
-  if (BW_position >= positionConfig.groundOutMax) {
-    changeMode(M_STOP);
+  if (stateTimedOut(cfg.maxTime)) {
+    changeMode(M_ERROR);
     return;
   }
 
   if (stateTimedOut(cfg.maxTime)) {
-    changeMode(M_STOP);
+    changeMode(M_ERROR);
     return;
+  }
+
+  if (cfg.allowLooseDetect && eventCableLoose()) {
+    changeMode(M_DECEL_LOOSE);
+    return;
+  }
+
+  switch (bw_subState) {
+
+    case SUB_INIT:
+      bw_motorInit(cfg.motorCmd);
+      bw_subState = SUB_RUNNING;
+      break;
+
+    case SUB_RUNNING:
+      if (BW_position >= positionConfig.groundOutMax) {
+        bw_subState = SUB_DONE;
+      }
+      break;
+
+    case SUB_DONE:
+      changeMode(cfg.defaultNext);
+      break;
   }
 }
 
-void stateFinished(){
+void stateFinished(const BW_ModeConfig& cfg) {
+  switch (bw_subState) {
 
+    case SUB_INIT:
+      bw_motorInit(cfg.motorCmd);
+      bw_subState = SUB_RUNNING;
+      break;
+
+    case SUB_RUNNING:
+      if (stateTimedOut(cfg.maxTime)) {
+        bw_subState = SUB_DONE;
+      }
+      break;
+
+    case SUB_DONE:
+      changeMode(cfg.defaultNext);
+      break;
+  }
 }
 
-void stateEmergencyIn(const ModeConfig& cfg) {
+void stateEmergencyIn(const BW_ModeConfig& cfg) {
+  switch (bw_subState) {
 
+    case SUB_INIT:
+      bw_motorInit(cfg.motorCmd);
+      bw_subState = SUB_RUNNING;
+      break;
+
+    case SUB_RUNNING:
+      if (stateTimedOut(cfg.maxTime)) {
+        bw_subState = SUB_DONE;
+      }
+      break;
+
+    case SUB_DONE:
+      changeMode(cfg.defaultNext);
+      break;
+  }
 }
 
-void stateStop()
-{
-  applyMotorState(STOP, 0);
-  lastUserCommand = CMD_NONE;
+void stateStop(const BW_ModeConfig& cfg) {
+  switch (bw_subState) {
+
+    case SUB_INIT:
+      bw_motorInit(cfg.motorCmd);
+      bw_subState = SUB_RUNNING;
+      break;
+
+    case SUB_RUNNING:
+      if (stateTimedOut(cfg.maxTime)) {
+        bw_subState = SUB_DONE;
+      }
+      break;
+
+    case SUB_DONE:
+      changeMode(cfg.defaultNext);
+      break;
+  }
 }
 
-void stateError()
-{
-  applyMotorState(STOP, 0);
-  lastUserCommand = CMD_NONE;
+void stateError(const BW_ModeConfig& cfg) {
+  switch (bw_subState) {
+
+    case SUB_INIT:
+      bw_motorInit(cfg.motorCmd);
+      bw_subState = SUB_RUNNING;
+      break;
+
+    case SUB_RUNNING:
+      if (stateTimedOut(cfg.maxTime)) {
+        bw_subState = SUB_DONE;
+      }
+      break;
+
+    case SUB_DONE:
+      changeMode(cfg.defaultNext);
+      break;
+  }
 }
 
 void BugWiper_processFSM()
@@ -978,15 +1206,15 @@ void BugWiper_processFSM()
   }
 
   // Fetch configuration for current mode
-  const ModeConfig& cfg = modeConfig[BugWiper_currentMode];
+  const BW_ModeConfig& cfg = bw_modeConfig[bw_currentMode];
 
   // ------------------------------------------------------------
   // 2. State-specific logic
   // ------------------------------------------------------------
 
-  switch (BugWiper_currentMode)
+  switch (bw_currentMode)
   {
-    case M_IDLE:                  stateIdle();                  break;
+    case M_IDLE:                  stateIdle(cfg);               break;
     case M_REFERENCE_IN:          stateReferenceIn(cfg);        break;
     case M_START_CLEAN_OUT:       stateStartCleanOut(cfg);      break;
     case M_CLEANING:              stateCleaning(cfg);           break;
@@ -996,10 +1224,10 @@ void BugWiper_processFSM()
     case M_DECEL_END:             stateDecelEnd(cfg);           break;
     case M_WINDING_IN:            stateWindingIn(cfg);          break;
     case M_GROUND_OUT:            stateGroundOut(cfg);          break;
-    case M_FINISHED:              stateFinished();              break;
+    case M_FINISHED:              stateFinished(cfg);              break;
     case M_EMERGENCY_IN:          stateEmergencyIn(cfg);        break;
-    case M_STOP:                  stateStop();                  break;
-    case M_ERROR:                 stateError();                 break;
+    case M_STOP:                  stateStop(cfg);                  break;
+    case M_ERROR:                 stateError(cfg);                 break;
     default:                      changeMode(M_ERROR);          break;
   }
 
@@ -1016,7 +1244,7 @@ void BugWiper_Task1_fast(void* parameter) {
     BugWiper_set_timer();
     BugWiper_read_motor_current();
     BugWiper_ADC_filter();
-    BugWiper_set_motor_power();
+    bw_set_motor_power();
     vTaskDelayUntil(&xLastWakeTime, taskPeriod);
   }
 }
@@ -1028,7 +1256,6 @@ void BugWiper_Task2_slow(void* parameter) {
   for (;;) {
     BugWiper_read_ADCs_slow();
     BugWiper_read_Encoder();
-    //BugWiper_check_end_reached();
     BugWiper_processFSM();
     BugWiper_LED_blinking();
     vTaskDelayUntil(&xLastWakeTime, taskPeriod);
