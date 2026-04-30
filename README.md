@@ -50,14 +50,14 @@ This project is an open source electronic bug wiper system.
 - selected Board: ESP32S3 DEV Module
 
 # Hardware:
-[More information and documentation of PCB and mechanical construction can be found here](./docs/Hardwar.md)
+[More information and documentation of PCB and mechanical construction can be found here](./docs/Hardware.md)
 ![image](./fotos/CAD_1.png)
 
 ## Electronics / PCB Designs
 ### Motor Controller PCB
 ![image](./fotos/PCB_3D_Top.png)
 ![image](./fotos/PCB_3D_Bottom.png)
-[More info here](./Hardware/HW_Electronics.md)
+[More info here](./docs/HW_Electronics.md)
 ### ControlPanel PCB
 ![image](./fotos/Controlpanel1.png)
 ![image](./fotos/Controlpanel2.png)
@@ -73,8 +73,8 @@ This project is an open source electronic bug wiper system.
 CHANCS Aluminium Alloy Double V-Groove Belt Pulley 40 mm OD 8 mm Fixed Pulley for Motor Shaft Bore 6 mm: https://www.amazon.de/gp/product/B0CRR4KS3J
 
 # Motor
-[More Details and Motor tests here](./Hardware/HW_Motor.md)
+[More Details and Motor tests here](./docs/HW_Motor.md)
 
 
 ## Old Version
-[More information and documentation of the old prototypes and there problems can be found here](./Hardware/HW_OldVersion.md)
+[More information and documentation of the old prototypes and there problems can be found here](./docs/HW_OldVersion.md)
