@@ -8,6 +8,9 @@
 #include "btn99x0_motor_control.hpp"
 #include "sd_logger.h"
 
+// Enable/disable ground mode support
+#define BW_ENABLE_GROUND_MODE
+
 #define ADC_FILTER_SIZE 32
 
 // Task periods in ms
@@ -36,6 +39,13 @@
 #define POSITION_SLOW_FUSELAGE 6500  // End of the Wing in mm
 #define LENGTH_SLOW 200              // Distance to slow down
 #endif
+
+// Sensor filter parameters (more stable)
+#define BW_SENSOR_FILTER_THRESHOLD  30
+// Button filter parameters (fast reaction)
+#define BW_BTN_FILTER_THRESHOLD  10
+#define BW_BTN_DEBOUNCE_TICKS  3    // fast task ticks
+#define BW_BTN_HOLD_TICKS     500  // fast task ticks
 
 // String representation of BW_MODE for logging and debugging
 static const char* BW_MODE_STR[BW_MODE_COUNT] = {
@@ -441,15 +451,17 @@ uint32_t bw_modeStartTime = 0;
 
 static UserCommand lastUserCommand = CMD_NONE;
 
-// New structured global variables
 ADCFilter adc_filter;
 ADCFiltered adc_filtered;
 StopDetection stop_detection;
-ButtonState button_state;
 
-uint16_t timer_button_long_press = 0;  // Time since start of long pressing button
+BwFilter bw_cableLooseFilter;
+BwFilter bw_groundSwitchFilter;
 
-// Button states are now in button_state struct
+BwFilter bw_btnInFilter;
+BwFilter bw_btnOutFilter;
+ButtonRuntime bw_btnIn;
+ButtonRuntime bw_btnOut;
 
 #ifdef BTS7960B_CONTROLLER
 int motor_pwm_channel;
@@ -790,24 +802,87 @@ void BugWiper_read_Encoder(void) {
   bw_motorState.speed = bw_motorState.encoder_count - BW_enc_count_old;
 }
 
-void button_debounce(void) {
-  button_state.cable_loose = digitalRead(SW_CABLE_LOOSE_PIN);
-  if (button_state.cable_loose == 0 && button_state.timer_cable_loose < 255) {
-    button_state.timer_cable_loose++;
-  } else if (button_state.cable_loose && button_state.timer_cable_loose > 0) {
-    button_state.timer_cable_loose--;
+static inline bool bw_readGroundSwitchRaw(void)
+{
+  bool level = digitalRead(SW_GROUND_PIN);
+#ifdef BW_GROUND_SWITCH_INVERTED
+  level = !level;
+#endif
+  return level;
+}
+
+static inline bool bw_readCableLooseRaw(void)
+{
+  bool level = digitalRead(SW_CABLE_LOOSE_PIN);
+#ifdef BW_CABLE_LOOSE_INVERTED
+  level = !level;
+#endif
+  return level;
+}
+
+void bw_filterInit(BwFilter* f, uint16_t threshold)
+{
+  f->count     = 0;
+  f->threshold = threshold;
+  f->state     = false;
+}
+
+void bw_filterUpdate(BwFilter* f, bool raw)
+{
+  uint16_t max = f->threshold * 2;
+  if (raw) {
+    if (f->count < max) {
+      f->count++;
+    }
+  } else {
+    if (f->count > 0) {
+      f->count--;
+    }
   }
-  button_state.winding_in = digitalRead(BUTTON_WINDING_IN_PIN);
-  if (button_state.winding_in == 0 && button_state.timer_winding_in < 255) {
-    button_state.timer_winding_in++;
-  } else if (button_state.winding_in && button_state.timer_winding_in > 0) {
-    button_state.timer_winding_in--;
-  }
-  button_state.cleaning = digitalRead(BUTTON_CLEANING_PIN);
-  if (button_state.cleaning == 0 && button_state.timer_cleaning < 255) {
-    button_state.timer_cleaning++;
-  } else if (button_state.cleaning && button_state.timer_cleaning > 0) {
-    button_state.timer_cleaning--;
+  f->state = (f->count >= f->threshold);
+}
+
+void bw_buttonUpdate(ButtonRuntime* btn, bool level)
+{
+  btn->event = BTN_EVT_NONE;
+  btn->rawLevel = level;
+
+  switch (btn->state) {
+
+    case BTN_IDLE:
+      if (level) {
+        btn->debounceCnt = 0;
+        btn->state = BTN_DEBOUNCE;
+      }
+      break;
+
+    case BTN_DEBOUNCE:
+      if (level) {
+        if (++btn->debounceCnt >= BW_BTN_DEBOUNCE_TICKS) {
+          btn->holdCnt = 0;
+          btn->state = BTN_PRESSED;
+        }
+      } else {
+        btn->state = BTN_IDLE;
+      }
+      break;
+
+    case BTN_PRESSED:
+      if (!level) {
+        btn->event = BTN_EVT_SHORT;
+        btn->state = BTN_IDLE;
+      } else if (++btn->holdCnt >= BW_BTN_HOLD_TICKS) {
+        btn->event = BTN_EVT_LONG;
+        btn->state = BTN_HELD;
+      }
+      break;
+
+    case BTN_HELD:
+      if (!level) {
+        btn->event = BTN_EVT_RELEASE;
+        btn->state = BTN_IDLE;
+      }
+      break;
   }
 }
 
@@ -815,48 +890,29 @@ bool eventStopRequested(void)
 {
   // Stop cleaning by pressing winding-in button
   if (lastUserCommand == CMD_CLEANING &&
-      button_state.timer_winding_in >= TIME_BUTTON_DEBOUNCE) {
-
+      bw_btnIn.state == BTN_PRESSED) {
     DEBUG_WARNING("Stop requested: cleaning");
     return true;
   }
 
   // Stop winding-in by pressing cleaning button
   if (lastUserCommand == CMD_WINDING_IN &&
-      button_state.timer_cleaning >= TIME_BUTTON_DEBOUNCE) {
-
+      bw_btnOut.state == BTN_PRESSED) {
     DEBUG_WARNING("Stop requested: winding in");
     return true;
   }
-
   return false;
 }
 
-bool buttonOutPressed(void) {
-  if (button_state.timer_winding_in >= TIME_BUTTON_DEBOUNCE) {
-    return true;
-  }
+
+bool groundModeActive(void) {
+#ifdef BW_ENABLE_GROUND_MODE
+  return bw_groundSwitchFilter.state;
+#else
   return false;
+#endif
 }
 
-bool buttonInPressed(void) {
-  if (button_state.timer_cleaning >= TIME_BUTTON_DEBOUNCE) {
-    return true;
-  }
-  return false;
-}
-
-bool eventCableLoose(void) {
-  if (button_state.timer_cable_loose >= TIME_BUTTON_DEBOUNCE) {
-    return true;
-  } else {
-    return false;
-  }
-}
-
-bool groundModeEnabled(void) {
-  return false;
-}
 
 void changeMode(BW_MODE newMode)
 {
@@ -903,15 +959,20 @@ void stateIdle(const BW_ModeConfig& cfg) {
 
     case SUB_RUNNING:
       // Waiting for user input
-      if (groundModeEnabled() && buttonOutPressed()) {
+    
+      if (groundModeActive() && (bw_btnOut.event == BTN_EVT_LONG)) {
         lastUserCommand = CMD_CLEANING;   // ground out is still an "out" operation
         changeMode(M_GROUND_OUT);
       }
-      else if (buttonInPressed()) {
+      else if (bw_btnIn.event == BTN_EVT_LONG) {
+        lastUserCommand = CMD_WINDING_IN;
+        changeMode(M_EMERGENCY_IN);
+      }
+      else if (bw_btnIn.event == BTN_EVT_SHORT) {
         lastUserCommand = CMD_WINDING_IN;
         changeMode(M_WINDING_IN);
       }
-      else if (buttonOutPressed()) {
+      else if (bw_btnOut.event == BTN_EVT_SHORT) {
         lastUserCommand = CMD_CLEANING;
         bw_subState = SUB_DONE;
       }
@@ -951,7 +1012,7 @@ void stateReferenceIn(const BW_ModeConfig& cfg) {
 
 void stateStartCleanOut(const BW_ModeConfig& cfg) {
 
-  if (cfg.allowLooseDetect && eventCableLoose()) {
+  if (cfg.allowLooseDetect && bw_cableLooseFilter.state) {
     changeMode(M_DECEL_LOOSE);
     return;
   }
@@ -986,7 +1047,7 @@ void stateCleaning(const BW_ModeConfig& cfg) {
     return;
   }
 
-  if (cfg.allowLooseDetect && eventCableLoose()) {
+  if (cfg.allowLooseDetect && bw_cableLooseFilter.state) {
     changeMode(M_DECEL_LOOSE);
     return;
   }
@@ -1024,7 +1085,7 @@ void stateDecelLoose(const BW_ModeConfig& cfg) {
       break;
 
     case SUB_RUNNING:
-      if (!eventCableLoose()){
+      if (bw_cableLooseFilter.state == false) {
         bw_subState = SUB_DONE;
       }
       break;
@@ -1039,7 +1100,7 @@ void stateWiggleLoose(const BW_ModeConfig& cfg) {
 }
 
 void stateRestartAfterLoose(const BW_ModeConfig& cfg) {
-  if (cfg.allowLooseDetect && eventCableLoose()) {
+  if (cfg.allowLooseDetect && bw_cableLooseFilter.state) {
     changeMode(M_DECEL_LOOSE);
     return;
   }
@@ -1126,7 +1187,7 @@ void stateGroundOut(const BW_ModeConfig& cfg) {
     return;
   }
 
-  if (cfg.allowLooseDetect && eventCableLoose()) {
+  if (cfg.allowLooseDetect && bw_cableLooseFilter.state) {
     changeMode(M_DECEL_LOOSE);
     return;
   }
@@ -1269,10 +1330,19 @@ void BugWiper_processFSM()
 void BugWiper_Task1_fast(void* parameter) {
   const TickType_t taskPeriod = pdMS_TO_TICKS(BW_TASK_FAST_MS);
   TickType_t xLastWakeTime = xTaskGetTickCount();
+  // init
+  bw_filterInit(&bw_cableLooseFilter, BW_SENSOR_FILTER_THRESHOLD);  
+  bw_filterInit(&bw_btnInFilter,  BW_BTN_FILTER_THRESHOLD);
+  bw_filterInit(&bw_btnOutFilter, BW_BTN_FILTER_THRESHOLD);
 
   bw_encoder_init();
   for (;;) {
-    button_debounce();
+    // update (fast task)
+    bw_filterUpdate(&bw_cableLooseFilter, bw_readCableLooseRaw());
+    bw_filterUpdate(&bw_btnInFilter,  digitalRead(BTN_IN_PIN));
+    bw_filterUpdate(&bw_btnOutFilter, digitalRead(BTN_OUT_PIN));
+    bw_buttonUpdate(&bw_btnIn, bw_btnInFilter.state);
+    bw_buttonUpdate(&bw_btnOut, bw_btnOutFilter.state);
     BugWiper_read_motor_current();
     bw_set_motor_power();  // motor ramp + HW output
     vTaskDelayUntil(&xLastWakeTime, taskPeriod);
@@ -1282,8 +1352,14 @@ void BugWiper_Task1_fast(void* parameter) {
 void BugWiper_Task2_slow(void* parameter) {
   const TickType_t taskPeriod = pdMS_TO_TICKS(BW_TASK_SLOW_MS);
   TickType_t xLastWakeTime = xTaskGetTickCount();
+#ifdef BW_ENABLE_GROUND_MODE
+  bw_filterInit(&bw_groundSwitchFilter, BW_SENSOR_FILTER_THRESHOLD);
+#endif
   //BugWiper_test_Motor();
   for (;;) {
+#ifdef BW_ENABLE_GROUND_MODE
+    bw_filterUpdate(&bw_groundSwitchFilter, bw_readGroundSwitchRaw());
+#endif
     BugWiper_read_ADCs_slow();
     BugWiper_read_Encoder();
     BugWiper_processFSM();
@@ -1300,9 +1376,9 @@ void bw_rgbLed_init(void) {
 void bw_init(void) {
   DEBUG_INFO("Init BugWiper:");
   pinMode(SW_CABLE_LOOSE_PIN, INPUT_PULLUP);
-  pinMode(SAFETY_SWITCH_PIN, INPUT_PULLUP);
-  pinMode(BUTTON_WINDING_IN_PIN, INPUT_PULLUP);
-  pinMode(BUTTON_CLEANING_PIN, INPUT_PULLUP);
+  pinMode(SW_GROUND_PIN, INPUT_PULLUP);
+  pinMode(BTN_IN_PIN, INPUT_PULLUP);
+  pinMode(BTN_OUT_PIN, INPUT_PULLUP);
   //analogSetPinAttenuation(MOTOR_CURRENT_SENSE_PIN, ADC_6db);
   BugWiper_ADC_filter_init();
 

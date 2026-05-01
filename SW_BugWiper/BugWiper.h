@@ -18,9 +18,6 @@
 #define PWM_FREQ 10000
 #define PWM_RESOLUTION_BITS 8
 
-#define TIME_BUTTON_DEBOUNCE 25  //time in ms for button debounce
-#define TIME_MAX_DEBOUNCE 50
-
 // Pin discription
 // ESP32-Wroom-32:
 // following pins are not allowed to use: 0 (Bootselect); 2 Board LED / must be low on boot; (1 & 3 UART USB-Serial);
@@ -51,10 +48,16 @@
 #define PWM_CHANNEL_A 0
 
 //Button PINs
-#define BUTTON_CLEANING_PIN 21
-#define BUTTON_WINDING_IN_PIN 14
+#define BTN_OUT_PIN 21
+#define BTN_IN_PIN 14
 #define SW_CABLE_LOOSE_PIN 18
-#define SAFETY_SWITCH_PIN 47  // Safety switch to deactivate the BugWiper
+#define SW_GROUND_PIN 47  // Safety switch to deactivate the BugWiper
+
+// Invert ground switch logic
+// #define BW_GROUND_SWITCH_INVERTED
+
+// Invert cable loose switch logic
+// #define BW_CABLE_LOOSE_INVERTED
 
 // Encoder
 #define MOTOR_ENCODER_1_PIN 16
@@ -95,6 +98,20 @@ enum direction {
   STOP,
   Freewheeling
 };
+
+typedef enum {
+  BTN_IDLE,
+  BTN_DEBOUNCE,
+  BTN_PRESSED,
+  BTN_HELD
+} ButtonState;
+
+typedef enum {
+  BTN_EVT_NONE,
+  BTN_EVT_SHORT,   // short press released
+  BTN_EVT_LONG,    // long press detected
+  BTN_EVT_RELEASE  // released after long press
+} ButtonEvent;
 
 struct MotorCommand {
   direction dir;
@@ -154,7 +171,6 @@ typedef struct {
   BW_MODE defaultNext;   // Nominal next state (BW_MODE_COUNT = none)
 } BW_ModeConfig;
 
-
 // User initiated operation context
 enum UserCommand {
   CMD_NONE,
@@ -193,15 +209,22 @@ struct StopDetection {
   uint16_t speed_counter;
 };
 
-struct ButtonState {
-  bool cable_loose;
-  bool winding_in;
-  bool cleaning;
+// Generic digital input filter
+typedef struct {
+  uint16_t count;      // integrator counter
+  uint16_t threshold;  // activation threshold
+  bool     state;      // filtered state
+} BwFilter;
 
-  uint16_t timer_cable_loose;
-  uint16_t timer_winding_in;
-  uint16_t timer_cleaning;
-};
+typedef struct {
+  ButtonState state;    // internal FSM
+  ButtonEvent event;    // one-shot event
+
+  uint16_t debounceCnt; // debounce counter
+  uint16_t holdCnt;     // hold counter
+
+  bool rawLevel;        // raw GPIO level
+} ButtonRuntime;
 
 extern const BW_ModeConfig bw_modeConfig[BW_MODE_COUNT];
 
@@ -228,6 +251,5 @@ extern ESP32Encoder bw_motorEncoder;
 extern ADCFilter adc_filter;
 extern ADCFiltered adc_filtered;
 extern StopDetection stop_detection;
-extern ButtonState button_state;
 
 #endif

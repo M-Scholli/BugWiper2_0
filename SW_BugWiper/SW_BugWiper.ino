@@ -21,20 +21,10 @@ void setup() {
   delay(200);
   DEBUG_INFO("BugWiper start programm");
   bw_init();
-  //Timer_init();
-  if (digitalRead(SAFETY_SWITCH_PIN) == 0) {
-    DEBUG_INFO("SAFETY SWITCH closed");
-  } else {
-    DEBUG_WARNING("WARNING!!! SAFETY SWITCH open");
-    DEBUG_INFO("Close the SAFETY SWITCH to operate the BugWiper");
-  }
-  //BugWiper_test_LED();
 }
 
 // The loop function is called in an endless loop
 void loop() {
-  //read_Buttons();
-  //BugWiper_calculate(0, 0, 0);
   sdLoggerHandleCard();
   if(bw_currentMode!=M_IDLE){
     bw_log();
