@@ -7,7 +7,6 @@
 #include <ESP32Encoder.h>
 
 #define TESTBENCH 1
-
 #define BugWiperPCB 1
 
 #if BugWiperPCB
@@ -19,56 +18,8 @@
 #define PWM_FREQ 10000
 #define PWM_RESOLUTION_BITS 8
 
-#define LED_TIME_CLEANING 500    //time blinking LED
-#define LED_TIME_WINDING_IN 250  //time blinking LED
-
-#define START_POWER_CLEANING 50     //start power cleaning
-#define START_POWER_WINDING_IN 100   //start power winding in
-#define START_POWER_LOOSE_CABLE 60  //start power after loose cable
-
-#ifdef TESTBENCH
-#define MAX_POWER_START_CLEANING 150  //max power at startion winding out
-#define MAX_POWER_WINDING_OUT 200     //max power while cleaning
-#define MAX_POWER_NEAR_END 30
-#define MAX_POWER_WINDING_IN 255  //max power while winding in
-#define MAX_POWER_GROUND 50       //max power on the ground
-#else
-#define MAX_POWER_START_CLEANING 150  //max power at startion winding out
-#define MAX_POWER_WINDING_OUT 255     //max power while cleaning
-#define MAX_POWER_NEAR_END 30
-#define MAX_POWER_WINDING_IN 255  //max power while winding in
-#define MAX_POWER_GROUND 50       //max power on the ground
-#endif
-
-#define TIME_MIN_CLEANING 300  //minimal cleaning time in ms
-
-#define TIME_FINISH_RESET 1500
-#define TIME_ERROR_RESET 3000
-#define TIME_LONG_PRESS 200      //time in ms for long button press
 #define TIME_BUTTON_DEBOUNCE 25  //time in ms for button debounce
 #define TIME_MAX_DEBOUNCE 50
-#define TIME_BUTTON_CLEAR 5
-
-// Stop function
-#ifdef TESTBENCH
-#define BW_STOP_CURRENT 6500
-#define BW_STOP_CURRENT_COUNTS 5
-#define BW_STOP_SPEED 1
-#define BW_STOP_SPEED_COUNTS 20
-#define BW_STOP_V_BAT 8.0
-#define BW_STOP_T_MAX 50
-#define TIME_MAX_CLEANING 9000    //maximale cleaning time in ms
-#define TIME_MAX_WINDING_IN 5000  //maximale winding in time in ms
-#else
-#define BW_STOP_CURRENT 7500
-#define BW_STOP_CURRENT_COUNTS 5
-#define BW_STOP_SPEED 1
-#define BW_STOP_SPEED_COUNTS 20
-#define BW_STOP_V_BAT 8.0
-#define BW_STOP_T_MAX 70
-#define TIME_MAX_CLEANING 90000    //maximale cleaning time in ms
-#define TIME_MAX_WINDING_IN 50000  //maximale winding in time in ms
-#endif
 
 // Pin discription
 // ESP32-Wroom-32:
@@ -112,25 +63,6 @@
 #define GEAR_RATIO 18
 #define SPOOL_CIRCUMFERENCE 75.4  // in mm
 
-#ifdef TESTBENCH
-#define POSITION_STARTING 100  // Slow start lenght in mm
-#define POSITION_SLOW_WINGTIP 1300
-#define POSITION_WINGTIP 1600       // End of the Wing in mm
-#define POSITION_SLOW_FUSELAGE 500  // End of the Wing in mm
-#define LENGTH_SLOW 200             // Distance to slow down
-#else
-#define POSITION_STARTING 200  // Slow start lenght in mm
-#define POSITION_SLOW_WINGTIP 6000
-#define POSITION_WINGTIP 6500        // End of the Wing in mm
-#define POSITION_SLOW_FUSELAGE 6500  // End of the Wing in mm
-#define LENGTH_SLOW 200              // Distance to slow down
-#endif
-
-enum direction { OUT = 0,
-                 IN,
-                 STOP,
-                 Freewheeling };
-
 // Bug Wiper FSM operating modes
 enum BW_MODE {
   M_IDLE = 0,             // Idle, motor off
@@ -157,9 +89,11 @@ enum BW_MODE {
   BW_MODE_COUNT
 };
 
-// RGB COLOUR struct
-struct RGB_COLOUR {
-  uint8_t r, g, b;
+enum direction {
+  OUT = 0,
+  IN,
+  STOP,
+  Freewheeling
 };
 
 struct MotorCommand {
@@ -177,6 +111,11 @@ struct MotorState {
   uint8_t   rampTimer;
 };
 
+// RGB COLOUR struct
+struct RGB_COLOUR {
+  uint8_t r, g, b;
+};
+
 // LED behavior per FSM mode
 struct LedCommand {
   RGB_COLOUR color;     // LED color
@@ -190,7 +129,6 @@ struct LedState {
   uint16_t   timer;     // tick counter
   bool       isOn;      // output state
 };
-
 
 // Configuration parameters defining behavior per FSM mode
 typedef struct {
@@ -231,9 +169,6 @@ struct PositionConfig {
   int32_t groundOutMax;
 };
 
-extern const PositionConfig positionConfig;
-
-
 extern const BW_ModeConfig bw_modeConfig[BW_MODE_COUNT];
 
 inline constexpr RGB_COLOUR BLACK = { 0, 0, 0 };
@@ -245,24 +180,15 @@ inline constexpr RGB_COLOUR CYAN = { 0, 100, 100 };
 inline constexpr RGB_COLOUR MAGENTA = { 100, 0, 100 };
 inline constexpr RGB_COLOUR ORANGE = { 80, 35, 0 };
 
-const char* bwModeToString(BW_MODE mode);
-void BugWiper_rgbLed_init(void);
-void BugWiper_init(void);
-void BugWiper_rgbLedWrite(struct RGB_COLOUR colour);
-void BugWiper_log(void);
-void BugWiper_test_LED(void);
-void BugWiper_test_Motor(void);
-void BugWiper_read_motor_current(void);
-void BugWiper_set_timer(void);
-void BugWiper_set_winding_in(void);
-void BugWiper_set_start_cleaning(void);
-void BugWiper_state_machine(void);
-void BugWiper_calculate(bool button_cleaning, bool button_winding_in, bool sw_cable_loose);
+const char* bw_ModeToString(BW_MODE mode);
+void bw_rgbLed_init(void);
+void bw_init(void);
+void bw_rgbLedWrite(struct RGB_COLOUR colour);
+void bw_log(void);
 
 extern BW_MODE bw_currentMode;
-extern uint32_t bw_modeStartTime;
 
-extern ESP32Encoder BW_motor_encoder;
+extern ESP32Encoder bw_motorEncoder;
 extern uint32_t BW_ADC_current_sense;
 extern volatile double BW_ADC_current_mA_filtered;
 extern float BW_ADC_T_ntc_degree;
@@ -270,9 +196,8 @@ extern float BW_ADC_V_Bat;
 extern volatile double BW_ADC_btn_hb1;
 extern volatile double BW_ADC_btn_hb2;
 
-extern volatile uint32_t BW_state_machine_timer;
-extern volatile int32_t BW_position;
-extern volatile int32_t BW_speed;
+extern volatile int32_t bw_position;
+extern volatile int32_t bw_speed;
 extern volatile int64_t motor_enc_count;  // counts from encoder
 
 #endif

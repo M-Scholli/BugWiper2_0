@@ -14,6 +14,28 @@
 #define BW_TASK_FAST_MS  2
 #define BW_TASK_SLOW_MS  20
 
+// Stop function thresholds
+#define BW_STOP_CURRENT 7500
+#define BW_STOP_CURRENT_COUNTS 5
+#define BW_STOP_SPEED 1
+#define BW_STOP_SPEED_COUNTS 20
+#define BW_STOP_V_BAT 8.0
+#define BW_STOP_T_MAX 70
+
+//position thresholds
+#ifdef TESTBENCH
+#define POSITION_STARTING 100  // Slow start lenght in mm
+#define POSITION_SLOW_WINGTIP 1300
+#define POSITION_WINGTIP 1600       // End of the Wing in mm
+#define POSITION_SLOW_FUSELAGE 500  // End of the Wing in mm
+#define LENGTH_SLOW 200             // Distance to slow down
+#else
+#define POSITION_STARTING 200  // Slow start lenght in mm
+#define POSITION_SLOW_WINGTIP 6000
+#define POSITION_WINGTIP 6500        // End of the Wing in mm
+#define POSITION_SLOW_FUSELAGE 6500  // End of the Wing in mm
+#define LENGTH_SLOW 200              // Distance to slow down
+#endif
 
 // String representation of BW_MODE for logging and debugging
 static const char* BW_MODE_STR[BW_MODE_COUNT] = {
@@ -33,7 +55,7 @@ static const char* BW_MODE_STR[BW_MODE_COUNT] = {
   "ERROR"
 };
 
-const char* bwModeToString(BW_MODE mode)
+const char* bw_ModeToString(BW_MODE mode)
 {
   if (mode >= BW_MODE_COUNT) {
     return "INVALID_MODE";
@@ -115,7 +137,7 @@ const BW_ModeConfig bw_modeConfig[BW_MODE_COUNT] = {
       .blinkTime = 300
     },
 
-    .minTime = 0,
+    .minTime = 350,
     .maxTime = 3000,
 
     .allowLooseDetect = true,
@@ -141,8 +163,8 @@ const BW_ModeConfig bw_modeConfig[BW_MODE_COUNT] = {
       .blinkTime = 300
     },
 
-    .minTime = TIME_MIN_CLEANING,
-    .maxTime = TIME_MAX_CLEANING,
+    .minTime = 0,
+    .maxTime = 15000,
 
     .allowLooseDetect = true,
     .allowWiggle      = true,
@@ -412,7 +434,6 @@ const BW_ModeConfig bw_modeConfig[BW_MODE_COUNT] = {
   }
 };
 
-
 BW_MODE bw_currentMode = M_IDLE;
 BW_SubState bw_subState = SUB_INIT;
 
@@ -434,15 +455,10 @@ float BW_ADC_V_Bat;
 volatile double BW_ADC_btn_hb1;
 volatile double BW_ADC_btn_hb2;
 
-volatile uint32_t BW_state_machine_timer;
-volatile uint32_t BW_state_machine_timer_2;
-
 volatile int64_t motor_enc_count;  // counts from encoder
-volatile int32_t BW_position;      // position in mm converted from the encoder
-volatile int32_t BW_speed;
-int16_t BW_speed_counter;
-
-enum BW_MODE BW_mode = M_IDLE;
+volatile int32_t bw_position;      // position in mm converted from the encoder
+volatile int32_t bw_speed;
+int16_t bw_speed_counter;
 
 uint16_t timer_button_cable_loose = 0;
 uint16_t timer_button_winding_in = 0;
@@ -453,15 +469,10 @@ bool button_winding_in;
 bool button_start_cleaning;
 bool button_cable_loose;
 
+#ifdef BTS7960B_CONTROLLER
 int motor_pwm_channel;
 gpio_num_t motor_pwm_pin;
-
-volatile uint16_t timer_LED;
-uint16_t LED_time;
-volatile uint8_t timer_motor_power;
-
-bool motor_inverted;
-
+#endif
 
 const PositionConfig positionConfig = {
   .startSlowOut  = POSITION_STARTING,
@@ -470,13 +481,7 @@ const PositionConfig positionConfig = {
   .groundOutMax  = 800
 };
 
-
-static direction motor_direction;
-static uint8_t motor_power = 0;        // current power
-static uint8_t motor_power_dest = 0;   // target power
-static uint8_t time_pwm_ramp = 0;
-
-ESP32Encoder BW_motor_encoder;
+ESP32Encoder bw_motorEncoder;
 
 using namespace btn99x0;
 
@@ -506,87 +511,80 @@ MotorControl btn_motor_control(shield);
 HalfBridge HalfBridge_1 = shield.get_half_bridge(DCShield::HALF_BRIDGE_1);
 HalfBridge HalfBridge_2 = shield.get_half_bridge(DCShield::HALF_BRIDGE_2);
 
-void Encoder_init(void) {
-  BW_motor_encoder.attachHalfQuad(MOTOR_ENCODER_1_PIN, MOTOR_ENCODER_2_PIN);
-  BW_motor_encoder.setCount(0);
+void bw_encoder_init(void) {
+  bw_motorEncoder.attachHalfQuad(MOTOR_ENCODER_1_PIN, MOTOR_ENCODER_2_PIN);
+  bw_motorEncoder.setCount(0);
 }
 
-void BugWiper_rgbLedWrite(struct RGB_COLOUR colour) {
+void bw_rgbLedWrite(struct RGB_COLOUR colour) {
   rgbLedWrite(RGB_LED_PIN, colour.g, colour.r, colour.b);
 }
 
-
-void setLED(const RGB_COLOUR& color, uint16_t blinkTime)
-{
-  BugWiper_rgbLedWrite(color);
-  LED_time = blinkTime;
-}
-
-void BugWiper_log(void){
+void bw_log(void){
   unsigned long t = millis();
   DEBUG_INFO("Time:" + String(t));
   DEBUG_INFO("ADC_Current:" + String(BW_ADC_current_mA_filtered) + " HB1:" + String(BW_ADC_btn_hb1) + " HB2:" + String(BW_ADC_btn_hb2));
-  DEBUG_INFO("Encoder_count:" + String((int32_t)motor_enc_count) + " Power:" + String(motor_power));
-  DEBUG_INFO("Position:" + String(BW_position) + " Speed:" + String(BW_speed));
-  DEBUG_WARNING(String("State: ") + bwModeToString(bw_currentMode));
+  DEBUG_INFO("Encoder_count:" + String((int32_t)motor_enc_count) + " Power:" + String(bw_motorState.power));
+  DEBUG_INFO("Position:" + String(bw_position) + " Speed:" + String(bw_speed));
+  DEBUG_WARNING(String("State: ") + bw_ModeToString(bw_currentMode));
   DEBUG_INFO("ADC_VBat:" + String(BW_ADC_V_Bat) + " NTC:" + String(BW_ADC_T_ntc_degree));
-  sdLoggerLog(t, bw_currentMode, BW_position, BW_speed, BW_ADC_current_mA_filtered, BW_ADC_V_Bat);
+  sdLoggerLog(t, bw_currentMode, bw_position, bw_speed, BW_ADC_current_mA_filtered, BW_ADC_V_Bat);
 }
 
-void BugWiper_log_event(void){
+void bw_log_event(void){
   unsigned long t = millis();
   DEBUG_WARNING("Time:" + String(t));
   DEBUG_WARNING("ADC_Current:" + String(BW_ADC_current_mA_filtered) + " HB1:" + String(BW_ADC_btn_hb1) + " HB2:" + String(BW_ADC_btn_hb2));
-  DEBUG_WARNING("Encoder_count:" + String((int32_t)motor_enc_count) + " Power:" + String(motor_power));
-  DEBUG_WARNING("Position:" + String(BW_position) + " Speed:" + String(BW_speed));
-  DEBUG_WARNING(String("State: ") + bwModeToString(bw_currentMode));
+  DEBUG_WARNING("Encoder_count:" + String((int32_t)motor_enc_count) + " Power:" + String(bw_motorState.power));
+  DEBUG_WARNING("Position:" + String(bw_position) + " Speed:" + String(bw_speed));
+  DEBUG_WARNING(String("State: ") + bw_ModeToString(bw_currentMode));
   DEBUG_WARNING("ADC_VBat:" + String(BW_ADC_V_Bat) + " NTC:" + String(BW_ADC_T_ntc_degree));
-  sdLoggerLog(t, bw_currentMode, BW_position, BW_speed, BW_ADC_current_mA_filtered, BW_ADC_V_Bat);
+  sdLoggerLog(t, bw_currentMode, bw_position, bw_speed, BW_ADC_current_mA_filtered, BW_ADC_V_Bat);
 }
 
 void BugWiper_test_Motor(void) {
   DEBUG_INFO("Run forward for 2 sec...")
-  DEBUG_INFO("Encoder count = " + String((int32_t)BW_motor_encoder.getCount()));
+  DEBUG_INFO("Encoder count = " + String((int32_t)bw_motorEncoder.getCount()));
   rgbLedWrite(RGB_LED_PIN, RGB_BRIGHTNESS, 0, 0);  // Red
   btn_motor_control.set_speed(180);
   delay(500);
-  DEBUG_INFO("Encoder count = " + String((int32_t)BW_motor_encoder.getCount()));
+  DEBUG_INFO("Encoder count = " + String((int32_t)bw_motorEncoder.getCount()));
   delay(500);
-  DEBUG_INFO("Encoder count = " + String((int32_t)BW_motor_encoder.getCount()));
+  DEBUG_INFO("Encoder count = " + String((int32_t)bw_motorEncoder.getCount()));
   DEBUG_INFO("Load current (A): ");
   DEBUG_INFO(HalfBridge_1.get_load_current_in_amps());
   DEBUG_INFO(HalfBridge_2.get_load_current_in_amps());
   DEBUG_INFO(((float)analogReadMilliVolts(MOTOR_CURRENT_SENSE_PIN) * 0.005));
   delay(1000);
-  DEBUG_INFO("Encoder count = " + String((int32_t)BW_motor_encoder.getCount()));
+  DEBUG_INFO("Encoder count = " + String((int32_t)bw_motorEncoder.getCount()));
 
   DEBUG_INFO("Freewheel for 1 sec...");
   rgbLedWrite(RGB_LED_PIN, 0, RGB_BRIGHTNESS, 0);  // Green
   btn_motor_control.freewheel();
   delay(1000);
-  DEBUG_INFO("Encoder count = " + String((int32_t)BW_motor_encoder.getCount()));
+  DEBUG_INFO("Encoder count = " + String((int32_t)bw_motorEncoder.getCount()));
 
   DEBUG_INFO("Run backward for 2 sec...");
-  DEBUG_INFO("Encoder count = " + String((int32_t)BW_motor_encoder.getCount()));
+  DEBUG_INFO("Encoder count = " + String((int32_t)bw_motorEncoder.getCount()));
   rgbLedWrite(RGB_LED_PIN, 0, 0, RGB_BRIGHTNESS);  // Blue
   btn_motor_control.set_speed(-180);
   delay(500);
-  DEBUG_INFO("Encoder count = " + String((int32_t)BW_motor_encoder.getCount()));
+  DEBUG_INFO("Encoder count = " + String((int32_t)bw_motorEncoder.getCount()));
   delay(500);
-  DEBUG_INFO("Encoder count = " + String((int32_t)BW_motor_encoder.getCount()));
+  DEBUG_INFO("Encoder count = " + String((int32_t)bw_motorEncoder.getCount()));
   DEBUG_INFO("Load current (A): ");
   DEBUG_INFO(HalfBridge_1.get_load_current_in_amps());
   DEBUG_INFO(HalfBridge_2.get_load_current_in_amps());
   DEBUG_INFO(((float)analogReadMilliVolts(MOTOR_CURRENT_SENSE_PIN) * 0.005));
   delay(1000);
-  DEBUG_INFO("Encoder count = " + String((int32_t)BW_motor_encoder.getCount()));
+  DEBUG_INFO("Encoder count = " + String((int32_t)bw_motorEncoder.getCount()));
 
   DEBUG_INFO("Brake for 1 sec...");
   rgbLedWrite(RGB_LED_PIN, 0, 0, 0);  // Blue
   btn_motor_control.brake();
   delay(1000);
-  motor_enc_count = BW_motor_encoder.getCount();
-  DEBUG_INFO("Encoder count = " + String((int32_t)BW_motor_encoder.getCount()));
+  motor_enc_count = bw_motorEncoder.getCount();
+  DEBUG_INFO("Encoder count = " + String((int32_t)bw_motorEncoder.getCount()));
 }
 
 void bw_motorInit(const MotorCommand& cmd)
@@ -608,7 +606,7 @@ void bw_set_motor_power(void) {
     bw_motorState.rampTimer = 0;
   }
 #ifdef BTN9960_CONTROLLER
-  switch (motor_direction) {
+  switch (bw_motorState.dir) {
     case OUT:
       btn_motor_control.set_speed(-bw_motorState.power);
       break;
@@ -626,7 +624,7 @@ void bw_set_motor_power(void) {
       break;
   }
 #elif defined(BTS7960B_CONTROLLER)
-  switch (motor_direction) {
+  switch (bw_motorState.dir) {
     case OUT:  // out
       digitalWrite(MOTOR_IN2_PIN, 0);
       digitalWrite(MOTOR_IN1_PIN, 1);
@@ -671,7 +669,7 @@ void bw_ledInit(const LedCommand& cmd)
       (cmd.blinkTime + BW_TASK_SLOW_MS - 1) / BW_TASK_SLOW_MS;
   }
 
-  BugWiper_rgbLedWrite(cmd.color);
+  bw_rgbLedWrite(cmd.color);
 }
 
 // Update LED state
@@ -690,9 +688,9 @@ void bw_ledUpdate(void)
     bw_ledState.isOn = !bw_ledState.isOn;
 
     if (bw_ledState.isOn) {
-      BugWiper_rgbLedWrite(bw_ledState.color);
+      bw_rgbLedWrite(bw_ledState.color);
     } else {
-      BugWiper_rgbLedWrite(BLACK);
+      bw_rgbLedWrite(BLACK);
     }
   }
 }
@@ -748,7 +746,7 @@ bool bw_check_end_reached(void) {
     BW_ADC_current_counter++;
     if (BW_ADC_current_counter > BW_STOP_CURRENT_COUNTS) {
       DEBUG_INFO("Finished: current:" + String(BW_ADC_current_mA) + " above " + String((float)BW_STOP_CURRENT));
-      BugWiper_log_event();
+      bw_log_event();
       return true;
     }
   } else {
@@ -758,32 +756,32 @@ bool bw_check_end_reached(void) {
   }
   
   // Speed-based detection
-  if (abs(BW_speed) < BW_STOP_SPEED && BW_state_machine_timer > TIME_MIN_CLEANING) {
-    BW_speed_counter++;
-    if (BW_speed_counter >= BW_STOP_SPEED_COUNTS) {
-      DEBUG_INFO("Finished: Speed:" + String(abs(BW_speed)) + " below " + String((float)BW_STOP_SPEED));
-      BugWiper_log_event();
+  if (abs(bw_speed) < BW_STOP_SPEED) {
+    bw_speed_counter++;
+    if (bw_speed_counter >= BW_STOP_SPEED_COUNTS) {
+      DEBUG_INFO("Finished: Speed:" + String(abs(bw_speed)) + " below " + String((float)BW_STOP_SPEED));
+      bw_log_event();
       return true;
     }
   } else {
-    if (BW_speed_counter > 1) {
-      BW_speed_counter--;
+    if (bw_speed_counter > 1) {
+      bw_speed_counter--;
     }
   }
   return false;
 }
 
 bool motorSlowedDown(void) {
-  if ( BW_speed < BW_STOP_SPEED ) {
-    BW_speed_counter++;
-    if (BW_speed_counter >= BW_STOP_SPEED_COUNTS) {
-      DEBUG_INFO("Decel End Finished: Speed:" + String(BW_speed) + " below " + String((float)BW_STOP_SPEED));
-      BugWiper_log_event();
+  if ( bw_speed < BW_STOP_SPEED ) {
+    bw_speed_counter++;
+    if (bw_speed_counter >= BW_STOP_SPEED_COUNTS) {
+      DEBUG_INFO("Decel End Finished: Speed:" + String(bw_speed) + " below " + String((float)BW_STOP_SPEED));
+      bw_log_event();
       return true;
     }
   } else {
-    if (BW_speed_counter > 1) {
-      BW_speed_counter--;
+    if (bw_speed_counter > 1) {
+      bw_speed_counter--;
     }
   }
 }
@@ -792,32 +790,25 @@ bool BugWiper_safety_protection(void) {
   // Undervoltage protection
   if (BW_ADC_V_Bat <= BW_STOP_V_BAT) {
     DEBUG_ERROR("Under Voltage: V BAT:" + String(BW_ADC_V_Bat) + " below " + String((float)BW_STOP_V_BAT) + "V");
-    BugWiper_log_event();
+    bw_log_event();
     return true;
   }
 
   //Temperature protection
   if (BW_ADC_T_ntc_degree > BW_STOP_T_MAX) {
     DEBUG_ERROR("Over Temperature: T NTC:" + String(BW_ADC_T_ntc_degree) + "above " + String((float)BW_STOP_T_MAX) + "DEG");
-    BugWiper_log_event();
+    bw_log_event();
     return true;
   }
 
   return false;
 }
 
-void BugWiper_set_timer(void) {
-  BW_state_machine_timer++;
-  BW_state_machine_timer_2++;
-  timer_motor_power++;
-  timer_LED++;
-}
-
 void BugWiper_read_Encoder(void) {
   uint32_t BW_enc_count_old = motor_enc_count;
-  motor_enc_count = BW_motor_encoder.getCount();
-  BW_position = int32_t((float)motor_enc_count * SPOOL_CIRCUMFERENCE / (CPR_Encoder * GEAR_RATIO));
-  BW_speed = motor_enc_count - BW_enc_count_old;
+  motor_enc_count = bw_motorEncoder.getCount();
+  bw_position = int32_t((float)motor_enc_count * SPOOL_CIRCUMFERENCE / (CPR_Encoder * GEAR_RATIO));
+  bw_speed = motor_enc_count - BW_enc_count_old;
 }
 
 void button_debounce(void) {
@@ -891,8 +882,8 @@ bool groundModeEnabled(void) {
 void changeMode(BW_MODE newMode)
 {
   DEBUG_INFO("FSM transition: %s -> %s",
-             bwModeToString(bw_currentMode),
-             bwModeToString(newMode));
+             bw_ModeToString(bw_currentMode),
+             bw_ModeToString(newMode));
 
   bw_currentMode = newMode;
   const BW_ModeConfig& cfg = bw_modeConfig[newMode];
@@ -999,7 +990,7 @@ void stateStartCleanOut(const BW_ModeConfig& cfg) {
       break;
 
     case SUB_RUNNING:
-      if (BW_position >= positionConfig.slowZoneStart) {
+      if (bw_position >= positionConfig.slowZoneStart) {
         bw_subState = SUB_DONE;
       }
       break;
@@ -1029,7 +1020,7 @@ void stateCleaning(const BW_ModeConfig& cfg) {
       break;
 
     case SUB_RUNNING:
-      if (BW_position >= positionConfig.startSlowOut) {
+      if (bw_position >= positionConfig.startSlowOut) {
         bw_subState = SUB_DONE;
       }
       break;
@@ -1040,9 +1031,8 @@ void stateCleaning(const BW_ModeConfig& cfg) {
   }
 }
 
-
 void stateDecelLoose(const BW_ModeConfig& cfg) {
-  if (BW_position >= positionConfig.slowZoneStart) {
+  if (bw_position >= positionConfig.slowZoneStart) {
     changeMode(M_WIGGLE_LOOSE);
     return;
   }
@@ -1088,7 +1078,7 @@ void stateRestartAfterLoose(const BW_ModeConfig& cfg) {
       break;
 
     case SUB_RUNNING:
-      if (BW_position >= positionConfig.slowZoneStart) {
+      if (bw_position >= positionConfig.slowZoneStart) {
         bw_subState = SUB_DONE;
       }
       break;
@@ -1170,7 +1160,7 @@ void stateGroundOut(const BW_ModeConfig& cfg) {
       break;
 
     case SUB_RUNNING:
-      if (BW_position >= positionConfig.groundOutMax) {
+      if (bw_position >= positionConfig.groundOutMax) {
         bw_subState = SUB_DONE;
       }
       break;
@@ -1277,7 +1267,6 @@ void BugWiper_processFSM()
   // ------------------------------------------------------------
   // 2. State-specific logic
   // ------------------------------------------------------------
-
   switch (bw_currentMode)
   {
     case M_IDLE:                  stateIdle(cfg);               break;
@@ -1296,18 +1285,15 @@ void BugWiper_processFSM()
     case M_ERROR:                 stateError(cfg);                 break;
     default:                      changeMode(M_ERROR);          break;
   }
-
 }
-
 
 void BugWiper_Task1_fast(void* parameter) {
   const TickType_t taskPeriod = pdMS_TO_TICKS(BW_TASK_FAST_MS);
   TickType_t xLastWakeTime = xTaskGetTickCount();
 
-  Encoder_init();
+  bw_encoder_init();
   for (;;) {
     button_debounce();
-    BugWiper_set_timer();
     BugWiper_read_motor_current();
     BugWiper_ADC_filter();
     bw_set_motor_power();  // motor ramp + HW output
@@ -1328,12 +1314,12 @@ void BugWiper_Task2_slow(void* parameter) {
   }
 }
 
-void BugWiper_rgbLed_init(void) {
+void bw_rgbLed_init(void) {
   pinMode(RGB_LED_PIN, OUTPUT);
   digitalWrite(RGB_LED_PIN, 0);
 }
 
-void BugWiper_init(void) {
+void bw_init(void) {
   DEBUG_INFO("Init BugWiper:");
   pinMode(SW_CABLE_LOOSE_PIN, INPUT_PULLUP);
   pinMode(SAFETY_SWITCH_PIN, INPUT_PULLUP);
@@ -1342,7 +1328,7 @@ void BugWiper_init(void) {
   //analogSetPinAttenuation(MOTOR_CURRENT_SENSE_PIN, ADC_6db);
   BugWiper_ADC_filter_init();
 
-  //Encoder_init();
+  //bw_encoder_init();
 #ifdef BTN9960_CONTROLLER
   btn_motor_control.begin();
   btn_motor_control.set_slew_rate(SLEW_RATE_LEVEL_5);

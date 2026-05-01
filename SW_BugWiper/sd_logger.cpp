@@ -150,7 +150,7 @@ void sdLoggerLog(unsigned long t, BW_MODE mode, int32_t pos, int32_t speed, doub
   if (sdStatus != SD_OK) return;
   if (!isCardInserted()) return;
 
-  const char* modeStr = bwModeToString(mode);
+  const char* modeStr = bw_ModeToString(mode);
 
   if (!logFile.printf("%lu;%s;%d;%d;%.2f;%.1f\n",
                       t, modeStr, pos, speed, current, voltage)) {

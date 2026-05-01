@@ -8,19 +8,19 @@
 //The setup function is called once at startup of the sketch
 void setup() {
   DEBUG_INIT(115200);
-  BugWiper_rgbLed_init();
+  bw_rgbLed_init();
   delay(10);
   sdLoggerInit();
   if (sdLoggerAvailable()) {
-    BugWiper_rgbLedWrite(GREEN);
+    bw_rgbLedWrite(GREEN);
   } else {
-    BugWiper_rgbLedWrite(ORANGE);
+    bw_rgbLedWrite(ORANGE);
   }
   delay(300);
-  BugWiper_rgbLedWrite(BLACK);
+  bw_rgbLedWrite(BLACK);
   delay(200);
   DEBUG_INFO("BugWiper start programm");
-  BugWiper_init();
+  bw_init();
   //Timer_init();
   if (digitalRead(SAFETY_SWITCH_PIN) == 0) {
     DEBUG_INFO("SAFETY SWITCH closed");
@@ -37,7 +37,7 @@ void loop() {
   //BugWiper_calculate(0, 0, 0);
   sdLoggerHandleCard();
   if(bw_currentMode!=M_IDLE){
-    BugWiper_log();
+    bw_log();
   }
   delay(500);
 }
