@@ -441,33 +441,15 @@ uint32_t bw_modeStartTime = 0;
 
 static UserCommand lastUserCommand = CMD_NONE;
 
-uint32_t BW_ADC_current_sense;
-uint32_t ADC_current_filter_sum;
-uint32_t ADC_current_old_values[ADC_FILTER_SIZE];
-int8_t ADC_filter_counter = 0;
-uint32_t BW_ADC_current_filtered;
+// New structured global variables
+ADCFilter adc_filter;
+ADCFiltered adc_filtered;
+StopDetection stop_detection;
+ButtonState button_state;
 
-double BW_ADC_current_mA;
-uint16_t BW_ADC_current_counter;
-volatile double BW_ADC_current_mA_filtered;
-float BW_ADC_T_ntc_degree;
-float BW_ADC_V_Bat;
-volatile double BW_ADC_btn_hb1;
-volatile double BW_ADC_btn_hb2;
-
-volatile int64_t motor_enc_count;  // counts from encoder
-volatile int32_t bw_position;      // position in mm converted from the encoder
-volatile int32_t bw_speed;
-int16_t bw_speed_counter;
-
-uint16_t timer_button_cable_loose = 0;
-uint16_t timer_button_winding_in = 0;
-uint16_t timer_button_start_cleaning = 0;
 uint16_t timer_button_long_press = 0;  // Time since start of long pressing button
 
-bool button_winding_in;
-bool button_start_cleaning;
-bool button_cable_loose;
+// Button states are now in button_state struct
 
 #ifdef BTS7960B_CONTROLLER
 int motor_pwm_channel;
@@ -523,23 +505,23 @@ void bw_rgbLedWrite(struct RGB_COLOUR colour) {
 void bw_log(void){
   unsigned long t = millis();
   DEBUG_INFO("Time:" + String(t));
-  DEBUG_INFO("ADC_Current:" + String(BW_ADC_current_mA_filtered) + " HB1:" + String(BW_ADC_btn_hb1) + " HB2:" + String(BW_ADC_btn_hb2));
-  DEBUG_INFO("Encoder_count:" + String((int32_t)motor_enc_count) + " Power:" + String(bw_motorState.power));
-  DEBUG_INFO("Position:" + String(bw_position) + " Speed:" + String(bw_speed));
+  DEBUG_INFO("ADC_Current:" + String(adc_filtered.current_mA_filtered) + " HB1: N/A HB2: N/A");
+  DEBUG_INFO("Encoder_count:" + String((int32_t)bw_motorState.encoder_count) + " Power:" + String(bw_motorState.power));
+  DEBUG_INFO("Position:" + String(bw_motorState.position_mm) + " Speed:" + String(bw_motorState.speed));
   DEBUG_WARNING(String("State: ") + bw_ModeToString(bw_currentMode));
-  DEBUG_INFO("ADC_VBat:" + String(BW_ADC_V_Bat) + " NTC:" + String(BW_ADC_T_ntc_degree));
-  sdLoggerLog(t, bw_currentMode, bw_position, bw_speed, BW_ADC_current_mA_filtered, BW_ADC_V_Bat);
+  DEBUG_INFO("ADC_VBat:" + String(adc_filtered.battery_voltage) + " NTC:" + String(adc_filtered.temperature_degree));
+  sdLoggerLog(t, bw_currentMode, bw_motorState.position_mm, bw_motorState.speed, adc_filtered.current_mA_filtered, adc_filtered.battery_voltage);
 }
 
 void bw_log_event(void){
   unsigned long t = millis();
   DEBUG_WARNING("Time:" + String(t));
-  DEBUG_WARNING("ADC_Current:" + String(BW_ADC_current_mA_filtered) + " HB1:" + String(BW_ADC_btn_hb1) + " HB2:" + String(BW_ADC_btn_hb2));
-  DEBUG_WARNING("Encoder_count:" + String((int32_t)motor_enc_count) + " Power:" + String(bw_motorState.power));
-  DEBUG_WARNING("Position:" + String(bw_position) + " Speed:" + String(bw_speed));
+  DEBUG_WARNING("ADC_Current:" + String(adc_filtered.current_mA_filtered) + " HB1: N/A HB2: N/A");
+  DEBUG_WARNING("Encoder_count:" + String((int32_t)bw_motorState.encoder_count) + " Power:" + String(bw_motorState.power));
+  DEBUG_WARNING("Position:" + String(bw_motorState.position_mm) + " Speed:" + String(bw_motorState.speed));
   DEBUG_WARNING(String("State: ") + bw_ModeToString(bw_currentMode));
-  DEBUG_WARNING("ADC_VBat:" + String(BW_ADC_V_Bat) + " NTC:" + String(BW_ADC_T_ntc_degree));
-  sdLoggerLog(t, bw_currentMode, bw_position, bw_speed, BW_ADC_current_mA_filtered, BW_ADC_V_Bat);
+  DEBUG_WARNING("ADC_VBat:" + String(adc_filtered.battery_voltage) + " NTC:" + String(adc_filtered.temperature_degree));
+  sdLoggerLog(t, bw_currentMode, bw_motorState.position_mm, bw_motorState.speed, adc_filtered.current_mA_filtered, adc_filtered.battery_voltage);
 }
 
 void BugWiper_test_Motor(void) {
@@ -583,7 +565,6 @@ void BugWiper_test_Motor(void) {
   rgbLedWrite(RGB_LED_PIN, 0, 0, 0);  // Blue
   btn_motor_control.brake();
   delay(1000);
-  motor_enc_count = bw_motorEncoder.getCount();
   DEBUG_INFO("Encoder count = " + String((int32_t)bw_motorEncoder.getCount()));
 }
 
@@ -702,101 +683,99 @@ bool stateTimedOut(uint32_t maxTime)
 }
 
 void BugWiper_read_motor_current(void) {
-  BW_ADC_current_sense = analogReadMilliVolts(MOTOR_CURRENT_SENSE_PIN);
-  BW_ADC_current_mA = BW_ADC_current_sense * CURRENT_CAL_FACTOR;
-  BW_ADC_btn_hb1 = HalfBridge_1.get_load_current_in_amps();
-  BW_ADC_btn_hb2 = HalfBridge_2.get_load_current_in_amps();
+  uint32_t current_mV = analogReadMilliVolts(MOTOR_CURRENT_SENSE_PIN);
+  // Convert to mA locally
+  double current_mA = current_mV * CURRENT_CAL_FACTOR;
+  
+  // Use for filter
+  adc_filter.filter_sum -= adc_filter.old_values[adc_filter.counter];
+  adc_filter.old_values[adc_filter.counter] = current_mV;
+  adc_filter.filter_sum += adc_filter.old_values[adc_filter.counter];
+  adc_filtered.current_mA_filtered = (adc_filter.filter_sum / ADC_FILTER_SIZE) * CURRENT_CAL_FACTOR;
+  
+  adc_filter.counter++;
+  if (adc_filter.counter >= ADC_FILTER_SIZE) {
+    adc_filter.counter = 0;
+  }
 }
 
 void BugWiper_ADC_filter_init(void) {
-  BW_ADC_current_sense = analogReadMilliVolts(MOTOR_CURRENT_SENSE_PIN);
-  ADC_current_filter_sum = 0;
-  uint8_t j;
-  for (j = 0; j < ADC_FILTER_SIZE; j++) {
-    ADC_current_old_values[j] = BW_ADC_current_sense;
-    ADC_current_filter_sum += BW_ADC_current_sense;
+  uint32_t initial_current_mV = analogReadMilliVolts(MOTOR_CURRENT_SENSE_PIN);
+  adc_filter.filter_sum = 0;
+  for (uint8_t j = 0; j < ADC_FILTER_SIZE; j++) {
+    adc_filter.old_values[j] = initial_current_mV;
+    adc_filter.filter_sum += initial_current_mV;
   }
 }
 
-void BugWiper_ADC_filter(void) {
-  uint8_t i;
-  ADC_current_filter_sum -= ADC_current_old_values[ADC_filter_counter];
-  ADC_current_old_values[ADC_filter_counter] = BW_ADC_current_sense;
-  ADC_current_filter_sum += ADC_current_old_values[ADC_filter_counter];
-  BW_ADC_current_filtered = ADC_current_filter_sum / ADC_FILTER_SIZE;
-  BW_ADC_current_mA_filtered = BW_ADC_current_filtered * CURRENT_CAL_FACTOR;
-  ADC_filter_counter++;
-  if (ADC_filter_counter >= ADC_FILTER_SIZE) {
-    ADC_filter_counter = 0;
-  }
-}
+// Filter ist jetzt in BugWiper_read_motor_current integriert
 
 void BugWiper_read_ADCs_slow(void) {
   uint16_t adc_temp;
   adc_temp = analogReadMilliVolts(ADC_NTC_PIN);
-  BW_ADC_T_ntc_degree = (float)adc_temp * 4095.0 / 3100.0;
-  adc_temp = (uint16_t)BW_ADC_T_ntc_degree;
-  BW_ADC_T_ntc_degree = ((float)adc_temp * (float)adc_temp * (float)adc_temp * (-2.87638e-9)) + ((float)adc_temp * (float)adc_temp * (2.01243e-5)) + ((-0.0702) * (float)adc_temp) + 109.013;
-  BW_ADC_V_Bat = analogReadMilliVolts(ADC_VBat_PIN) * 0.0081;
+  adc_filtered.temperature_degree = (float)adc_temp * 4095.0 / 3100.0;
+  adc_temp = (uint16_t)adc_filtered.temperature_degree;
+  adc_filtered.temperature_degree = ((float)adc_temp * (float)adc_temp * (float)adc_temp * (-2.87638e-9)) + ((float)adc_temp * (float)adc_temp * (2.01243e-5)) + ((-0.0702) * (float)adc_temp) + 109.013;
+  adc_filtered.battery_voltage = analogReadMilliVolts(ADC_VBat_PIN) * 0.0081;
 }
 
 bool bw_check_end_reached(void) {
   // Current-based detection
-  if (BW_ADC_current_mA_filtered >= BW_STOP_CURRENT) {
-    BW_ADC_current_counter++;
-    if (BW_ADC_current_counter > BW_STOP_CURRENT_COUNTS) {
-      DEBUG_INFO("Finished: current:" + String(BW_ADC_current_mA) + " above " + String((float)BW_STOP_CURRENT));
+  if (adc_filtered.current_mA_filtered >= BW_STOP_CURRENT) {
+    stop_detection.current_counter++;
+    if (stop_detection.current_counter > BW_STOP_CURRENT_COUNTS) {
+      DEBUG_INFO("Finished: current:" + String(adc_filtered.current_mA_filtered) + " above " + String((float)BW_STOP_CURRENT));
       bw_log_event();
       return true;
     }
   } else {
-    if (BW_ADC_current_counter > 0) {
-      BW_ADC_current_counter--;
+    if (stop_detection.current_counter > 0) {
+      stop_detection.current_counter--;
     }
   }
   
   // Speed-based detection
-  if (abs(bw_speed) < BW_STOP_SPEED) {
-    bw_speed_counter++;
-    if (bw_speed_counter >= BW_STOP_SPEED_COUNTS) {
-      DEBUG_INFO("Finished: Speed:" + String(abs(bw_speed)) + " below " + String((float)BW_STOP_SPEED));
+  if (abs(bw_motorState.speed) < BW_STOP_SPEED) {
+    stop_detection.speed_counter++;
+    if (stop_detection.speed_counter >= BW_STOP_SPEED_COUNTS) {
+      DEBUG_INFO("Finished: Speed:" + String(abs(bw_motorState.speed)) + " below " + String((float)BW_STOP_SPEED));
       bw_log_event();
       return true;
     }
   } else {
-    if (bw_speed_counter > 1) {
-      bw_speed_counter--;
+    if (stop_detection.speed_counter > 1) {
+      stop_detection.speed_counter--;
     }
   }
   return false;
 }
 
 bool motorSlowedDown(void) {
-  if ( bw_speed < BW_STOP_SPEED ) {
-    bw_speed_counter++;
-    if (bw_speed_counter >= BW_STOP_SPEED_COUNTS) {
-      DEBUG_INFO("Decel End Finished: Speed:" + String(bw_speed) + " below " + String((float)BW_STOP_SPEED));
+  if ( bw_motorState.speed < BW_STOP_SPEED ) {
+    stop_detection.speed_counter++;
+    if (stop_detection.speed_counter >= BW_STOP_SPEED_COUNTS) {
+      DEBUG_INFO("Decel End Finished: Speed:" + String(bw_motorState.speed) + " below " + String((float)BW_STOP_SPEED));
       bw_log_event();
       return true;
     }
   } else {
-    if (bw_speed_counter > 1) {
-      bw_speed_counter--;
+    if (stop_detection.speed_counter > 1) {
+      stop_detection.speed_counter--;
     }
   }
 }
 
 bool BugWiper_safety_protection(void) {
   // Undervoltage protection
-  if (BW_ADC_V_Bat <= BW_STOP_V_BAT) {
-    DEBUG_ERROR("Under Voltage: V BAT:" + String(BW_ADC_V_Bat) + " below " + String((float)BW_STOP_V_BAT) + "V");
+  if (adc_filtered.battery_voltage <= BW_STOP_V_BAT) {
+    DEBUG_ERROR("Under Voltage: V BAT:" + String(adc_filtered.battery_voltage) + " below " + String((float)BW_STOP_V_BAT) + "V");
     bw_log_event();
     return true;
   }
 
   //Temperature protection
-  if (BW_ADC_T_ntc_degree > BW_STOP_T_MAX) {
-    DEBUG_ERROR("Over Temperature: T NTC:" + String(BW_ADC_T_ntc_degree) + "above " + String((float)BW_STOP_T_MAX) + "DEG");
+  if (adc_filtered.temperature_degree > BW_STOP_T_MAX) {
+    DEBUG_ERROR("Over Temperature: T NTC:" + String(adc_filtered.temperature_degree) + "above " + String((float)BW_STOP_T_MAX) + "DEG");
     bw_log_event();
     return true;
   }
@@ -805,30 +784,30 @@ bool BugWiper_safety_protection(void) {
 }
 
 void BugWiper_read_Encoder(void) {
-  uint32_t BW_enc_count_old = motor_enc_count;
-  motor_enc_count = bw_motorEncoder.getCount();
-  bw_position = int32_t((float)motor_enc_count * SPOOL_CIRCUMFERENCE / (CPR_Encoder * GEAR_RATIO));
-  bw_speed = motor_enc_count - BW_enc_count_old;
+  uint32_t BW_enc_count_old = bw_motorState.encoder_count;
+  bw_motorState.encoder_count = bw_motorEncoder.getCount();
+  bw_motorState.position_mm = int32_t((float)bw_motorState.encoder_count * SPOOL_CIRCUMFERENCE / (CPR_Encoder * GEAR_RATIO));
+  bw_motorState.speed = bw_motorState.encoder_count - BW_enc_count_old;
 }
 
 void button_debounce(void) {
-  button_cable_loose = digitalRead(SW_CABLE_LOOSE_PIN);
-  if (button_cable_loose == 0 && timer_button_cable_loose < 255) {
-    timer_button_cable_loose++;
-  } else if (button_cable_loose && timer_button_cable_loose > 0) {
-    timer_button_cable_loose--;
+  button_state.cable_loose = digitalRead(SW_CABLE_LOOSE_PIN);
+  if (button_state.cable_loose == 0 && button_state.timer_cable_loose < 255) {
+    button_state.timer_cable_loose++;
+  } else if (button_state.cable_loose && button_state.timer_cable_loose > 0) {
+    button_state.timer_cable_loose--;
   }
-  button_winding_in = digitalRead(BUTTON_WINDING_IN_PIN);
-  if (button_winding_in == 0 && timer_button_winding_in < 255) {
-    timer_button_winding_in++;
-  } else if (button_winding_in && timer_button_winding_in > 0) {
-    timer_button_winding_in--;
+  button_state.winding_in = digitalRead(BUTTON_WINDING_IN_PIN);
+  if (button_state.winding_in == 0 && button_state.timer_winding_in < 255) {
+    button_state.timer_winding_in++;
+  } else if (button_state.winding_in && button_state.timer_winding_in > 0) {
+    button_state.timer_winding_in--;
   }
-  button_start_cleaning = digitalRead(BUTTON_CLEANING_PIN);
-  if (button_start_cleaning == 0 && timer_button_start_cleaning < 255) {
-    timer_button_start_cleaning++;
-  } else if (button_start_cleaning && timer_button_start_cleaning > 0) {
-    timer_button_start_cleaning--;
+  button_state.cleaning = digitalRead(BUTTON_CLEANING_PIN);
+  if (button_state.cleaning == 0 && button_state.timer_cleaning < 255) {
+    button_state.timer_cleaning++;
+  } else if (button_state.cleaning && button_state.timer_cleaning > 0) {
+    button_state.timer_cleaning--;
   }
 }
 
@@ -836,7 +815,7 @@ bool eventStopRequested(void)
 {
   // Stop cleaning by pressing winding-in button
   if (lastUserCommand == CMD_CLEANING &&
-      timer_button_winding_in >= TIME_BUTTON_DEBOUNCE) {
+      button_state.timer_winding_in >= TIME_BUTTON_DEBOUNCE) {
 
     DEBUG_WARNING("Stop requested: cleaning");
     return true;
@@ -844,7 +823,7 @@ bool eventStopRequested(void)
 
   // Stop winding-in by pressing cleaning button
   if (lastUserCommand == CMD_WINDING_IN &&
-      timer_button_start_cleaning >= TIME_BUTTON_DEBOUNCE) {
+      button_state.timer_cleaning >= TIME_BUTTON_DEBOUNCE) {
 
     DEBUG_WARNING("Stop requested: winding in");
     return true;
@@ -854,21 +833,21 @@ bool eventStopRequested(void)
 }
 
 bool buttonOutPressed(void) {
-  if (timer_button_winding_in >= TIME_BUTTON_DEBOUNCE) {
+  if (button_state.timer_winding_in >= TIME_BUTTON_DEBOUNCE) {
     return true;
   }
   return false;
 }
 
 bool buttonInPressed(void) {
-  if (timer_button_start_cleaning >= TIME_BUTTON_DEBOUNCE) {
+  if (button_state.timer_cleaning >= TIME_BUTTON_DEBOUNCE) {
     return true;
   }
   return false;
 }
 
 bool eventCableLoose(void) {
-  if (timer_button_cable_loose >= TIME_BUTTON_DEBOUNCE) {
+  if (button_state.timer_cable_loose >= TIME_BUTTON_DEBOUNCE) {
     return true;
   } else {
     return false;
@@ -990,7 +969,7 @@ void stateStartCleanOut(const BW_ModeConfig& cfg) {
       break;
 
     case SUB_RUNNING:
-      if (bw_position >= positionConfig.slowZoneStart) {
+      if (bw_motorState.position_mm >= positionConfig.slowZoneStart) {
         bw_subState = SUB_DONE;
       }
       break;
@@ -1020,7 +999,7 @@ void stateCleaning(const BW_ModeConfig& cfg) {
       break;
 
     case SUB_RUNNING:
-      if (bw_position >= positionConfig.startSlowOut) {
+      if (bw_motorState.position_mm >= positionConfig.startSlowOut) {
         bw_subState = SUB_DONE;
       }
       break;
@@ -1032,7 +1011,7 @@ void stateCleaning(const BW_ModeConfig& cfg) {
 }
 
 void stateDecelLoose(const BW_ModeConfig& cfg) {
-  if (bw_position >= positionConfig.slowZoneStart) {
+  if (bw_motorState.position_mm >= positionConfig.slowZoneStart) {
     changeMode(M_WIGGLE_LOOSE);
     return;
   }
@@ -1078,7 +1057,7 @@ void stateRestartAfterLoose(const BW_ModeConfig& cfg) {
       break;
 
     case SUB_RUNNING:
-      if (bw_position >= positionConfig.slowZoneStart) {
+      if (bw_motorState.position_mm >= positionConfig.slowZoneStart) {
         bw_subState = SUB_DONE;
       }
       break;
@@ -1160,7 +1139,7 @@ void stateGroundOut(const BW_ModeConfig& cfg) {
       break;
 
     case SUB_RUNNING:
-      if (bw_position >= positionConfig.groundOutMax) {
+      if (bw_motorState.position_mm >= positionConfig.groundOutMax) {
         bw_subState = SUB_DONE;
       }
       break;
@@ -1295,7 +1274,6 @@ void BugWiper_Task1_fast(void* parameter) {
   for (;;) {
     button_debounce();
     BugWiper_read_motor_current();
-    BugWiper_ADC_filter();
     bw_set_motor_power();  // motor ramp + HW output
     vTaskDelayUntil(&xLastWakeTime, taskPeriod);
   }

@@ -23,11 +23,11 @@
 
 // Pin discription
 // ESP32-Wroom-32:
-// follwing pins are not allowed to use: 0 (Bootselect); 2 Board LED / must be low on boot; (1 & 3 UART USB-Serial);
+// following pins are not allowed to use: 0 (Bootselect); 2 Board LED / must be low on boot; (1 & 3 UART USB-Serial);
 // (5 must be high during boot);(15 Debugging Log on U0TXD During Booting);(6, 7, 8, 9, 10 & 11 connected to Flash);
 // Input Only Pins : 34,35,36,39
 // ESP32-S3-Wroom-1:
-// follwing pins are difficult to use: 0 (Bootselect); 3 (Strapping Pins Floating) ; 19 & 20 (USB-Jtag); 35,36&37 (Octal PSRAM (8MB));
+// following pins are difficult to use: 0 (Bootselect); 3 (Strapping Pins Floating) ; 19 & 20 (USB-Jtag); 35,36&37 (Octal PSRAM (8MB));
 // 39,40,41&42 (JTAG); 43 & 44 (UART 0 for serial debug interface); 45 & 46 (Strapping Pins / Pull-down)  48 Board LED
 #define RGB_LED_PIN 9
 
@@ -54,7 +54,7 @@
 #define BUTTON_CLEANING_PIN 21
 #define BUTTON_WINDING_IN_PIN 14
 #define SW_CABLE_LOOSE_PIN 18
-#define SAFETY_SWITCH_PIN 47  // Saftyswitch to deaktivate the BugWiper
+#define SAFETY_SWITCH_PIN 47  // Safety switch to deactivate the BugWiper
 
 // Encoder
 #define MOTOR_ENCODER_1_PIN 16
@@ -104,11 +104,17 @@ struct MotorCommand {
 };
 
 struct MotorState {
+  // Motor control fields
   direction dir;
   uint8_t   power;
   uint8_t   targetPower;
   uint8_t   rampTime;
   uint8_t   rampTimer;
+  
+  // Motor state fields
+  volatile int64_t encoder_count;
+  volatile int32_t position_mm;
+  volatile int32_t speed;
 };
 
 // RGB COLOUR struct
@@ -169,6 +175,34 @@ struct PositionConfig {
   int32_t groundOutMax;
 };
 
+struct ADCFilter {
+  uint32_t filter_sum;
+  uint32_t old_values[32];  // ADC_FILTER_SIZE
+  int8_t counter;
+};
+
+struct ADCFiltered {
+  volatile double current_mA_filtered;
+  float temperature_degree;
+  float battery_voltage;
+  // HB1/HB2 omitted as requested
+};
+
+struct StopDetection {
+  uint16_t current_counter;
+  uint16_t speed_counter;
+};
+
+struct ButtonState {
+  bool cable_loose;
+  bool winding_in;
+  bool cleaning;
+
+  uint16_t timer_cable_loose;
+  uint16_t timer_winding_in;
+  uint16_t timer_cleaning;
+};
+
 extern const BW_ModeConfig bw_modeConfig[BW_MODE_COUNT];
 
 inline constexpr RGB_COLOUR BLACK = { 0, 0, 0 };
@@ -189,15 +223,11 @@ void bw_log(void);
 extern BW_MODE bw_currentMode;
 
 extern ESP32Encoder bw_motorEncoder;
-extern uint32_t BW_ADC_current_sense;
-extern volatile double BW_ADC_current_mA_filtered;
-extern float BW_ADC_T_ntc_degree;
-extern float BW_ADC_V_Bat;
-extern volatile double BW_ADC_btn_hb1;
-extern volatile double BW_ADC_btn_hb2;
 
-extern volatile int32_t bw_position;
-extern volatile int32_t bw_speed;
-extern volatile int64_t motor_enc_count;  // counts from encoder
+// Neue strukturierte ADC-Variablen
+extern ADCFilter adc_filter;
+extern ADCFiltered adc_filtered;
+extern StopDetection stop_detection;
+extern ButtonState button_state;
 
 #endif
