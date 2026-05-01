@@ -10,6 +10,11 @@
 
 #define ADC_FILTER_SIZE 32
 
+// Task periods in ms
+#define BW_TASK_FAST_MS  2
+#define BW_TASK_SLOW_MS  20
+
+
 // String representation of BW_MODE for logging and debugging
 static const char* BW_MODE_STR[BW_MODE_COUNT] = {
   "IDLE",
@@ -51,13 +56,15 @@ const BW_ModeConfig bw_modeConfig[BW_MODE_COUNT] = {
       .rampTime    = 0
     },
 
+    // LED behavior
+    .ledCmd = {
+      .color     = BLACK,
+      .blinkTime = 0
+    },
+
     // Timing
     .minTime = 0,
     .maxTime = 0,
-
-    // LED
-    .ledColor     = BLACK,
-    .ledBlinkTime = 0,
 
     // Behavior flags
     .allowLooseDetect = false,
@@ -76,11 +83,13 @@ const BW_ModeConfig bw_modeConfig[BW_MODE_COUNT] = {
       .rampTime    = 6
     },
 
+    .ledCmd = {
+      .color     = GREEN,
+      .blinkTime = 100
+    },
+
     .minTime = 0,
     .maxTime = 5000,
-
-    .ledColor     = CYAN,
-    .ledBlinkTime = 5,
 
     .allowLooseDetect = false,
     .allowWiggle      = false,
@@ -101,11 +110,13 @@ const BW_ModeConfig bw_modeConfig[BW_MODE_COUNT] = {
       .rampTime    = 6
     },
 
+    .ledCmd = {
+      .color     = GREEN,
+      .blinkTime = 300
+    },
+
     .minTime = 0,
     .maxTime = 3000,
-
-    .ledColor     = GREEN,
-    .ledBlinkTime = LED_TIME_CLEANING,
 
     .allowLooseDetect = true,
     .allowWiggle      = true,
@@ -125,11 +136,13 @@ const BW_ModeConfig bw_modeConfig[BW_MODE_COUNT] = {
       .rampTime    = 6
     },
 
+    .ledCmd = {
+      .color     = GREEN,
+      .blinkTime = 300
+    },
+
     .minTime = TIME_MIN_CLEANING,
     .maxTime = TIME_MAX_CLEANING,
-
-    .ledColor     = GREEN,
-    .ledBlinkTime = LED_TIME_CLEANING,
 
     .allowLooseDetect = true,
     .allowWiggle      = true,
@@ -149,11 +162,13 @@ const BW_ModeConfig bw_modeConfig[BW_MODE_COUNT] = {
       .rampTime    = 8
     },
 
+    .ledCmd = {
+      .color     = ORANGE,
+      .blinkTime = 300
+    },
+
     .minTime = 0,
     .maxTime = 2000,
-
-    .ledColor     = ORANGE,
-    .ledBlinkTime = 150,
 
     .allowLooseDetect = false,
     .allowWiggle      = true,
@@ -173,11 +188,13 @@ const BW_ModeConfig bw_modeConfig[BW_MODE_COUNT] = {
       .rampTime    = 2
     },
 
+    .ledCmd = {
+      .color     = ORANGE,
+      .blinkTime = 150
+    },
+
     .minTime = 0,
     .maxTime = 1000,
-
-    .ledColor     = ORANGE,
-    .ledBlinkTime = 120,
 
     .allowLooseDetect = false,
     .allowWiggle      = false,
@@ -197,11 +214,13 @@ const BW_ModeConfig bw_modeConfig[BW_MODE_COUNT] = {
       .rampTime    = 6
     },
 
+    .ledCmd = {
+      .color     = GREEN,
+      .blinkTime = 300
+    },
+
     .minTime = 0,
     .maxTime = 3000,
-
-    .ledColor     = GREEN,
-    .ledBlinkTime = LED_TIME_CLEANING,
 
     .allowLooseDetect = false,
     .allowWiggle      = false,
@@ -221,11 +240,13 @@ const BW_ModeConfig bw_modeConfig[BW_MODE_COUNT] = {
       .rampTime    = 3
     },
 
-    .minTime = 0,
-    .maxTime = 500,
+    .ledCmd = {
+      .color     = GREEN,
+      .blinkTime = 0
+    },
 
-    .ledColor     = BLUE,
-    .ledBlinkTime = 0,
+    .minTime = 0,
+    .maxTime = 300,
 
     .allowLooseDetect = false,
     .allowWiggle      = false,
@@ -245,11 +266,13 @@ const BW_ModeConfig bw_modeConfig[BW_MODE_COUNT] = {
       .rampTime    = 4
     },
 
+    .ledCmd = {
+      .color     = BLUE,
+      .blinkTime = 300
+    },
+
     .minTime = 0,
     .maxTime = 5000,
-
-    .ledColor     = BLUE,
-    .ledBlinkTime = 250,
 
     .allowLooseDetect = false,
     .allowWiggle      = false,
@@ -269,11 +292,13 @@ const BW_ModeConfig bw_modeConfig[BW_MODE_COUNT] = {
       .rampTime    = 15
     },
 
+    .ledCmd = {
+      .color     = CYAN,
+      .blinkTime = 150
+    },
+
     .minTime = 0,
     .maxTime = 3000,        // short timeout, no long running
-
-    .ledColor     = ORANGE,
-    .ledBlinkTime = 100,
 
     .allowLooseDetect = true,
     .allowWiggle      = false,
@@ -293,11 +318,13 @@ const BW_ModeConfig bw_modeConfig[BW_MODE_COUNT] = {
       .rampTime    = 0
     },
 
+    .ledCmd = {
+      .color     = GREEN,
+      .blinkTime = 0
+    },
+
     .minTime = 0,
     .maxTime = 0,
-
-    .ledColor     = GREEN,
-    .ledBlinkTime = 0,
 
     .allowLooseDetect = false,
     .allowWiggle      = false,
@@ -317,11 +344,13 @@ const BW_ModeConfig bw_modeConfig[BW_MODE_COUNT] = {
       .rampTime    = 3
     },
 
+    .ledCmd = {
+      .color     = ORANGE,
+      .blinkTime = 150
+    },
+
     .minTime = 0,
     .maxTime = 0,     // No timeout
-
-    .ledColor     = ORANGE,
-    .ledBlinkTime = 100,
 
     .allowLooseDetect = false,
     .allowWiggle      = false,
@@ -341,11 +370,13 @@ const BW_ModeConfig bw_modeConfig[BW_MODE_COUNT] = {
       .rampTime    = 0
     },
 
+    .ledCmd = {
+      .color     = RED,
+      .blinkTime = 0
+    },
+
     .minTime = 0,
     .maxTime = 2000,
-
-    .ledColor     = ORANGE,
-    .ledBlinkTime = 0,
 
     .allowLooseDetect = false,
     .allowWiggle      = false,
@@ -365,11 +396,13 @@ const BW_ModeConfig bw_modeConfig[BW_MODE_COUNT] = {
       .rampTime    = 0
     },
 
+    .ledCmd = {
+      .color     = RED,
+      .blinkTime = 150
+    },
+
     .minTime = 0,
     .maxTime = 2000,
-
-    .ledColor     = RED,
-    .ledBlinkTime = 500,
 
     .allowLooseDetect = false,
     .allowWiggle      = false,
@@ -466,7 +499,7 @@ hw_conf_t hw_conf = {
 };
 
 MotorState bw_motorState;
-
+LedState bw_ledState;
 
 DCShield shield(hb1_io_pins, hb2_io_pins, hw_conf);
 MotorControl btn_motor_control(shield);
@@ -624,10 +657,43 @@ void bw_set_motor_power(void) {
 #endif
 }
 
-void BugWiper_LED_blinking(void) {
-  if (timer_LED >= LED_time) {
-    //digitalWrite(RGB_LED_PIN, !digitalRead(RGB_LED_PIN)); Fixme
-    timer_LED = 0;
+// Initialize LED for new FSM mode
+void bw_ledInit(const LedCommand& cmd)
+{
+  bw_ledState.color = cmd.color;
+  bw_ledState.timer = 0;
+  bw_ledState.isOn  = true;
+
+  if (cmd.blinkTime == 0) {
+    bw_ledState.blinkTicks = 0;
+  } else {
+    bw_ledState.blinkTicks =
+      (cmd.blinkTime + BW_TASK_SLOW_MS - 1) / BW_TASK_SLOW_MS;
+  }
+
+  BugWiper_rgbLedWrite(cmd.color);
+}
+
+// Update LED state
+// bw_ledUpdate() must be called every BW_TASK_SLOW_MS
+void bw_ledUpdate(void)
+{
+  // No blinking
+  if (bw_ledState.blinkTicks == 0) {
+    return;
+  }
+
+  bw_ledState.timer++;
+
+  if (bw_ledState.timer >= bw_ledState.blinkTicks) {
+    bw_ledState.timer = 0;
+    bw_ledState.isOn = !bw_ledState.isOn;
+
+    if (bw_ledState.isOn) {
+      BugWiper_rgbLedWrite(bw_ledState.color);
+    } else {
+      BugWiper_rgbLedWrite(BLACK);
+    }
   }
 }
 
@@ -834,8 +900,8 @@ void changeMode(BW_MODE newMode)
   bw_modeStartTime = millis();
   bw_subState = SUB_INIT;
 
-  // Apply LED for this mode
-  setLED(cfg.ledColor, cfg.ledBlinkTime);
+  // LED entry action
+  bw_ledInit(cfg.ledCmd);
 }
 
 
@@ -1235,29 +1301,29 @@ void BugWiper_processFSM()
 
 
 void BugWiper_Task1_fast(void* parameter) {
-  const TickType_t taskPeriod = 2;  // 2ms <--> 500Hz
+  const TickType_t taskPeriod = pdMS_TO_TICKS(BW_TASK_FAST_MS);
   TickType_t xLastWakeTime = xTaskGetTickCount();
-  Encoder_init();
 
+  Encoder_init();
   for (;;) {
     button_debounce();
     BugWiper_set_timer();
     BugWiper_read_motor_current();
     BugWiper_ADC_filter();
-    bw_set_motor_power();
+    bw_set_motor_power();  // motor ramp + HW output
     vTaskDelayUntil(&xLastWakeTime, taskPeriod);
   }
 }
 
 void BugWiper_Task2_slow(void* parameter) {
-  const TickType_t taskPeriod = 20;  // 20ms <--> 50Hz
+  const TickType_t taskPeriod = pdMS_TO_TICKS(BW_TASK_SLOW_MS);
   TickType_t xLastWakeTime = xTaskGetTickCount();
   //BugWiper_test_Motor();
   for (;;) {
     BugWiper_read_ADCs_slow();
     BugWiper_read_Encoder();
     BugWiper_processFSM();
-    BugWiper_LED_blinking();
+    bw_ledUpdate();   // LED blink
     vTaskDelayUntil(&xLastWakeTime, taskPeriod);
   }
 }

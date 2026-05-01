@@ -177,18 +177,29 @@ struct MotorState {
   uint8_t   rampTimer;
 };
 
+// LED behavior per FSM mode
+struct LedCommand {
+  RGB_COLOUR color;     // LED color
+  uint16_t   blinkTime; // 0 = steady, >0 = blink period (ms)
+};
+
+// LED runtime state
+struct LedState {
+  RGB_COLOUR color;     // active color
+  uint16_t   blinkTicks;// blink period in task ticks
+  uint16_t   timer;     // tick counter
+  bool       isOn;      // output state
+};
+
+
 // Configuration parameters defining behavior per FSM mode
 typedef struct {
-  // Motor behavior
-  MotorCommand motorCmd;
+  MotorCommand motorCmd; // Motor intent for this mode
+  LedCommand   ledCmd;   // LED intent
 
   // Time supervision
   uint32_t  minTime;          // Minimum time to stay in this mode [ms]
   uint32_t  maxTime;          // Maximum allowed time (0 = disabled) [ms]
-
-  // LED indication
-  RGB_COLOUR ledColor;        // LED color for this mode
-  uint16_t   ledBlinkTime;    // LED blink period (0 = steady)
 
   // Behavior flags
   bool allowLooseDetect;      // Enable loose cable detection
