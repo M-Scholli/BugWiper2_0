@@ -98,10 +98,14 @@ const BW_ModeConfig bw_modeConfig[BW_MODE_COUNT] = {
     .minTime = 0,
     .maxTime = 0,
 
-    // Behavior flags
-    .allowLooseDetect = false,
-    .allowWiggle      = false,
-    .ignoreSafety     = false
+    // Global transition flags
+    .enableEndCheckCurrent = false,
+    .enableEndCheckSpeed   = false,
+    .enableSafetyProtection = false,
+    .enableMaxTimeCheck    = false,
+    .requireMinTimeForEndCheck = false,
+
+    .defaultNext = M_IDLE
   },
 
   /* ------------------------------------------------------------
@@ -120,14 +124,16 @@ const BW_ModeConfig bw_modeConfig[BW_MODE_COUNT] = {
       .blinkTime = 100
     },
 
-    .minTime = 0,
+    .minTime = 1000,
     .maxTime = 5000,
 
-    .allowLooseDetect = false,
-    .allowWiggle      = false,
-    .ignoreSafety     = false,
+    // Global transition flags
+    .enableEndCheckCurrent = false,
+    .enableEndCheckSpeed   = false,
+    .enableSafetyProtection = true,
+    .enableMaxTimeCheck    = true,
+    .requireMinTimeForEndCheck = false,
 
-    
     .defaultNext = M_START_CLEAN_OUT
   },
 
@@ -150,9 +156,12 @@ const BW_ModeConfig bw_modeConfig[BW_MODE_COUNT] = {
     .minTime = 350,
     .maxTime = 3000,
 
-    .allowLooseDetect = true,
-    .allowWiggle      = true,
-    .ignoreSafety     = false,
+    // Global transition flags
+    .enableEndCheckCurrent = true,
+    .enableEndCheckSpeed   = false,
+    .enableSafetyProtection = true,
+    .enableMaxTimeCheck    = true,
+    .requireMinTimeForEndCheck = false,  // minTime > 0
 
     .defaultNext = M_CLEANING
   },
@@ -173,12 +182,15 @@ const BW_ModeConfig bw_modeConfig[BW_MODE_COUNT] = {
       .blinkTime = 300
     },
 
-    .minTime = 0,
+    .minTime = 250,
     .maxTime = 15000,
 
-    .allowLooseDetect = true,
-    .allowWiggle      = true,
-    .ignoreSafety     = false,
+    // Global transition flags
+    .enableEndCheckCurrent = true,
+    .enableEndCheckSpeed   = true,
+    .enableSafetyProtection = true,
+    .enableMaxTimeCheck    = true,
+    .requireMinTimeForEndCheck = true,
 
     .defaultNext = M_DECEL_END
   },
@@ -202,9 +214,12 @@ const BW_ModeConfig bw_modeConfig[BW_MODE_COUNT] = {
     .minTime = 0,
     .maxTime = 2000,
 
-    .allowLooseDetect = false,
-    .allowWiggle      = true,
-    .ignoreSafety     = false,
+    // Global transition flags
+    .enableEndCheckCurrent = false,
+    .enableEndCheckSpeed   = false,
+    .enableSafetyProtection = true,
+    .enableMaxTimeCheck    = true,
+    .requireMinTimeForEndCheck = false,
 
     .defaultNext = M_RESTART_AFTER_LOOSE
   },
@@ -228,9 +243,12 @@ const BW_ModeConfig bw_modeConfig[BW_MODE_COUNT] = {
     .minTime = 0,
     .maxTime = 1000,
 
-    .allowLooseDetect = false,
-    .allowWiggle      = false,
-    .ignoreSafety     = false,
+    // Global transition flags
+    .enableEndCheckCurrent = false,
+    .enableEndCheckSpeed   = false,
+    .enableSafetyProtection = true,
+    .enableMaxTimeCheck    = true,
+    .requireMinTimeForEndCheck = false,
 
     .defaultNext = M_RESTART_AFTER_LOOSE
   },
@@ -251,12 +269,15 @@ const BW_ModeConfig bw_modeConfig[BW_MODE_COUNT] = {
       .blinkTime = 300
     },
 
-    .minTime = 0,
+    .minTime = 500,
     .maxTime = 3000,
 
-    .allowLooseDetect = false,
-    .allowWiggle      = false,
-    .ignoreSafety     = false,
+    // Global transition flags
+    .enableEndCheckCurrent = true,
+    .enableEndCheckSpeed   = false,
+    .enableSafetyProtection = true,
+    .enableMaxTimeCheck    = true,
+    .requireMinTimeForEndCheck = true,
 
     .defaultNext = M_CLEANING
   },
@@ -280,9 +301,12 @@ const BW_ModeConfig bw_modeConfig[BW_MODE_COUNT] = {
     .minTime = 0,
     .maxTime = 300,
 
-    .allowLooseDetect = false,
-    .allowWiggle      = false,
-    .ignoreSafety     = false,
+    // Global transition flags
+    .enableEndCheckCurrent = false,
+    .enableEndCheckSpeed   = false,
+    .enableSafetyProtection = true,
+    .enableMaxTimeCheck    = true,
+    .requireMinTimeForEndCheck = false,
 
     .defaultNext = M_WINDING_IN
   },
@@ -303,12 +327,15 @@ const BW_ModeConfig bw_modeConfig[BW_MODE_COUNT] = {
       .blinkTime = 300
     },
 
-    .minTime = 0,
+    .minTime = 1000,
     .maxTime = 5000,
 
-    .allowLooseDetect = false,
-    .allowWiggle      = false,
-    .ignoreSafety     = false,
+    // Global transition flags
+    .enableEndCheckCurrent = true,
+    .enableEndCheckSpeed   = true,
+    .enableSafetyProtection = true,
+    .enableMaxTimeCheck    = true,
+    .requireMinTimeForEndCheck = true,
 
     .defaultNext = M_FINISHED
   },
@@ -332,9 +359,12 @@ const BW_ModeConfig bw_modeConfig[BW_MODE_COUNT] = {
     .minTime = 0,
     .maxTime = 3000,        // short timeout, no long running
 
-    .allowLooseDetect = true,
-    .allowWiggle      = false,
-    .ignoreSafety     = false,
+    // Global transition flags
+    .enableEndCheckCurrent = true,
+    .enableEndCheckSpeed   = false,
+    .enableSafetyProtection = true,
+    .enableMaxTimeCheck    = true,
+    .requireMinTimeForEndCheck = false,
 
     .defaultNext = M_FINISHED
   },
@@ -358,9 +388,12 @@ const BW_ModeConfig bw_modeConfig[BW_MODE_COUNT] = {
     .minTime = 0,
     .maxTime = 0,
 
-    .allowLooseDetect = false,
-    .allowWiggle      = false,
-    .ignoreSafety     = false,
+    // Global transition flags
+    .enableEndCheckCurrent = false,
+    .enableEndCheckSpeed   = false,
+    .enableSafetyProtection = false,
+    .enableMaxTimeCheck    = false,
+    .requireMinTimeForEndCheck = false,
 
     .defaultNext = M_IDLE
   },
@@ -384,9 +417,12 @@ const BW_ModeConfig bw_modeConfig[BW_MODE_COUNT] = {
     .minTime = 0,
     .maxTime = 0,     // No timeout
 
-    .allowLooseDetect = false,
-    .allowWiggle      = false,
-    .ignoreSafety     = true,
+    // Global transition flags
+    .enableEndCheckCurrent = false,
+    .enableEndCheckSpeed   = false,
+    .enableSafetyProtection = false,  // Emergency mode
+    .enableMaxTimeCheck    = false,   // maxTime = 0
+    .requireMinTimeForEndCheck = false,
 
     .defaultNext = M_IDLE
   },
@@ -410,9 +446,12 @@ const BW_ModeConfig bw_modeConfig[BW_MODE_COUNT] = {
     .minTime = 0,
     .maxTime = 2000,
 
-    .allowLooseDetect = false,
-    .allowWiggle      = false,
-    .ignoreSafety     = false,
+    // Global transition flags
+    .enableEndCheckCurrent = false,
+    .enableEndCheckSpeed   = false,
+    .enableSafetyProtection = false,
+    .enableMaxTimeCheck    = false,
+    .requireMinTimeForEndCheck = false,
 
     .defaultNext = M_FINISHED
   },
@@ -436,9 +475,12 @@ const BW_ModeConfig bw_modeConfig[BW_MODE_COUNT] = {
     .minTime = 0,
     .maxTime = 2000,
 
-    .allowLooseDetect = false,
-    .allowWiggle      = false,
-    .ignoreSafety     = false,
+    // Global transition flags
+    .enableEndCheckCurrent = false,
+    .enableEndCheckSpeed   = false,
+    .enableSafetyProtection = false,
+    .enableMaxTimeCheck    = false,
+    .requireMinTimeForEndCheck = false,
 
     .defaultNext = M_IDLE
   }
@@ -731,8 +773,7 @@ void BugWiper_read_ADCs_slow(void) {
   adc_filtered.battery_voltage = analogReadMilliVolts(ADC_VBat_PIN) * 0.0081;
 }
 
-bool bw_check_end_reached(void) {
-  // Current-based detection
+bool bw_check_end_reached_current(void) {
   if (adc_filtered.current_mA_filtered >= BW_STOP_CURRENT) {
     stop_detection.current_counter++;
     if (stop_detection.current_counter > BW_STOP_CURRENT_COUNTS) {
@@ -745,8 +786,10 @@ bool bw_check_end_reached(void) {
       stop_detection.current_counter--;
     }
   }
-  
-  // Speed-based detection
+  return false;
+}
+
+bool bw_check_end_reached_speed(void) {
   if (abs(bw_motorState.speed) < BW_STOP_SPEED) {
     stop_detection.speed_counter++;
     if (stop_detection.speed_counter >= BW_STOP_SPEED_COUNTS) {
@@ -760,6 +803,10 @@ bool bw_check_end_reached(void) {
     }
   }
   return false;
+}
+
+bool bw_check_end_reached(void) {
+  return bw_check_end_reached_current() || bw_check_end_reached_speed();
 }
 
 bool motorSlowedDown(void) {
@@ -932,7 +979,7 @@ void changeMode(BW_MODE newMode)
 
 
 // Handle global transitions with highest priority
-bool handleGlobalTransitions() {
+bool handleGlobalTransitions(const BW_ModeConfig& cfg) {
   // User stop request (opposite button)
   if (eventStopRequested()) {
     changeMode(M_STOP);
@@ -940,7 +987,30 @@ bool handleGlobalTransitions() {
   }
 
   // System error conditions
-  if (BugWiper_safety_protection()) {
+  if (cfg.enableSafetyProtection && BugWiper_safety_protection()) {
+    changeMode(M_ERROR);
+    return true;
+  }
+
+  bool endCheckAllowed = !cfg.requireMinTimeForEndCheck || (millis() - bw_modeStartTime) >= cfg.minTime;
+  bool endReached = false;
+
+  if (endCheckAllowed) {
+    if (cfg.enableEndCheckCurrent) {
+      endReached = bw_check_end_reached_current();
+    }
+    if (!endReached && cfg.enableEndCheckSpeed) {
+      endReached = bw_check_end_reached_speed();
+    }
+  }
+
+  if ((cfg.enableEndCheckCurrent || cfg.enableEndCheckSpeed) && endReached) {
+    changeMode(M_FINISHED);
+    return true;
+  }
+
+  // Max time check
+  if (cfg.enableMaxTimeCheck && cfg.maxTime > 0 && (millis() - bw_modeStartTime) > cfg.maxTime) {
     changeMode(M_ERROR);
     return true;
   }
@@ -1012,7 +1082,7 @@ void stateReferenceIn(const BW_ModeConfig& cfg) {
 
 void stateStartCleanOut(const BW_ModeConfig& cfg) {
 
-  if (cfg.allowLooseDetect && bw_cableLooseFilter.state) {
+  if (bw_cableLooseFilter.state) {
     changeMode(M_DECEL_LOOSE);
     return;
   }
@@ -1047,7 +1117,7 @@ void stateCleaning(const BW_ModeConfig& cfg) {
     return;
   }
 
-  if (cfg.allowLooseDetect && bw_cableLooseFilter.state) {
+  if (bw_cableLooseFilter.state) {
     changeMode(M_DECEL_LOOSE);
     return;
   }
@@ -1100,7 +1170,7 @@ void stateWiggleLoose(const BW_ModeConfig& cfg) {
 }
 
 void stateRestartAfterLoose(const BW_ModeConfig& cfg) {
-  if (cfg.allowLooseDetect && bw_cableLooseFilter.state) {
+  if (bw_cableLooseFilter.state) {
     changeMode(M_DECEL_LOOSE);
     return;
   }
@@ -1163,9 +1233,6 @@ void stateWindingIn(const BW_ModeConfig& cfg) {
       break;
 
     case SUB_RUNNING:
-      if(bw_check_end_reached()) {
-        bw_subState = SUB_DONE;
-      }
       break;
 
     case SUB_DONE:
@@ -1187,7 +1254,7 @@ void stateGroundOut(const BW_ModeConfig& cfg) {
     return;
   }
 
-  if (cfg.allowLooseDetect && bw_cableLooseFilter.state) {
+  if (bw_cableLooseFilter.state) {
     changeMode(M_DECEL_LOOSE);
     return;
   }
@@ -1294,15 +1361,16 @@ void stateError(const BW_ModeConfig& cfg) {
 void BugWiper_processFSM()
 {
   // ------------------------------------------------------------
-  // 1. Global priority transitions
-  // Emergency, Stop and Error have highest priority
-  // ------------------------------------------------------------
-  if (handleGlobalTransitions()) {
-    return;
-  }
 
   // Fetch configuration for current mode
   const BW_ModeConfig& cfg = bw_modeConfig[bw_currentMode];
+
+  // 1. Global priority transitions
+  // Emergency, Stop and Error have highest priority
+  // ------------------------------------------------------------
+  if (handleGlobalTransitions(cfg)) {
+    return;
+  }
 
   // ------------------------------------------------------------
   // 2. State-specific logic
@@ -1319,10 +1387,10 @@ void BugWiper_processFSM()
     case M_DECEL_END:             stateDecelEnd(cfg);           break;
     case M_WINDING_IN:            stateWindingIn(cfg);          break;
     case M_GROUND_OUT:            stateGroundOut(cfg);          break;
-    case M_FINISHED:              stateFinished(cfg);              break;
+    case M_FINISHED:              stateFinished(cfg);           break;
     case M_EMERGENCY_IN:          stateEmergencyIn(cfg);        break;
-    case M_STOP:                  stateStop(cfg);                  break;
-    case M_ERROR:                 stateError(cfg);                 break;
+    case M_STOP:                  stateStop(cfg);               break;
+    case M_ERROR:                 stateError(cfg);              break;
     default:                      changeMode(M_ERROR);          break;
   }
 }
@@ -1411,3 +1479,7 @@ void bw_init(void) {
   xTaskCreate(BugWiper_Task1_fast, "BW_T1_fast", 1024 * 2, NULL, 3, NULL);
   xTaskCreate(BugWiper_Task2_slow, "BW_T2_alow", 1024 * 8, NULL, 3, NULL);
 }
+
+
+
+

@@ -162,10 +162,12 @@ typedef struct {
   uint32_t  minTime;          // Minimum time to stay in this mode [ms]
   uint32_t  maxTime;          // Maximum allowed time (0 = disabled) [ms]
 
-  // Behavior flags
-  bool allowLooseDetect;      // Enable loose cable detection
-  bool allowWiggle;           // Allow transition to wiggle mode
-  bool ignoreSafety;          // Ignore safety checks (emergency)
+  // Global transition flags
+  bool enableEndCheckCurrent; // Enable current-based end position check in global transitions
+  bool enableEndCheckSpeed;   // Enable speed-based end position check in global transitions
+  bool enableSafetyProtection; // Enable safety protection check in global transitions
+  bool enableMaxTimeCheck;    // Enable max time check in global transitions
+  bool requireMinTimeForEndCheck; // Require minTime to elapse before any endCheck can trigger
 
   // FSM flow
   BW_MODE defaultNext;   // Nominal next state (BW_MODE_COUNT = none)
