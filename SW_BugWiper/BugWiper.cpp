@@ -556,23 +556,19 @@ void bw_rgbLedWrite(struct RGB_COLOUR colour) {
 
 void bw_log(void){
   unsigned long t = millis();
-  DEBUG_INFO("Time:" + String(t));
-  DEBUG_INFO("ADC_Current:" + String(adc_filtered.current_mA_filtered));
-  DEBUG_INFO("Encoder_count:" + String((int32_t)bw_motorState.encoder_count) + " Power:" + String(bw_motorState.power));
-  DEBUG_INFO("Position:" + String(bw_motorState.position_mm) + " Speed:" + String(bw_motorState.speed));
-  DEBUG_WARNING(String("State: ") + bw_ModeToString(bw_currentMode));
-  DEBUG_INFO("ADC_VBat:" + String(adc_filtered.battery_voltage) + " NTC:" + String(adc_filtered.temperature_degree));
+  DEBUG_INFO("Time:" + String(t)+ "  State: " + bw_ModeToString(bw_currentMode));
+  DEBUG_INFO("ADC_Current:" + String(adc_filtered.current_mA_filtered)+ "  M_Power:" + String(bw_motorState.power));
+  DEBUG_INFO("Encoder_count:" + String((int32_t)bw_motorState.encoder_count) + "  Position:" + String(bw_motorState.position_mm) + "  Speed:" + String(bw_motorState.speed));
+  DEBUG_INFO("ADC_VBat:" + String(adc_filtered.battery_voltage) + "  NTC:" + String(adc_filtered.temperature_degree));
   sdLoggerLog(t, bw_currentMode, bw_motorState.position_mm, bw_motorState.speed, adc_filtered.current_mA_filtered, adc_filtered.battery_voltage);
 }
 
 void bw_log_event(void){
   unsigned long t = millis();
-  DEBUG_WARNING("Time:" + String(t));
-  DEBUG_WARNING("ADC_Current:" + String(adc_filtered.current_mA_filtered) + " HB1: N/A HB2: N/A");
-  DEBUG_WARNING("Encoder_count:" + String((int32_t)bw_motorState.encoder_count) + " Power:" + String(bw_motorState.power));
-  DEBUG_WARNING("Position:" + String(bw_motorState.position_mm) + " Speed:" + String(bw_motorState.speed));
-  DEBUG_WARNING(String("State: ") + bw_ModeToString(bw_currentMode));
-  DEBUG_WARNING("ADC_VBat:" + String(adc_filtered.battery_voltage) + " NTC:" + String(adc_filtered.temperature_degree));
+  DEBUG_WARNING("Time:" + String(t)+ "  State: " + bw_ModeToString(bw_currentMode));
+  DEBUG_WARNING("ADC_Current:" + String(adc_filtered.current_mA_filtered)+ "  M_Power:" + String(bw_motorState.power));
+  DEBUG_WARNING("Encoder_count:" + String((int32_t)bw_motorState.encoder_count) + "  Position:" + String(bw_motorState.position_mm) + "  Speed:" + String(bw_motorState.speed));
+  DEBUG_WARNING("ADC_VBat:" + String(adc_filtered.battery_voltage) + "  NTC:" + String(adc_filtered.temperature_degree));
   sdLoggerLog(t, bw_currentMode, bw_motorState.position_mm, bw_motorState.speed, adc_filtered.current_mA_filtered, adc_filtered.battery_voltage);
 }
 
