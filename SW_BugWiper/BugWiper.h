@@ -57,7 +57,7 @@
 // #define BW_GROUND_SWITCH_INVERTED
 
 // Invert cable loose switch logic
-// #define BW_CABLE_LOOSE_INVERTED
+#define BW_CABLE_LOOSE_INVERTED
 
 // Encoder
 #define MOTOR_ENCODER_1_PIN 16
