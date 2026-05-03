@@ -961,9 +961,7 @@ bool groundModeActive(void) {
 
 void changeMode(BW_MODE newMode)
 {
-  DEBUG_INFO("FSM transition: %s -> %s",
-             bw_ModeToString(bw_currentMode),
-             bw_ModeToString(newMode));
+  DEBUG_INFO("FSM transition: " + String(bw_ModeToString(bw_currentMode)) + " -> " + String(bw_ModeToString(newMode)));
 
   bw_currentMode = newMode;
   const BW_ModeConfig& cfg = bw_modeConfig[newMode];
