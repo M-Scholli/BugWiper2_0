@@ -18,7 +18,7 @@
 #define BW_TASK_SLOW_MS  20
 
 // Stop function thresholds
-#define BW_STOP_CURRENT 7500
+#define BW_STOP_CURRENT 6500
 #define BW_STOP_CURRENT_COUNTS 5
 #define BW_STOP_SPEED 1
 #define BW_STOP_SPEED_COUNTS 20
@@ -28,7 +28,7 @@
 //position thresholds
 #ifdef TESTBENCH
 #define POSITION_SLOW_START 100  // Slow start lenght in mm
-#define POSITION_SLOW_WINGTIP 1300
+#define POSITION_SLOW_WINGTIP 1400
 #define POSITION_WINGTIP 1600       // End of the Wing in mm
 #define POSITION_SLOW_FUSELAGE 500  // End of the Wing in mm
 #define LENGTH_SLOW 200             // Distance to slow down
@@ -175,9 +175,9 @@ const BW_ModeConfig bw_modeConfig[BW_MODE_COUNT] = {
   {
     .motorCmd = {
       .dir         = OUT,
-      .startPower  = 150,
+      .startPower  = 0,
       .targetPower = 250,
-      .rampTime    = 10
+      .rampTime    = 7
     },
 
     .ledCmd = {
@@ -295,7 +295,7 @@ const BW_ModeConfig bw_modeConfig[BW_MODE_COUNT] = {
   {
     .motorCmd = {
       .dir         = OUT,
-      .startPower  = 200,
+      .startPower  = 0,
       .targetPower = 0,
       .rampTime    = 4
     },
@@ -664,7 +664,9 @@ void BugWiper_test_Motor(void) {
 void bw_motorInit(const MotorCommand& cmd)
 {
   bw_motorState.dir         = cmd.dir;
-  bw_motorState.power       = cmd.startPower;
+  if (cmd.startPower > 0) {
+    bw_motorState.power = cmd.startPower;
+  }
   bw_motorState.targetPower = cmd.targetPower;
   if (cmd.rampTime == 0) {
     bw_motorState.rampTicks = 0;
