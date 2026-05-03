@@ -146,8 +146,8 @@ const BW_ModeConfig bw_modeConfig[BW_MODE_COUNT] = {
     .motorCmd = {
       .dir         = OUT,
       .startPower  = 40,
-      .targetPower = 120,
-      .rampTime    = 6
+      .targetPower = 150,
+      .rampTime    = 4
     },
 
     .ledCmd = {
@@ -156,7 +156,7 @@ const BW_ModeConfig bw_modeConfig[BW_MODE_COUNT] = {
     },
 
     .minTime = 350,
-    .maxTime = 3000,
+    .maxTime = 5000,
 
     // Global transition flags
     .enableEndCheckCurrent = true,
@@ -175,9 +175,9 @@ const BW_ModeConfig bw_modeConfig[BW_MODE_COUNT] = {
   {
     .motorCmd = {
       .dir         = OUT,
-      .startPower  = 50,
-      .targetPower = 200,
-      .rampTime    = 6
+      .startPower  = 150,
+      .targetPower = 250,
+      .rampTime    = 5
     },
 
     .ledCmd = {
@@ -216,7 +216,7 @@ const BW_ModeConfig bw_modeConfig[BW_MODE_COUNT] = {
     },
 
     .minTime = 0,
-    .maxTime = 2000,
+    .maxTime = 10000,
 
     // Global transition flags
     .enableEndCheckCurrent = false,
@@ -246,7 +246,7 @@ const BW_ModeConfig bw_modeConfig[BW_MODE_COUNT] = {
     },
 
     .minTime = 0,
-    .maxTime = 1000,
+    .maxTime = 10000,
 
     // Global transition flags
     .enableEndCheckCurrent = false,
@@ -265,8 +265,8 @@ const BW_ModeConfig bw_modeConfig[BW_MODE_COUNT] = {
   {
     .motorCmd = {
       .dir         = OUT,
-      .startPower  = 50,
-      .targetPower = 200,
+      .startPower  = 80,
+      .targetPower = 150,
       .rampTime    = 6
     },
 
@@ -276,7 +276,7 @@ const BW_ModeConfig bw_modeConfig[BW_MODE_COUNT] = {
     },
 
     .minTime = 500,
-    .maxTime = 3000,
+    .maxTime = 5000,
 
     // Global transition flags
     .enableEndCheckCurrent = true,
@@ -296,7 +296,7 @@ const BW_ModeConfig bw_modeConfig[BW_MODE_COUNT] = {
     .motorCmd = {
       .dir         = OUT,
       .startPower  = 200,
-      .targetPower = 20,
+      .targetPower = 0,
       .rampTime    = 3
     },
 
@@ -306,7 +306,7 @@ const BW_ModeConfig bw_modeConfig[BW_MODE_COUNT] = {
     },
 
     .minTime = 0,
-    .maxTime = 300,
+    .maxTime = 1500,
 
     // Global transition flags
     .enableEndCheckCurrent = false,
@@ -325,7 +325,7 @@ const BW_ModeConfig bw_modeConfig[BW_MODE_COUNT] = {
   {
     .motorCmd = {
       .dir         = IN,
-      .startPower  = 10,
+      .startPower  = 50,
       .targetPower = 255,
       .rampTime    = 4
     },
@@ -335,8 +335,8 @@ const BW_ModeConfig bw_modeConfig[BW_MODE_COUNT] = {
       .blinkTime = 300
     },
 
-    .minTime = 1000,
-    .maxTime = 5000,
+    .minTime = 1500,
+    .maxTime = 10000,
 
     // Global transition flags
     .enableEndCheckCurrent = true,
@@ -570,13 +570,13 @@ void bw_rgbLedWrite(struct RGB_COLOUR colour) {
 
 void bw_btnIn_log(void) {
   if (bw_btnIn.event != CMD_NONE) {
-  DEBUG_INFO("BTN IN: " + String(bw_btnIn.state) + " Event: " + String(bw_btnIn.event));
+    DEBUG_INFO("BTN IN: " + String(bw_btnIn.state) + " Event: " + String(bw_btnIn.event));
   }
 }
 
 void bw_btnOut_log(void) {
   if (bw_btnOut.event != CMD_NONE) {
-  DEBUG_INFO("BTN OUT: " + String(bw_btnOut.state) + " Event: " + String(bw_btnOut.event));
+    DEBUG_INFO("BTN OUT: " + String(bw_btnOut.state) + " Event: " + String(bw_btnOut.event));
   }
 }
 
@@ -941,17 +941,17 @@ void bw_buttonUpdate(ButtonRuntime* btn, bool level)
 
     case BTN_PRESSED:
       if (!level) {
-        btn->event = BTN_EVT_SHORT;
+          btn->event = BTN_EVT_SHORT;
         btn->state = BTN_IDLE;
       } else if (++btn->holdCnt >= BW_BTN_HOLD_TICKS) {
-        btn->event = BTN_EVT_LONG;
+          btn->event = BTN_EVT_LONG;
         btn->state = BTN_HELD;
       }
       break;
 
     case BTN_HELD:
       if (!level) {
-        btn->event = BTN_EVT_RELEASE;
+          btn->event = BTN_EVT_RELEASE;
         btn->state = BTN_IDLE;
       }
       break;
