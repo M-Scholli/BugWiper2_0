@@ -9,7 +9,7 @@
 #include "sd_logger.h"
 
 // Enable/disable ground mode support
-#define BW_ENABLE_GROUND_MODE
+//#define BW_ENABLE_GROUND_MODE
 
 #define ADC_FILTER_SIZE 32
 
@@ -1143,6 +1143,7 @@ void stateGroundOut(const BW_ModeConfig& cfg) {
 }
 
 void stateFinished(const BW_ModeConfig& cfg) {
+  lastUserCommand = CMD_NONE;
   if ((millis() - bw_modeStartTime) > cfg.maxTime) {
     changeMode(cfg.defaultNext);
   }
@@ -1158,12 +1159,14 @@ void stateEmergencyIn(const BW_ModeConfig& cfg) {
 }
 
 void stateStop(const BW_ModeConfig& cfg) {
+  lastUserCommand = CMD_NONE;
   if ((millis() - bw_modeStartTime) > cfg.maxTime) {
     changeMode(cfg.defaultNext);
   }
 }
 
 void stateError(const BW_ModeConfig& cfg) {
+  lastUserCommand = CMD_NONE;
   if ((millis() - bw_modeStartTime) > cfg.maxTime) {
     changeMode(cfg.defaultNext);
   }
