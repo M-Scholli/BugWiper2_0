@@ -125,7 +125,7 @@ struct MotorState {
   direction dir;
   uint8_t   power;
   uint8_t   targetPower;
-  uint8_t   rampTime;
+  uint8_t   rampTicks;
   uint8_t   rampTimer;
   
   // Motor state fields

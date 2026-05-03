@@ -115,9 +115,9 @@ const BW_ModeConfig bw_modeConfig[BW_MODE_COUNT] = {
   {
     .motorCmd = {
       .dir         = IN,
-      .startPower  = 120,
+      .startPower  = 80,
       .targetPower = 200,
-      .rampTime    = 6
+      .rampTime    = 20
     },
 
     .ledCmd = {
@@ -147,7 +147,7 @@ const BW_ModeConfig bw_modeConfig[BW_MODE_COUNT] = {
       .dir         = OUT,
       .startPower  = 40,
       .targetPower = 150,
-      .rampTime    = 4
+      .rampTime    = 15
     },
 
     .ledCmd = {
@@ -155,7 +155,7 @@ const BW_ModeConfig bw_modeConfig[BW_MODE_COUNT] = {
       .blinkTime = 300
     },
 
-    .minTime = 350,
+    .minTime = 500,
     .maxTime = 5000,
 
     // Global transition flags
@@ -177,7 +177,7 @@ const BW_ModeConfig bw_modeConfig[BW_MODE_COUNT] = {
       .dir         = OUT,
       .startPower  = 150,
       .targetPower = 250,
-      .rampTime    = 5
+      .rampTime    = 10
     },
 
     .ledCmd = {
@@ -207,7 +207,7 @@ const BW_ModeConfig bw_modeConfig[BW_MODE_COUNT] = {
       .dir         = STOP,
       .startPower  = 0,
       .targetPower = 0,
-      .rampTime    = 8
+      .rampTime    = 0
     },
 
     .ledCmd = {
@@ -237,7 +237,7 @@ const BW_ModeConfig bw_modeConfig[BW_MODE_COUNT] = {
       .dir         = IN,
       .startPower  = 50,
       .targetPower = 100,
-      .rampTime    = 2
+      .rampTime    = 5
     },
 
     .ledCmd = {
@@ -267,7 +267,7 @@ const BW_ModeConfig bw_modeConfig[BW_MODE_COUNT] = {
       .dir         = OUT,
       .startPower  = 80,
       .targetPower = 150,
-      .rampTime    = 6
+      .rampTime    = 10
     },
 
     .ledCmd = {
@@ -297,7 +297,7 @@ const BW_ModeConfig bw_modeConfig[BW_MODE_COUNT] = {
       .dir         = OUT,
       .startPower  = 200,
       .targetPower = 0,
-      .rampTime    = 3
+      .rampTime    = 4
     },
 
     .ledCmd = {
@@ -355,9 +355,9 @@ const BW_ModeConfig bw_modeConfig[BW_MODE_COUNT] = {
   {
     .motorCmd = {
       .dir         = OUT,
-      .startPower  = 10,
-      .targetPower = 80,
-      .rampTime    = 15
+      .startPower  = 40,
+      .targetPower = 120,
+      .rampTime    = 20
     },
 
     .ledCmd = {
@@ -417,7 +417,7 @@ const BW_ModeConfig bw_modeConfig[BW_MODE_COUNT] = {
       .dir         = IN,
       .startPower  = 50,
       .targetPower = 250,
-      .rampTime    = 3
+      .rampTime    = 10
     },
 
     .ledCmd = {
@@ -652,36 +652,39 @@ void bw_motorInit(const MotorCommand& cmd)
   bw_motorState.dir         = cmd.dir;
   bw_motorState.power       = cmd.startPower;
   bw_motorState.targetPower = cmd.targetPower;
-  bw_motorState.rampTime    = cmd.rampTime;
+  if (cmd.rampTime == 0) {
+    bw_motorState.rampTicks = 0;
+  } else {
+    bw_motorState.rampTicks =
+      (cmd.rampTime + BW_TASK_FAST_MS - 1) / BW_TASK_FAST_MS;  // Convert ms to fast task ticks, round up
+  }
   bw_motorState.rampTimer   = 0;
 }
 
 void bw_set_motor_power(void) {
-  if (bw_motorState.rampTimer >= bw_motorState.rampTime) {
-    if (bw_motorState.power < bw_motorState.targetPower) {
-      bw_motorState.power++;
-    } else if (bw_motorState.power > bw_motorState.targetPower) {
-      bw_motorState.power--;
+ if (bw_motorState.rampTicks == 0) {
+    // Immediate target
+    bw_motorState.power = bw_motorState.targetPower;
+  } else {
+    bw_motorState.rampTimer++;
+
+    if (bw_motorState.rampTimer >= bw_motorState.rampTicks) {
+      if (bw_motorState.power < bw_motorState.targetPower) {
+        bw_motorState.power++;
+      } else if (bw_motorState.power > bw_motorState.targetPower) {
+        bw_motorState.power--;
+      }
+      bw_motorState.rampTimer = 0;
     }
-    bw_motorState.rampTimer = 0;
   }
+  
 #ifdef BTN9960_CONTROLLER
   switch (bw_motorState.dir) {
-    case OUT:
-      btn_motor_control.set_speed(-bw_motorState.power);
-      break;
-    case IN:
-      btn_motor_control.set_speed(bw_motorState.power);
-      break;
-    case STOP:
-      btn_motor_control.brake();
-      break;
-    case Freewheeling:
-      btn_motor_control.freewheel();
-      break;
-    default:
-      btn_motor_control.brake();
-      break;
+    case OUT:           btn_motor_control.set_speed(-bw_motorState.power); break;
+    case IN:            btn_motor_control.set_speed(bw_motorState.power); break;
+    case STOP:          btn_motor_control.brake(); break;
+    case Freewheeling:  btn_motor_control.freewheel(); break;
+    default:            btn_motor_control.brake(); break;
   }
 #elif defined(BTS7960B_CONTROLLER)
   switch (bw_motorState.dir) {
