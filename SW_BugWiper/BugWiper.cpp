@@ -1264,6 +1264,27 @@ void bw_init(void) {
   //analogSetPinAttenuation(MOTOR_CURRENT_SENSE_PIN, ADC_6db);
   BugWiper_ADC_filter_init();
 
+  // Initialize button states
+  bw_btnIn.state = BTN_IDLE;
+  bw_btnIn.event = BTN_EVT_NONE;
+  bw_btnIn.debounceCnt = 0;
+  bw_btnIn.holdCnt = 0;
+  bw_btnIn.rawLevel = false;
+
+  bw_btnOut.state = BTN_IDLE;
+  bw_btnOut.event = BTN_EVT_NONE;
+  bw_btnOut.debounceCnt = 0;
+  bw_btnOut.holdCnt = 0;
+  bw_btnOut.rawLevel = false;
+
+  // Initialize all filters BEFORE tasks start (avoid race condition)
+  bw_filterInit(&bw_cableLooseFilter, BW_SENSOR_FILTER_THRESHOLD);
+  bw_filterInit(&bw_btnInFilter,  BW_BTN_FILTER_THRESHOLD);
+  bw_filterInit(&bw_btnOutFilter, BW_BTN_FILTER_THRESHOLD);
+#ifdef BW_ENABLE_GROUND_MODE
+  bw_filterInit(&bw_groundSwitchFilter, BW_SENSOR_FILTER_THRESHOLD);
+#endif
+
   //bw_encoder_init();
 #ifdef BTN9960_CONTROLLER
   btn_motor_control.begin();
@@ -1290,6 +1311,10 @@ void bw_init(void) {
   ledcWrite(motor_pwm_channel, 0);
 #endif
 #endif  // BTS7960B_CONTROLLER
+  
+  // Explicitly set initial FSM state
+  changeMode(M_IDLE);
+  
   xTaskCreate(BugWiper_Task1_fast, "BW_T1_fast", 1024 * 4, NULL, 3, NULL);
   xTaskCreate(BugWiper_Task2_slow, "BW_T2_alow", 1024 * 8, NULL, 3, NULL);
 }
