@@ -1237,8 +1237,6 @@ void BugWiper_Task1_fast(void* parameter) {
     bw_filterUpdate(&bw_cableLooseFilter, bw_readCableLooseRaw());
     bw_filterUpdate(&bw_btnInFilter,  !digitalRead(BTN_IN_PIN));    // Inverted
     bw_filterUpdate(&bw_btnOutFilter, !digitalRead(BTN_OUT_PIN));   // Inverted
-    bw_buttonUpdate(&bw_btnIn, bw_btnInFilter.state);
-    bw_buttonUpdate(&bw_btnOut, bw_btnOutFilter.state);
     BugWiper_read_motor_current();
     bw_set_motor_power();  // motor ramp + HW output
     vTaskDelayUntil(&xLastWakeTime, taskPeriod);
@@ -1256,6 +1254,8 @@ void BugWiper_Task2_slow(void* parameter) {
 #endif
     BugWiper_read_ADCs_slow();
     BugWiper_read_Encoder();
+    bw_buttonUpdate(&bw_btnIn, bw_btnInFilter.state);
+    bw_buttonUpdate(&bw_btnOut, bw_btnOutFilter.state);
     BugWiper_processFSM();
     bw_ledUpdate();   // LED blink
     vTaskDelayUntil(&xLastWakeTime, taskPeriod);
