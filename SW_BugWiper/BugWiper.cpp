@@ -1215,8 +1215,8 @@ void BugWiper_Task1_fast(void* parameter) {
   for (;;) {
     // update (fast task)
     bw_filterUpdate(&bw_cableLooseFilter, bw_readCableLooseRaw());
-    bw_filterUpdate(&bw_btnInFilter,  digitalRead(BTN_IN_PIN));
-    bw_filterUpdate(&bw_btnOutFilter, digitalRead(BTN_OUT_PIN));
+    bw_filterUpdate(&bw_btnInFilter,  !digitalRead(BTN_IN_PIN));    // Inverted
+    bw_filterUpdate(&bw_btnOutFilter, !digitalRead(BTN_OUT_PIN));   // Inverted
     bw_buttonUpdate(&bw_btnIn, bw_btnInFilter.state);
     bw_buttonUpdate(&bw_btnOut, bw_btnOutFilter.state);
     BugWiper_read_motor_current();
