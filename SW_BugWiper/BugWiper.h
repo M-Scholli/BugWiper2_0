@@ -167,6 +167,7 @@ typedef struct {
   bool enableEndCheckSpeed;   // Enable speed-based end position check in global transitions
   bool enableSafetyProtection; // Enable safety protection check in global transitions
   bool enableMaxTimeCheck;    // Enable max time check in global transitions
+  bool enableStopRequest;     // Enable stop request check in global transitions
   bool requireMinTimeForEndCheck; // Require minTime to elapse before any endCheck can trigger
 
   // FSM flow

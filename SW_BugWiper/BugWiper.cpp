@@ -103,6 +103,7 @@ const BW_ModeConfig bw_modeConfig[BW_MODE_COUNT] = {
     .enableEndCheckSpeed   = false,
     .enableSafetyProtection = false,
     .enableMaxTimeCheck    = false,
+    .enableStopRequest     = false,
     .requireMinTimeForEndCheck = false,
 
     .defaultNext = M_IDLE
@@ -132,6 +133,7 @@ const BW_ModeConfig bw_modeConfig[BW_MODE_COUNT] = {
     .enableEndCheckSpeed   = false,
     .enableSafetyProtection = true,
     .enableMaxTimeCheck    = true,
+    .enableStopRequest     = true,
     .requireMinTimeForEndCheck = false,
 
     .defaultNext = M_START_CLEAN_OUT
@@ -161,6 +163,7 @@ const BW_ModeConfig bw_modeConfig[BW_MODE_COUNT] = {
     .enableEndCheckSpeed   = false,
     .enableSafetyProtection = true,
     .enableMaxTimeCheck    = true,
+    .enableStopRequest     = true,
     .requireMinTimeForEndCheck = false,  // minTime > 0
 
     .defaultNext = M_CLEANING
@@ -190,6 +193,7 @@ const BW_ModeConfig bw_modeConfig[BW_MODE_COUNT] = {
     .enableEndCheckSpeed   = true,
     .enableSafetyProtection = true,
     .enableMaxTimeCheck    = true,
+    .enableStopRequest     = true,
     .requireMinTimeForEndCheck = true,
 
     .defaultNext = M_DECEL_END
@@ -219,6 +223,7 @@ const BW_ModeConfig bw_modeConfig[BW_MODE_COUNT] = {
     .enableEndCheckSpeed   = false,
     .enableSafetyProtection = true,
     .enableMaxTimeCheck    = true,
+    .enableStopRequest     = true,
     .requireMinTimeForEndCheck = false,
 
     .defaultNext = M_RESTART_AFTER_LOOSE
@@ -248,6 +253,7 @@ const BW_ModeConfig bw_modeConfig[BW_MODE_COUNT] = {
     .enableEndCheckSpeed   = false,
     .enableSafetyProtection = true,
     .enableMaxTimeCheck    = true,
+    .enableStopRequest     = true,
     .requireMinTimeForEndCheck = false,
 
     .defaultNext = M_RESTART_AFTER_LOOSE
@@ -277,6 +283,7 @@ const BW_ModeConfig bw_modeConfig[BW_MODE_COUNT] = {
     .enableEndCheckSpeed   = false,
     .enableSafetyProtection = true,
     .enableMaxTimeCheck    = true,
+    .enableStopRequest     = true,
     .requireMinTimeForEndCheck = true,
 
     .defaultNext = M_CLEANING
@@ -306,6 +313,7 @@ const BW_ModeConfig bw_modeConfig[BW_MODE_COUNT] = {
     .enableEndCheckSpeed   = false,
     .enableSafetyProtection = true,
     .enableMaxTimeCheck    = true,
+    .enableStopRequest     = true,
     .requireMinTimeForEndCheck = false,
 
     .defaultNext = M_WINDING_IN
@@ -335,6 +343,7 @@ const BW_ModeConfig bw_modeConfig[BW_MODE_COUNT] = {
     .enableEndCheckSpeed   = true,
     .enableSafetyProtection = true,
     .enableMaxTimeCheck    = true,
+    .enableStopRequest     = true,
     .requireMinTimeForEndCheck = true,
 
     .defaultNext = M_FINISHED
@@ -364,6 +373,7 @@ const BW_ModeConfig bw_modeConfig[BW_MODE_COUNT] = {
     .enableEndCheckSpeed   = false,
     .enableSafetyProtection = true,
     .enableMaxTimeCheck    = true,
+    .enableStopRequest     = true,
     .requireMinTimeForEndCheck = false,
 
     .defaultNext = M_FINISHED
@@ -393,6 +403,7 @@ const BW_ModeConfig bw_modeConfig[BW_MODE_COUNT] = {
     .enableEndCheckSpeed   = false,
     .enableSafetyProtection = false,
     .enableMaxTimeCheck    = false,
+    .enableStopRequest     = false,
     .requireMinTimeForEndCheck = false,
 
     .defaultNext = M_IDLE
@@ -422,6 +433,7 @@ const BW_ModeConfig bw_modeConfig[BW_MODE_COUNT] = {
     .enableEndCheckSpeed   = false,
     .enableSafetyProtection = false,  // Emergency mode
     .enableMaxTimeCheck    = false,   // maxTime = 0
+    .enableStopRequest     = true,
     .requireMinTimeForEndCheck = false,
 
     .defaultNext = M_IDLE
@@ -451,6 +463,7 @@ const BW_ModeConfig bw_modeConfig[BW_MODE_COUNT] = {
     .enableEndCheckSpeed   = false,
     .enableSafetyProtection = false,
     .enableMaxTimeCheck    = false,
+    .enableStopRequest     = false,
     .requireMinTimeForEndCheck = false,
 
     .defaultNext = M_FINISHED
@@ -480,6 +493,7 @@ const BW_ModeConfig bw_modeConfig[BW_MODE_COUNT] = {
     .enableEndCheckSpeed   = false,
     .enableSafetyProtection = false,
     .enableMaxTimeCheck    = false,
+    .enableStopRequest     = false,
     .requireMinTimeForEndCheck = false,
 
     .defaultNext = M_IDLE
@@ -975,7 +989,7 @@ void changeMode(BW_MODE newMode)
 // Handle global transitions with highest priority
 bool handleGlobalTransitions(const BW_ModeConfig& cfg) {
   // User stop request (opposite button)
-  if (eventStopRequested()) {
+  if (cfg.enableStopRequest && eventStopRequested()) {
     changeMode(M_STOP);
     return true;
   }
