@@ -13,4 +13,29 @@
 |C37| 10nF --> 1nF|Filter Encoder|x|x|
 |C38|10nF --> 1nF|Filter ENcoder|x|x|
 |C4|100nF --> 1uF|Reset Filter|no|x|
+|C4|100nF --> 470nF|Reset Filter|x|no|
+
+## PCB tests
+|Test|Result PCB1| Result PCB2|
+|--|---|---|
+|Thermal Interface|OK|foil must be removed|
+|Voltage Regulator 12V-3.3V|OK||
+|Voltage Regulator 5V-3.3V|OK||
+|USB-C Port|OK||
+|Motor driver|OK||
+|Motor Encoder|OK||
+|SD Card|OK|OK|
+|ButtonIN|OK||
+|ButtonOUT|OK||
+|RBG LED|OK||
+|Cable Loose Sensor|||
+|Ground Sensor|||
+|Current Sensor|OK||
+|Voltage Sensor|OK||
+|Temperature Sensor|OK||
+|Current Sensor calibration|||
+|Voltage Sensor calibration|||
+|Motor Encoder calibration|||
+|Ground Test after assembly|||
+
 
