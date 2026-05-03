@@ -1143,25 +1143,28 @@ void stateGroundOut(const BW_ModeConfig& cfg) {
 }
 
 void stateFinished(const BW_ModeConfig& cfg) {
-  if (stateTimedOut(cfg.maxTime)) {
+  if ((millis() - bw_modeStartTime) > cfg.maxTime) {
     changeMode(cfg.defaultNext);
   }
 }
 
 void stateEmergencyIn(const BW_ModeConfig& cfg) {
-  if (stateTimedOut(cfg.maxTime)) {
-    changeMode(cfg.defaultNext);
+  if (bw_btnIn.state == BTN_IDLE) {    
+    if (bw_check_end_reached()) {
+      changeMode(cfg.defaultNext);
+      return;
+    }
   }
 }
 
 void stateStop(const BW_ModeConfig& cfg) {
-  if (stateTimedOut(cfg.maxTime)) {
+  if ((millis() - bw_modeStartTime) > cfg.maxTime) {
     changeMode(cfg.defaultNext);
   }
 }
 
 void stateError(const BW_ModeConfig& cfg) {
-  if (stateTimedOut(cfg.maxTime)) {
+  if ((millis() - bw_modeStartTime) > cfg.maxTime) {
     changeMode(cfg.defaultNext);
   }
 }
