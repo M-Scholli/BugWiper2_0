@@ -1094,6 +1094,9 @@ void stateDecelLoose(const BW_ModeConfig& cfg) {
 }
 
 void stateWiggleLoose(const BW_ModeConfig& cfg) {
+  if (bw_cableLooseFilter.state == false) {
+    changeMode(cfg.defaultNext);
+  }
 }
 
 void stateRestartAfterLoose(const BW_ModeConfig& cfg) {
