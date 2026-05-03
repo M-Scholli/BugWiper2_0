@@ -1290,7 +1290,7 @@ void bw_init(void) {
   ledcWrite(motor_pwm_channel, 0);
 #endif
 #endif  // BTS7960B_CONTROLLER
-  xTaskCreate(BugWiper_Task1_fast, "BW_T1_fast", 1024 * 2, NULL, 3, NULL);
+  xTaskCreate(BugWiper_Task1_fast, "BW_T1_fast", 1024 * 4, NULL, 3, NULL);
   xTaskCreate(BugWiper_Task2_slow, "BW_T2_alow", 1024 * 8, NULL, 3, NULL);
 }
 
