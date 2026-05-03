@@ -30,6 +30,6 @@ void loop() {
   if(bw_currentMode!=M_IDLE){
     bw_log();
   }
-  bw_btn_log();
+  //bw_btn_log();
   delay(500);
 }

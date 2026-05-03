@@ -567,9 +567,22 @@ void bw_encoder_init(void) {
 void bw_rgbLedWrite(struct RGB_COLOUR colour) {
   rgbLedWrite(RGB_LED_PIN, colour.g, colour.r, colour.b);
 }
-void bw_btn_log(void) {
+
+void bw_btnIn_log(void) {
+  if (bw_btnIn.event != CMD_NONE) {
   DEBUG_INFO("BTN IN: " + String(bw_btnIn.state) + " Event: " + String(bw_btnIn.event));
+  }
+}
+
+void bw_btnOut_log(void) {
+  if (bw_btnOut.event != CMD_NONE) {
   DEBUG_INFO("BTN OUT: " + String(bw_btnOut.state) + " Event: " + String(bw_btnOut.event));
+  }
+}
+
+void bw_btn_log(void) {
+  bw_btnIn_log();
+  bw_btnOut_log();
 }
 
 void bw_log(void){
@@ -1256,6 +1269,7 @@ void BugWiper_Task2_slow(void* parameter) {
     BugWiper_read_Encoder();
     bw_buttonUpdate(&bw_btnIn, bw_btnInFilter.state);
     bw_buttonUpdate(&bw_btnOut, bw_btnOutFilter.state);
+    bw_btn_log();
     BugWiper_processFSM();
     bw_ledUpdate();   // LED blink
     vTaskDelayUntil(&xLastWakeTime, taskPeriod);
