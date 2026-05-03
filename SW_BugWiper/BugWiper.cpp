@@ -27,13 +27,13 @@
 
 //position thresholds
 #ifdef TESTBENCH
-#define POSITION_STARTING 100  // Slow start lenght in mm
+#define POSITION_SLOW_START 100  // Slow start lenght in mm
 #define POSITION_SLOW_WINGTIP 1300
 #define POSITION_WINGTIP 1600       // End of the Wing in mm
 #define POSITION_SLOW_FUSELAGE 500  // End of the Wing in mm
 #define LENGTH_SLOW 200             // Distance to slow down
 #else
-#define POSITION_STARTING 200  // Slow start lenght in mm
+#define POSITION_SLOW_START 200  // Slow start lenght in mm
 #define POSITION_SLOW_WINGTIP 6000
 #define POSITION_WINGTIP 6500        // End of the Wing in mm
 #define POSITION_SLOW_FUSELAGE 6500  // End of the Wing in mm
@@ -523,8 +523,8 @@ gpio_num_t motor_pwm_pin;
 #endif
 
 const PositionConfig positionConfig = {
-  .startSlowOut  = POSITION_STARTING,
-  .slowZoneStart = POSITION_SLOW_WINGTIP,
+  .slowZoneStartOut  = POSITION_SLOW_START,
+  .slowZoneWingTip = POSITION_SLOW_WINGTIP,
   .wingTip       = POSITION_WINGTIP,
   .groundOutMax  = 800
 };
@@ -852,10 +852,15 @@ bool bw_check_end_reached(void) {
 }
 
 bool motorSlowedDown(void) {
-  if ( bw_motorState.speed < BW_STOP_SPEED ) {
+  if ((bw_motorState.speed < BW_STOP_SPEED) ||
+      (bw_motorState.power == bw_motorState.targetPower)) {
     stop_detection.speed_counter++;
     if (stop_detection.speed_counter >= BW_STOP_SPEED_COUNTS) {
-      DEBUG_INFO("Decel End Finished: Speed:" + String(bw_motorState.speed) + " below " + String((float)BW_STOP_SPEED));
+      if(bw_motorState.speed < BW_STOP_SPEED){
+        DEBUG_INFO("Decel End Finished: Speed:" + String(bw_motorState.speed) + " below " + String((float)BW_STOP_SPEED));
+      } else {
+        DEBUG_INFO("Decel End Finished: M_Power:" + String(bw_motorState.power) + " reached target " + String((float)bw_motorState.targetPower));
+      }
       bw_log_event();
       return true;
     }
@@ -1097,7 +1102,7 @@ void stateStartCleanOut(const BW_ModeConfig& cfg) {
     return;
   }
 
-  if (bw_motorState.position_mm >= positionConfig.slowZoneStart) {
+  if (bw_motorState.position_mm >= positionConfig.slowZoneStartOut) {
     changeMode(cfg.defaultNext);
   }
 }
@@ -1113,17 +1118,12 @@ void stateCleaning(const BW_ModeConfig& cfg) {
     return;
   }
 
-  if (bw_motorState.position_mm >= positionConfig.startSlowOut) {
+  if (bw_motorState.position_mm >= positionConfig.slowZoneWingTip) {
     changeMode(cfg.defaultNext);
   }
 }
 
 void stateDecelLoose(const BW_ModeConfig& cfg) {
-  if (bw_motorState.position_mm >= positionConfig.slowZoneStart) {
-    changeMode(M_WIGGLE_LOOSE);
-    return;
-  }
-
   if (bw_cableLooseFilter.state == false) {
     changeMode(cfg.defaultNext);
   }
@@ -1146,13 +1146,14 @@ void stateRestartAfterLoose(const BW_ModeConfig& cfg) {
     return;
   }
 
-  if (bw_motorState.position_mm >= positionConfig.slowZoneStart) {
+  if (bw_motorState.position_mm >= positionConfig.slowZoneStartOut) {
     changeMode(cfg.defaultNext);
   }
 }
 
 void stateDecelEnd(const BW_ModeConfig& cfg) {
-  if (motorSlowedDown()) {
+  if (motorSlowedDown() ||
+      (bw_motorState.position_mm >= positionConfig.wingTip)) {
     changeMode(cfg.defaultNext);
   }
 }

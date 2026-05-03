@@ -182,8 +182,8 @@ enum UserCommand {
 };
 
 struct PositionConfig {
-  int32_t startSlowOut;
-  int32_t slowZoneStart;
+  int32_t slowZoneStartOut;
+  int32_t slowZoneWingTip;
   int32_t wingTip;
   int32_t groundOutMax;
 };
