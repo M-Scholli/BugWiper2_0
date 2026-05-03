@@ -1212,11 +1212,7 @@ void BugWiper_processFSM()
 void BugWiper_Task1_fast(void* parameter) {
   const TickType_t taskPeriod = pdMS_TO_TICKS(BW_TASK_FAST_MS);
   TickType_t xLastWakeTime = xTaskGetTickCount();
-  // init
-  bw_filterInit(&bw_cableLooseFilter, BW_SENSOR_FILTER_THRESHOLD);  
-  bw_filterInit(&bw_btnInFilter,  BW_BTN_FILTER_THRESHOLD);
-  bw_filterInit(&bw_btnOutFilter, BW_BTN_FILTER_THRESHOLD);
-
+  
   bw_encoder_init();
   for (;;) {
     // update (fast task)
@@ -1234,9 +1230,7 @@ void BugWiper_Task1_fast(void* parameter) {
 void BugWiper_Task2_slow(void* parameter) {
   const TickType_t taskPeriod = pdMS_TO_TICKS(BW_TASK_SLOW_MS);
   TickType_t xLastWakeTime = xTaskGetTickCount();
-#ifdef BW_ENABLE_GROUND_MODE
-  bw_filterInit(&bw_groundSwitchFilter, BW_SENSOR_FILTER_THRESHOLD);
-#endif
+  
   //BugWiper_test_Motor();
   for (;;) {
 #ifdef BW_ENABLE_GROUND_MODE
