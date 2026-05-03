@@ -487,8 +487,6 @@ const BW_ModeConfig bw_modeConfig[BW_MODE_COUNT] = {
 };
 
 BW_MODE bw_currentMode = M_IDLE;
-BW_SubState bw_subState = SUB_INIT;
-
 uint32_t bw_modeStartTime = 0;
 
 static UserCommand lastUserCommand = CMD_NONE;
@@ -971,7 +969,9 @@ void changeMode(BW_MODE newMode)
   const BW_ModeConfig& cfg = bw_modeConfig[newMode];
 
   bw_modeStartTime = millis();
-  bw_subState = SUB_INIT;
+
+  // Motor entry action
+  bw_motorInit(cfg.motorCmd);
 
   // LED entry action
   bw_ledInit(cfg.ledCmd);
@@ -1019,64 +1019,33 @@ bool handleGlobalTransitions(const BW_ModeConfig& cfg) {
 }
 
 void stateIdle(const BW_ModeConfig& cfg) {
-  switch (bw_subState) {
+  // Waiting for user input
 
-    case SUB_INIT:
-      bw_motorInit(cfg.motorCmd);
-      lastUserCommand = CMD_NONE;
-      bw_subState = SUB_RUNNING;
-      break;
-
-    case SUB_RUNNING:
-      // Waiting for user input
-    
-      if (groundModeActive() && (bw_btnOut.event == BTN_EVT_LONG)) {
-        lastUserCommand = CMD_CLEANING;   // ground out is still an "out" operation
-        changeMode(M_GROUND_OUT);
-      }
-      else if (bw_btnIn.event == BTN_EVT_LONG) {
-        lastUserCommand = CMD_WINDING_IN;
-        changeMode(M_EMERGENCY_IN);
-      }
-      else if (bw_btnIn.event == BTN_EVT_SHORT) {
-        lastUserCommand = CMD_WINDING_IN;
-        changeMode(M_WINDING_IN);
-      }
-      else if (bw_btnOut.event == BTN_EVT_SHORT) {
-        lastUserCommand = CMD_CLEANING;
-        bw_subState = SUB_DONE;
-      }
-      break;
-
-    case SUB_DONE:
-      changeMode(cfg.defaultNext);
-      break;
+  if (groundModeActive() && (bw_btnOut.event == BTN_EVT_LONG)) {
+    lastUserCommand = CMD_CLEANING;   // ground out is still an "out" operation
+    changeMode(M_GROUND_OUT);
+  }
+  else if (bw_btnIn.event == BTN_EVT_LONG) {
+    lastUserCommand = CMD_WINDING_IN;
+    changeMode(M_EMERGENCY_IN);
+  }
+  else if (bw_btnIn.event == BTN_EVT_SHORT) {
+    lastUserCommand = CMD_WINDING_IN;
+    changeMode(M_WINDING_IN);
+  }
+  else if (bw_btnOut.event == BTN_EVT_SHORT) {
+    lastUserCommand = CMD_CLEANING;
+    changeMode(cfg.defaultNext);
   }
 }
 
 void stateReferenceIn(const BW_ModeConfig& cfg) {
+  bool endReached = bw_check_end_reached();
+  bool minTimeElapsed = (millis() - bw_modeStartTime) >= cfg.minTime;
 
-  switch (bw_subState) {
-
-    case SUB_INIT:
-      bw_motorInit(cfg.motorCmd);
-      bw_subState = SUB_RUNNING;
-      break;
-
-    case SUB_RUNNING: {
-      bool endReached = bw_check_end_reached();
-      bool minTimeElapsed = (millis() - bw_modeStartTime) >= cfg.minTime;
-
-      // Transition condition: BOTH must be true
-      if (endReached && minTimeElapsed) {
-        bw_subState = SUB_DONE;
-      }
-      break;
-    }
-
-    case SUB_DONE:
-      changeMode(cfg.defaultNext);
-      break;
+  // Transition condition: BOTH must be true
+  if (endReached && minTimeElapsed) {
+    changeMode(cfg.defaultNext);
   }
 }
 
@@ -1092,22 +1061,8 @@ void stateStartCleanOut(const BW_ModeConfig& cfg) {
     return;
   }
 
-  switch (bw_subState) {
-
-    case SUB_INIT:
-      bw_motorInit(cfg.motorCmd);
-      bw_subState = SUB_RUNNING;
-      break;
-
-    case SUB_RUNNING:
-      if (bw_motorState.position_mm >= positionConfig.slowZoneStart) {
-        bw_subState = SUB_DONE;
-      }
-      break;
-
-    case SUB_DONE:
-      changeMode(cfg.defaultNext);
-      break;
+  if (bw_motorState.position_mm >= positionConfig.slowZoneStart) {
+    changeMode(cfg.defaultNext);
   }
 }
 
@@ -1122,22 +1077,8 @@ void stateCleaning(const BW_ModeConfig& cfg) {
     return;
   }
 
-  switch (bw_subState) {
-
-    case SUB_INIT:
-      bw_motorInit(cfg.motorCmd);
-      bw_subState = SUB_RUNNING;
-      break;
-
-    case SUB_RUNNING:
-      if (bw_motorState.position_mm >= positionConfig.startSlowOut) {
-        bw_subState = SUB_DONE;
-      }
-      break;
-
-    case SUB_DONE:
-      changeMode(cfg.defaultNext);
-      break;
+  if (bw_motorState.position_mm >= positionConfig.startSlowOut) {
+    changeMode(cfg.defaultNext);
   }
 }
 
@@ -1147,22 +1088,8 @@ void stateDecelLoose(const BW_ModeConfig& cfg) {
     return;
   }
 
-  switch (bw_subState) {
-
-    case SUB_INIT:
-      bw_motorInit(cfg.motorCmd);
-      bw_subState = SUB_RUNNING;
-      break;
-
-    case SUB_RUNNING:
-      if (bw_cableLooseFilter.state == false) {
-        bw_subState = SUB_DONE;
-      }
-      break;
-
-    case SUB_DONE:
-      changeMode(cfg.defaultNext);
-      break;
+  if (bw_cableLooseFilter.state == false) {
+    changeMode(cfg.defaultNext);
   }
 }
 
@@ -1180,42 +1107,14 @@ void stateRestartAfterLoose(const BW_ModeConfig& cfg) {
     return;
   }
 
-  switch (bw_subState) {
-
-    case SUB_INIT:
-      bw_motorInit(cfg.motorCmd);
-      bw_subState = SUB_RUNNING;
-      break;
-
-    case SUB_RUNNING:
-      if (bw_motorState.position_mm >= positionConfig.slowZoneStart) {
-        bw_subState = SUB_DONE;
-      }
-      break;
-
-    case SUB_DONE:
-      changeMode(cfg.defaultNext);
-      break;
+  if (bw_motorState.position_mm >= positionConfig.slowZoneStart) {
+    changeMode(cfg.defaultNext);
   }
 }
 
 void stateDecelEnd(const BW_ModeConfig& cfg) {
-    switch (bw_subState) {
-
-    case SUB_INIT:
-      bw_motorInit(cfg.motorCmd);
-      bw_subState = SUB_RUNNING;
-      break;
-
-    case SUB_RUNNING:
-     if (motorSlowedDown()) {
-        bw_subState = SUB_DONE;
-      }
-      break;
-
-    case SUB_DONE:
-      changeMode(cfg.defaultNext);
-      break;
+  if (motorSlowedDown()) {
+    changeMode(cfg.defaultNext);
   }
 }
 
@@ -1225,29 +1124,11 @@ void stateWindingIn(const BW_ModeConfig& cfg) {
     return;
   }
 
-  switch (bw_subState) {
-
-    case SUB_INIT:
-      bw_motorInit(cfg.motorCmd);
-      bw_subState = SUB_RUNNING;
-      break;
-
-    case SUB_RUNNING:
-      break;
-
-    case SUB_DONE:
-      changeMode(cfg.defaultNext);
-      break;
-  }
+  // SUB_RUNNING is empty, so no additional logic
 }
 
 void stateGroundOut(const BW_ModeConfig& cfg) {
   // Ground / maintenance outward movement only
-
-  if (stateTimedOut(cfg.maxTime)) {
-    changeMode(M_ERROR);
-    return;
-  }
 
   if (stateTimedOut(cfg.maxTime)) {
     changeMode(M_ERROR);
@@ -1259,102 +1140,32 @@ void stateGroundOut(const BW_ModeConfig& cfg) {
     return;
   }
 
-  switch (bw_subState) {
-
-    case SUB_INIT:
-      bw_motorInit(cfg.motorCmd);
-      bw_subState = SUB_RUNNING;
-      break;
-
-    case SUB_RUNNING:
-      if (bw_motorState.position_mm >= positionConfig.groundOutMax) {
-        bw_subState = SUB_DONE;
-      }
-      break;
-
-    case SUB_DONE:
-      changeMode(cfg.defaultNext);
-      break;
+  if (bw_motorState.position_mm >= positionConfig.groundOutMax) {
+    changeMode(cfg.defaultNext);
   }
 }
 
 void stateFinished(const BW_ModeConfig& cfg) {
-  switch (bw_subState) {
-
-    case SUB_INIT:
-      bw_motorInit(cfg.motorCmd);
-      bw_subState = SUB_RUNNING;
-      break;
-
-    case SUB_RUNNING:
-      if (stateTimedOut(cfg.maxTime)) {
-        bw_subState = SUB_DONE;
-      }
-      break;
-
-    case SUB_DONE:
-      changeMode(cfg.defaultNext);
-      break;
+  if (stateTimedOut(cfg.maxTime)) {
+    changeMode(cfg.defaultNext);
   }
 }
 
 void stateEmergencyIn(const BW_ModeConfig& cfg) {
-  switch (bw_subState) {
-
-    case SUB_INIT:
-      bw_motorInit(cfg.motorCmd);
-      bw_subState = SUB_RUNNING;
-      break;
-
-    case SUB_RUNNING:
-      if (stateTimedOut(cfg.maxTime)) {
-        bw_subState = SUB_DONE;
-      }
-      break;
-
-    case SUB_DONE:
-      changeMode(cfg.defaultNext);
-      break;
+  if (stateTimedOut(cfg.maxTime)) {
+    changeMode(cfg.defaultNext);
   }
 }
 
 void stateStop(const BW_ModeConfig& cfg) {
-  switch (bw_subState) {
-
-    case SUB_INIT:
-      bw_motorInit(cfg.motorCmd);
-      bw_subState = SUB_RUNNING;
-      break;
-
-    case SUB_RUNNING:
-      if (stateTimedOut(cfg.maxTime)) {
-        bw_subState = SUB_DONE;
-      }
-      break;
-
-    case SUB_DONE:
-      changeMode(cfg.defaultNext);
-      break;
+  if (stateTimedOut(cfg.maxTime)) {
+    changeMode(cfg.defaultNext);
   }
 }
 
 void stateError(const BW_ModeConfig& cfg) {
-  switch (bw_subState) {
-
-    case SUB_INIT:
-      bw_motorInit(cfg.motorCmd);
-      bw_subState = SUB_RUNNING;
-      break;
-
-    case SUB_RUNNING:
-      if (stateTimedOut(cfg.maxTime)) {
-        bw_subState = SUB_DONE;
-      }
-      break;
-
-    case SUB_DONE:
-      changeMode(cfg.defaultNext);
-      break;
+  if (stateTimedOut(cfg.maxTime)) {
+    changeMode(cfg.defaultNext);
   }
 }
 

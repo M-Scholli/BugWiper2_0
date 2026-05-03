@@ -180,12 +180,6 @@ enum UserCommand {
   CMD_WINDING_IN
 };
 
-typedef enum {
-  SUB_INIT,
-  SUB_RUNNING,
-  SUB_DONE
-} BW_SubState;
-
 struct PositionConfig {
   int32_t startSlowOut;
   int32_t slowZoneStart;
