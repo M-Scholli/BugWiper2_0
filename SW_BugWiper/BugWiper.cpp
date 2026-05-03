@@ -557,7 +557,7 @@ void bw_rgbLedWrite(struct RGB_COLOUR colour) {
 void bw_log(void){
   unsigned long t = millis();
   DEBUG_INFO("Time:" + String(t));
-  DEBUG_INFO("ADC_Current:" + String(adc_filtered.current_mA_filtered) + " HB1: N/A HB2: N/A");
+  DEBUG_INFO("ADC_Current:" + String(adc_filtered.current_mA_filtered));
   DEBUG_INFO("Encoder_count:" + String((int32_t)bw_motorState.encoder_count) + " Power:" + String(bw_motorState.power));
   DEBUG_INFO("Position:" + String(bw_motorState.position_mm) + " Speed:" + String(bw_motorState.speed));
   DEBUG_WARNING(String("State: ") + bw_ModeToString(bw_currentMode));
