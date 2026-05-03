@@ -567,6 +567,10 @@ void bw_encoder_init(void) {
 void bw_rgbLedWrite(struct RGB_COLOUR colour) {
   rgbLedWrite(RGB_LED_PIN, colour.g, colour.r, colour.b);
 }
+void bw_btn_log(void) {
+  DEBUG_INFO("BTN IN: " + String(bw_btnIn.state) + " Event: " + String(bw_btnIn.event));
+  DEBUG_INFO("BTN OUT: " + String(bw_btnOut.state) + " Event: " + String(bw_btnOut.event));
+}
 
 void bw_log(void){
   unsigned long t = millis();

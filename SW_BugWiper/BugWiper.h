@@ -238,6 +238,7 @@ const char* bw_ModeToString(BW_MODE mode);
 void bw_rgbLed_init(void);
 void bw_init(void);
 void bw_rgbLedWrite(struct RGB_COLOUR colour);
+void bw_btn_log(void);
 void bw_log(void);
 
 extern BW_MODE bw_currentMode;
