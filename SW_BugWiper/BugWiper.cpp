@@ -559,9 +559,23 @@ MotorControl btn_motor_control(shield);
 HalfBridge HalfBridge_1 = shield.get_half_bridge(DCShield::HALF_BRIDGE_1);
 HalfBridge HalfBridge_2 = shield.get_half_bridge(DCShield::HALF_BRIDGE_2);
 
+void bw_encoderSetZero(void) {
+  bw_motorEncoder.setCount(0);
+  bw_motorState.encoder_count = bw_motorEncoder.getCount();
+  bw_motorState.position_mm = int32_t((float)bw_motorState.encoder_count * SPOOL_CIRCUMFERENCE / (CPR_Encoder * GEAR_RATIO));
+  bw_motorState.speed = 0;
+}
+
 void bw_encoder_init(void) {
   bw_motorEncoder.attachHalfQuad(MOTOR_ENCODER_1_PIN, MOTOR_ENCODER_2_PIN);
-  bw_motorEncoder.setCount(0);
+  bw_encoderSetZero();
+}
+
+void bw_encoderRead(void) {
+  uint32_t BW_enc_count_old = bw_motorState.encoder_count;
+  bw_motorState.encoder_count = bw_motorEncoder.getCount();
+  bw_motorState.position_mm = int32_t((float)bw_motorState.encoder_count * SPOOL_CIRCUMFERENCE / (CPR_Encoder * GEAR_RATIO));
+  bw_motorState.speed = bw_motorState.encoder_count - BW_enc_count_old;
 }
 
 void bw_rgbLedWrite(struct RGB_COLOUR colour) {
@@ -870,13 +884,6 @@ bool BugWiper_safety_protection(void) {
   return false;
 }
 
-void BugWiper_read_Encoder(void) {
-  uint32_t BW_enc_count_old = bw_motorState.encoder_count;
-  bw_motorState.encoder_count = bw_motorEncoder.getCount();
-  bw_motorState.position_mm = int32_t((float)bw_motorState.encoder_count * SPOOL_CIRCUMFERENCE / (CPR_Encoder * GEAR_RATIO));
-  bw_motorState.speed = bw_motorState.encoder_count - BW_enc_count_old;
-}
-
 static inline bool bw_readGroundSwitchRaw(void)
 {
   bool level = digitalRead(SW_GROUND_PIN);
@@ -1073,6 +1080,7 @@ void stateReferenceIn(const BW_ModeConfig& cfg) {
 
   // Transition condition: BOTH must be true
   if (endReached && minTimeElapsed) {
+    bw_encoderSetZero();
     changeMode(cfg.defaultNext);
   }
 }
@@ -1179,6 +1187,7 @@ void stateGroundOut(const BW_ModeConfig& cfg) {
 void stateFinished(const BW_ModeConfig& cfg) {
   lastUserCommand = CMD_NONE;
   if ((millis() - bw_modeStartTime) > cfg.maxTime) {
+    bw_encoderSetZero();
     changeMode(cfg.defaultNext);
   }
 }
@@ -1269,7 +1278,7 @@ void BugWiper_Task2_slow(void* parameter) {
     bw_filterUpdate(&bw_groundSwitchFilter, bw_readGroundSwitchRaw());
 #endif
     BugWiper_read_ADCs_slow();
-    BugWiper_read_Encoder();
+    bw_encoderRead();
     bw_buttonUpdate(&bw_btnIn, bw_btnInFilter.state);
     bw_buttonUpdate(&bw_btnOut, bw_btnOutFilter.state);
     bw_btn_log();
