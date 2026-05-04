@@ -260,7 +260,7 @@ const BW_ModeConfig bw_modeConfig[BW_MODE_COUNT] = {
     .enableStopRequest     = true,
     .requireMinTimeForEndCheck = false,
 
-    .defaultNext = M_RESTART_AFTER_LOOSE
+    .defaultNext = M_CLEANING
   },
 
   /* ------------------------------------------------------------
