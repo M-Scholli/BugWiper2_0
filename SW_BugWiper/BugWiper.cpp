@@ -1192,12 +1192,7 @@ void stateDecelEnd(const BW_ModeConfig& cfg) {
 }
 
 void stateWindingIn(const BW_ModeConfig& cfg) {
-  if (stateTimedOut(cfg.maxTime)) {
-    changeMode(M_ERROR);
-    return;
-  }
-
-  // SUB_RUNNING is empty, so no additional logic
+  void();
 }
 
 void stateGroundOut(const BW_ModeConfig& cfg) {
