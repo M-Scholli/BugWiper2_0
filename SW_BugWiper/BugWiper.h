@@ -76,7 +76,6 @@ enum BW_MODE {
 
   M_DECEL_LOOSE,          // Decelerate after loose cable detected
   M_WIGGLE_LOOSE,         // Wiggle motor to release wiper
-  M_RESTART_AFTER_LOOSE,  // Restart after successful wiggle
 
   M_DECEL_END,            // Decelerate before wingtip end
   M_WINDING_IN,           // Normal winding in

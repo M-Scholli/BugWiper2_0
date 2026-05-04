@@ -59,7 +59,6 @@ static const char* BW_MODE_STR[BW_MODE_COUNT] = {
   "CLEANING",
   "DECEL_LOOSE",
   "WIGGLE_LOOSE",
-  "RESTART_AFTER_LOOSE",
   "DECEL_END",
   "WINDING_IN",
   "GROUND_OUT",
@@ -231,7 +230,7 @@ const BW_ModeConfig bw_modeConfig[BW_MODE_COUNT] = {
     .enableStopRequest     = true,
     .requireMinTimeForEndCheck = false,
 
-    .defaultNext = M_RESTART_AFTER_LOOSE
+    .defaultNext = M_START_CLEAN_OUT
   },
 
   /* ------------------------------------------------------------
@@ -260,36 +259,6 @@ const BW_ModeConfig bw_modeConfig[BW_MODE_COUNT] = {
     .enableMaxTimeCheck    = true,
     .enableStopRequest     = true,
     .requireMinTimeForEndCheck = false,
-
-    .defaultNext = M_CLEANING
-  },
-
-  /* ------------------------------------------------------------
-   * M_RESTART_AFTER_LOOSE
-   * ------------------------------------------------------------ */
-  {
-    .motorCmd = {
-      .dir         = OUT,
-      .startPower  = 80,
-      .targetPower = 150,
-      .rampTime    = 10
-    },
-
-    .ledCmd = {
-      .color     = GREEN,
-      .blinkTime = 300
-    },
-
-    .minTime = 500,
-    .maxTime = 5000,
-
-    // Global transition flags
-    .enableEndCheckCurrent = true,
-    .enableEndCheckSpeed   = false,
-    .enableSafetyProtection = true,
-    .enableMaxTimeCheck    = true,
-    .enableStopRequest     = true,
-    .requireMinTimeForEndCheck = true,
 
     .defaultNext = M_CLEANING
   },
@@ -1163,7 +1132,7 @@ void stateCleaning(const BW_ModeConfig& cfg) {
 
 void stateDecelLoose(const BW_ModeConfig& cfg) {
   if (bw_cableLooseFilter.state == false) {
-    changeMode(M_RESTART_AFTER_LOOSE);
+    changeMode(M_START_CLEAN_OUT);
   } else if (BW_DECEL_LOOSE_TO_WIGGLE_TIME_MS > 0 && motorSlowedDown() && (millis() - bw_modeStartTime) >= BW_DECEL_LOOSE_TO_WIGGLE_TIME_MS) {
     changeMode(M_WIGGLE_LOOSE);
   }
@@ -1212,22 +1181,6 @@ void stateWiggleLoose(const BW_ModeConfig& cfg) {
         changeMode(cfg.defaultNext);
       }
     }
-  }
-}
-
-void stateRestartAfterLoose(const BW_ModeConfig& cfg) {
-  if (bw_cableLooseFilter.state) {
-    changeMode(M_DECEL_LOOSE);
-    return;
-  }
-
-  if (stateTimedOut(cfg.maxTime)) {
-    changeMode(M_ERROR);
-    return;
-  }
-
-  if (bw_motorState.position_mm >= positionConfig.slowZoneStartOut) {
-    changeMode(cfg.defaultNext);
   }
 }
 
@@ -1316,7 +1269,6 @@ void BugWiper_processFSM()
     case M_CLEANING:              stateCleaning(cfg);           break;
     case M_DECEL_LOOSE:           stateDecelLoose(cfg);         break;
     case M_WIGGLE_LOOSE:          stateWiggleLoose(cfg);        break;
-    case M_RESTART_AFTER_LOOSE:   stateRestartAfterLoose(cfg);  break;
     case M_DECEL_END:             stateDecelEnd(cfg);           break;
     case M_WINDING_IN:            stateWindingIn(cfg);          break;
     case M_GROUND_OUT:            stateGroundOut(cfg);          break;
