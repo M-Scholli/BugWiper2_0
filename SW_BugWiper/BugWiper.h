@@ -82,6 +82,7 @@ enum BW_MODE {
   M_WINDING_IN,           // Normal winding in
 
   M_GROUND_OUT,        // Ground mode: limited outward move only
+  M_DECEL_LOOSE_GROUND, // Ground mode: stop and wait for cable OK
 
   M_FINISHED,             // Cleaning finished
 

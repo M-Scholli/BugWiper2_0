@@ -63,6 +63,7 @@ static const char* BW_MODE_STR[BW_MODE_COUNT] = {
   "DECEL_END",
   "WINDING_IN",
   "GROUND_OUT",
+  "DECEL_LOOSE_GROUND",
   "FINISHED",
   "EMERGENCY_IN",
   "STOP",
@@ -381,6 +382,36 @@ const BW_ModeConfig bw_modeConfig[BW_MODE_COUNT] = {
     .requireMinTimeForEndCheck = false,
 
     .defaultNext = M_FINISHED
+  },
+
+  /* ------------------------------------------------------------
+   * M_DECEL_LOOSE_GROUND
+   * ------------------------------------------------------------ */
+  {
+    .motorCmd = {
+      .dir         = STOP,
+      .startPower  = 0,
+      .targetPower = 0,
+      .rampTime    = 0
+    },
+
+    .ledCmd = {
+      .color     = ORANGE,
+      .blinkTime = 300
+    },
+
+    .minTime = 0,
+    .maxTime = 10000,
+
+    // Global transition flags
+    .enableEndCheckCurrent = false,
+    .enableEndCheckSpeed   = false,
+    .enableSafetyProtection = true,
+    .enableMaxTimeCheck    = true,
+    .enableStopRequest     = true,
+    .requireMinTimeForEndCheck = false,
+
+    .defaultNext = M_GROUND_OUT
   },
 
   /* ------------------------------------------------------------
@@ -1138,6 +1169,16 @@ void stateDecelLoose(const BW_ModeConfig& cfg) {
   }
 }
 
+void stateDecelLooseGround(const BW_ModeConfig& cfg) {
+  if (bw_cableLooseFilter.state) {
+    // In ground mode, the motor remains stopped while the cable is loose.
+    return;
+  }
+
+  // Cable is OK again, restart ground out using the ground mode motor config.
+  changeMode(M_GROUND_OUT);
+}
+
 void stateWiggleLoose(const BW_ModeConfig& cfg) {
   static direction wiggleDir = IN;
   static int32_t straightStartPosition = 0;
@@ -1209,13 +1250,8 @@ void stateWindingIn(const BW_ModeConfig& cfg) {
 void stateGroundOut(const BW_ModeConfig& cfg) {
   // Ground / maintenance outward movement only
 
-  if (stateTimedOut(cfg.maxTime)) {
-    changeMode(M_ERROR);
-    return;
-  }
-
   if (bw_cableLooseFilter.state) {
-    changeMode(M_DECEL_LOOSE);
+    changeMode(M_DECEL_LOOSE_GROUND);
     return;
   }
 
@@ -1284,6 +1320,7 @@ void BugWiper_processFSM()
     case M_DECEL_END:             stateDecelEnd(cfg);           break;
     case M_WINDING_IN:            stateWindingIn(cfg);          break;
     case M_GROUND_OUT:            stateGroundOut(cfg);          break;
+    case M_DECEL_LOOSE_GROUND:    stateDecelLooseGround(cfg);   break;
     case M_FINISHED:              stateFinished(cfg);           break;
     case M_EMERGENCY_IN:          stateEmergencyIn(cfg);        break;
     case M_STOP:                  stateStop(cfg);               break;
