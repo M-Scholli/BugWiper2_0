@@ -47,6 +47,9 @@
 #define BW_BTN_DEBOUNCE_TICKS  3    // fast task ticks
 #define BW_BTN_HOLD_TICKS     500  // fast task ticks
 
+// Wiggle parameters
+#define BW_WIGGLE_STRAIGHT_DISTANCE 50  // Distance in mm to check if cable stays straight during OUT
+
 // String representation of BW_MODE for logging and debugging
 static const char* BW_MODE_STR[BW_MODE_COUNT] = {
   "IDLE",
@@ -1133,8 +1136,38 @@ void stateDecelLoose(const BW_ModeConfig& cfg) {
 }
 
 void stateWiggleLoose(const BW_ModeConfig& cfg) {
-  if (bw_cableLooseFilter.state == false) {
-    changeMode(cfg.defaultNext);
+  static direction wiggleDir = IN;
+  static int32_t straightStartPosition = 0;
+  static bool initialized = false;
+
+  if (!initialized) {
+    wiggleDir = IN;
+    MotorCommand cmd = {IN, cfg.motorCmd.startPower, cfg.motorCmd.targetPower, cfg.motorCmd.rampTime};
+    bw_motorInit(cmd);
+    initialized = true;
+  }
+
+  if (wiggleDir == IN) {
+    if (!bw_cableLooseFilter.state) {  // Cable is tight
+      // Switch to OUT
+      wiggleDir = OUT;
+      MotorCommand cmd = {OUT, cfg.motorCmd.startPower, cfg.motorCmd.targetPower, cfg.motorCmd.rampTime};
+      bw_motorInit(cmd);
+      straightStartPosition = bw_motorState.position_mm;  // Reset position for OUT
+    }
+  } else {  // OUT
+    if (bw_cableLooseFilter.state) {  // Cable is loose
+      // Switch back to IN
+      wiggleDir = IN;
+      MotorCommand cmd = {IN, cfg.motorCmd.startPower, cfg.motorCmd.targetPower, cfg.motorCmd.rampTime};
+      bw_motorInit(cmd);
+    } else {
+      // Cable is tight, check distance
+      if (bw_motorState.position_mm - straightStartPosition > BW_WIGGLE_STRAIGHT_DISTANCE) {  // Distance tight during extension
+        initialized = false;
+        changeMode(cfg.defaultNext);
+      }
+    }
   }
 }
 
