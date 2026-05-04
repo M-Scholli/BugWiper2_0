@@ -48,7 +48,8 @@
 #define BW_BTN_HOLD_TICKS     500  // fast task ticks
 
 // Wiggle parameters
-#define BW_WIGGLE_STRAIGHT_DISTANCE 50  // Distance in mm to check if cable stays straight during OUT
+#define BW_WIGGLE_STRAIGHT_DISTANCE 75  // Distance in mm to check if cable stays straight during OUT
+#define BW_DECEL_LOOSE_TO_WIGGLE_TIME_MS 1500  // Time in ms after which to switch to wiggle if cable still loose and motor slowed down
 
 // String representation of BW_MODE for logging and debugging
 static const char* BW_MODE_STR[BW_MODE_COUNT] = {
@@ -1131,7 +1132,9 @@ void stateCleaning(const BW_ModeConfig& cfg) {
 
 void stateDecelLoose(const BW_ModeConfig& cfg) {
   if (bw_cableLooseFilter.state == false) {
-    changeMode(cfg.defaultNext);
+    changeMode(M_RESTART_AFTER_LOOSE);
+  } else if (BW_DECEL_LOOSE_TO_WIGGLE_TIME_MS > 0 && motorSlowedDown() && (millis() - bw_modeStartTime) >= BW_DECEL_LOOSE_TO_WIGGLE_TIME_MS) {
+    changeMode(M_WIGGLE_LOOSE);
   }
 }
 
