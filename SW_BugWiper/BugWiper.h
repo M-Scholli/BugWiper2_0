@@ -18,7 +18,7 @@
 #define PWM_FREQ 10000
 #define PWM_RESOLUTION_BITS 8
 
-// Pin discription
+// Pin description
 // ESP32-Wroom-32:
 // following pins are not allowed to use: 0 (Bootselect); 2 Board LED / must be low on boot; (1 & 3 UART USB-Serial);
 // (5 must be high during boot);(15 Debugging Log on U0TXD During Booting);(6, 7, 8, 9, 10 & 11 connected to Flash);
@@ -254,10 +254,7 @@ void bw_btn_log(void);
 void bw_log(void);
 
 extern BW_MODE bw_currentMode;
-
 extern ESP32Encoder bw_motorEncoder;
-
-// Neue strukturierte ADC-Variablen
 extern ADCFilter adc_filter;
 extern ADCFiltered adc_filtered;
 extern StopDetection stop_detection;

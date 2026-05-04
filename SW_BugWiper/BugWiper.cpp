@@ -907,7 +907,7 @@ bool motorSlowedDown(void) {
 }
 
 bool bw_safety_protection(void) {
-  // Undervoltage protection
+  // Under voltage protection
   if (adc_filtered.battery_voltage <= BW_STOP_V_BAT) {
     DEBUG_ERROR("Under Voltage: V BAT:" + String(adc_filtered.battery_voltage) + " below " + String((float)BW_STOP_V_BAT) + "V");
     bw_log_event();
