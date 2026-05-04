@@ -652,7 +652,7 @@ void bw_log_event(void){
   sdLoggerLog(t, bw_currentMode, bw_motorState.position_mm, bw_motorState.speed, adc_filtered.current_mA_filtered, adc_filtered.battery_voltage);
 }
 
-void BugWiper_test_Motor(void) {
+void bw_test_Motor(void) {
   DEBUG_INFO("Run forward for 2 sec...")
   DEBUG_INFO("Encoder count = " + String((int32_t)bw_motorEncoder.getCount()));
   rgbLedWrite(RGB_LED_PIN, RGB_BRIGHTNESS, 0, 0);  // Red
@@ -815,7 +815,7 @@ bool stateTimedOut(uint32_t maxTime)
   return (millis() - bw_modeStartTime) > maxTime;
 }
 
-void BugWiper_read_motor_current(void) {
+void bw_read_motor_current(void) {
   uint32_t current_mV = analogReadMilliVolts(MOTOR_CURRENT_SENSE_PIN);
   // Convert to mA locally
   double current_mA = current_mV * CURRENT_CAL_FACTOR;
@@ -832,7 +832,7 @@ void BugWiper_read_motor_current(void) {
   }
 }
 
-void BugWiper_ADC_filter_init(void) {
+void bw_ADC_filter_init(void) {
   uint32_t initial_current_mV = analogReadMilliVolts(MOTOR_CURRENT_SENSE_PIN);
   adc_filter.filter_sum = 0;
   for (uint8_t j = 0; j < ADC_FILTER_SIZE; j++) {
@@ -841,9 +841,7 @@ void BugWiper_ADC_filter_init(void) {
   }
 }
 
-// Filter ist jetzt in BugWiper_read_motor_current integriert
-
-void BugWiper_read_ADCs_slow(void) {
+void bw_read_ADCs_slow(void) {
   uint16_t adc_temp;
   adc_temp = analogReadMilliVolts(ADC_NTC_PIN);
   adc_filtered.temperature_degree = (float)adc_temp * 4095.0 / 3100.0;
@@ -908,7 +906,7 @@ bool motorSlowedDown(void) {
   }
 }
 
-bool BugWiper_safety_protection(void) {
+bool bw_safety_protection(void) {
   // Undervoltage protection
   if (adc_filtered.battery_voltage <= BW_STOP_V_BAT) {
     DEBUG_ERROR("Under Voltage: V BAT:" + String(adc_filtered.battery_voltage) + " below " + String((float)BW_STOP_V_BAT) + "V");
@@ -1065,7 +1063,7 @@ bool handleGlobalTransitions(const BW_ModeConfig& cfg) {
   }
 
   // System error conditions
-  if (cfg.enableSafetyProtection && BugWiper_safety_protection()) {
+  if (cfg.enableSafetyProtection && bw_safety_protection()) {
     changeMode(M_ERROR);
     return true;
   }
@@ -1268,7 +1266,7 @@ void stateError(const BW_ModeConfig& cfg) {
   }
 }
 
-void BugWiper_processFSM()
+void bw_processFSM()
 {
   // ------------------------------------------------------------
 
@@ -1306,7 +1304,7 @@ void BugWiper_processFSM()
   }
 }
 
-void BugWiper_Task1_fast(void* parameter) {
+void bw_Task1_fast(void* parameter) {
   const TickType_t taskPeriod = pdMS_TO_TICKS(BW_TASK_FAST_MS);
   TickType_t xLastWakeTime = xTaskGetTickCount();
   
@@ -1316,27 +1314,27 @@ void BugWiper_Task1_fast(void* parameter) {
     bw_filterUpdate(&bw_cableLooseFilter, bw_readCableLooseRaw());
     bw_filterUpdate(&bw_btnInFilter,  !digitalRead(BTN_IN_PIN));    // Inverted
     bw_filterUpdate(&bw_btnOutFilter, !digitalRead(BTN_OUT_PIN));   // Inverted
-    BugWiper_read_motor_current();
+    bw_read_motor_current();
     bw_set_motor_power();  // motor ramp + HW output
     vTaskDelayUntil(&xLastWakeTime, taskPeriod);
   }
 }
 
-void BugWiper_Task2_slow(void* parameter) {
+void bw_Task2_slow(void* parameter) {
   const TickType_t taskPeriod = pdMS_TO_TICKS(BW_TASK_SLOW_MS);
   TickType_t xLastWakeTime = xTaskGetTickCount();
   
-  //BugWiper_test_Motor();
+  //bw_test_Motor();
   for (;;) {
 #ifdef BW_ENABLE_GROUND_MODE
     bw_filterUpdate(&bw_groundSwitchFilter, bw_readGroundSwitchRaw());
 #endif
-    BugWiper_read_ADCs_slow();
+    bw_read_ADCs_slow();
     bw_encoderRead();
     bw_buttonUpdate(&bw_btnIn, bw_btnInFilter.state);
     bw_buttonUpdate(&bw_btnOut, bw_btnOutFilter.state);
     bw_btn_log();
-    BugWiper_processFSM();
+    bw_processFSM();
     bw_ledUpdate();   // LED blink
     vTaskDelayUntil(&xLastWakeTime, taskPeriod);
   }
@@ -1354,7 +1352,7 @@ void bw_init(void) {
   pinMode(BTN_IN_PIN, INPUT_PULLUP);
   pinMode(BTN_OUT_PIN, INPUT_PULLUP);
   //analogSetPinAttenuation(MOTOR_CURRENT_SENSE_PIN, ADC_6db);
-  BugWiper_ADC_filter_init();
+  bw_ADC_filter_init();
 
   // Initialize button states
   bw_btnIn.state = BTN_IDLE;
@@ -1407,8 +1405,8 @@ void bw_init(void) {
   // Explicitly set initial FSM state
   changeMode(M_IDLE);
   
-  xTaskCreate(BugWiper_Task1_fast, "BW_T1_fast", 1024 * 4, NULL, 3, NULL);
-  xTaskCreate(BugWiper_Task2_slow, "BW_T2_alow", 1024 * 8, NULL, 3, NULL);
+  xTaskCreate(bw_Task1_fast, "BW_T1_fast", 1024 * 4, NULL, 3, NULL);
+  xTaskCreate(bw_Task2_slow, "BW_T2_alow", 1024 * 8, NULL, 3, NULL);
 }
 
 
