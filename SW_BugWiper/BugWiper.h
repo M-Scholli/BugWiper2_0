@@ -79,6 +79,7 @@ enum BW_MODE {
 
   M_DECEL_END,            // Decelerate before wingtip end
   M_WINDING_IN,           // Normal winding in
+  M_WINDING_IN_DECEL,     // Slow down before reaching fuselage
 
   M_GROUND_OUT,        // Ground mode: limited outward move only
   M_DECEL_LOOSE_GROUND, // Ground mode: stop and wait for cable OK
@@ -182,10 +183,20 @@ enum UserCommand {
 };
 
 struct PositionConfig {
-  int32_t slowZoneStartOut;
-  int32_t slowZoneWingTip;
-  int32_t wingTip;
-  int32_t groundOutMax;
+  // Outward movement zones
+  int32_t slowZoneStartOut;      // Start of slow zone for initial extension
+  int32_t slowZoneWingTip;       // Start of slow zone before wing tip
+  int32_t slowZoneFuselage;      // End of cleaning zone at fuselage
+  int32_t lengthSlow;            // Distance to decelerate before end position
+  int32_t wingTip;               // End of the wing
+  int32_t groundOutMax;          // Maximum extension in ground mode
+  
+  // Winding-in / return movement
+  int32_t windingInDecelDistance; // Distance to start winding-in deceleration before fuselage
+  int32_t windingInDecelSpeed;    // Speed threshold to switch to deceleration mode
+  
+  // Wiggle / cable check parameters
+  int32_t wiggleStraightDistance; // Distance to check if cable stays straight during OUT
 };
 
 struct ADCFilter {
@@ -224,6 +235,7 @@ typedef struct {
 } ButtonRuntime;
 
 extern const BW_ModeConfig bw_modeConfig[BW_MODE_COUNT];
+extern const PositionConfig positionConfig;
 
 inline constexpr RGB_COLOUR BLACK = { 0, 0, 0 };
 inline constexpr RGB_COLOUR RED = { 100, 0, 0 };

@@ -25,20 +25,7 @@
 #define BW_STOP_V_BAT 8.0
 #define BW_STOP_T_MAX 70
 
-//position thresholds
-#ifdef TESTBENCH
-#define POSITION_SLOW_START 100  // Slow start lenght in mm
-#define POSITION_SLOW_WINGTIP 1400
-#define POSITION_WINGTIP 1600       // End of the Wing in mm
-#define POSITION_SLOW_FUSELAGE 500  // End of the Wing in mm
-#define LENGTH_SLOW 200             // Distance to slow down
-#else
-#define POSITION_SLOW_START 200  // Slow start lenght in mm
-#define POSITION_SLOW_WINGTIP 6000
-#define POSITION_WINGTIP 6500        // End of the Wing in mm
-#define POSITION_SLOW_FUSELAGE 6500  // End of the Wing in mm
-#define LENGTH_SLOW 200              // Distance to slow down
-#endif
+// Position thresholds are now defined in positionConfig struct initialization below
 
 // Sensor filter parameters (more stable)
 #define BW_SENSOR_FILTER_THRESHOLD  30
@@ -47,8 +34,7 @@
 #define BW_BTN_DEBOUNCE_TICKS  3    // fast task ticks
 #define BW_BTN_HOLD_TICKS     500  // fast task ticks
 
-// Wiggle parameters
-#define BW_WIGGLE_STRAIGHT_DISTANCE 75  // Distance in mm to check if cable stays straight during OUT
+// Wiggle and winding-in parameters are now defined in positionConfig struct initialization
 #define BW_DECEL_LOOSE_TO_WIGGLE_TIME_MS 1500  // Time in ms after which to switch to wiggle if cable still loose and motor slowed down
 
 // String representation of BW_MODE for logging and debugging
@@ -61,6 +47,7 @@ static const char* BW_MODE_STR[BW_MODE_COUNT] = {
   "WIGGLE_LOOSE",
   "DECEL_END",
   "WINDING_IN",
+  "WINDING_IN_DECEL",
   "GROUND_OUT",
   "DECEL_LOOSE_GROUND",
   "FINISHED",
@@ -324,6 +311,37 @@ const BW_ModeConfig bw_modeConfig[BW_MODE_COUNT] = {
   },
 
   /* ------------------------------------------------------------
+   * M_WINDING_IN_DECEL
+   * ------------------------------------------------------------
+   */
+  {
+    .motorCmd = {
+      .dir         = IN,
+      .startPower  = 0,
+      .targetPower = 150,
+      .rampTime    = 4
+    },
+
+    .ledCmd = {
+      .color     = BLUE,
+      .blinkTime = 150
+    },
+
+    .minTime = 500,
+    .maxTime = 3000,
+
+    // Global transition flags
+    .enableEndCheckCurrent = true,
+    .enableEndCheckSpeed   = true,
+    .enableSafetyProtection = true,
+    .enableMaxTimeCheck    = true,
+    .enableStopRequest     = true,
+    .requireMinTimeForEndCheck = true,
+
+    .defaultNext = M_FINISHED
+  },
+
+  /* ------------------------------------------------------------
   * M_GROUND_OUT
   * ------------------------------------------------------------ */
   {
@@ -527,10 +545,23 @@ gpio_num_t motor_pwm_pin;
 #endif
 
 const PositionConfig positionConfig = {
-  .slowZoneStartOut  = POSITION_SLOW_START,
-  .slowZoneWingTip = POSITION_SLOW_WINGTIP,
-  .wingTip       = POSITION_WINGTIP,
-  .groundOutMax  = 800
+  #ifdef TESTBENCH
+  .slowZoneStartOut        = 100,    // Slow start length in mm
+  .slowZoneWingTip         = 1400,   // Start slow before wing tip
+  .slowZoneFuselage        = 500,    // End of cleaning zone
+  .lengthSlow              = 200,    // Distance to decelerate
+  .wingTip                 = 1600,   // End of the wing
+  #else
+  .slowZoneStartOut        = 200,    // Slow start length in mm
+  .slowZoneWingTip         = 6000,   // Start slow before wing tip
+  .slowZoneFuselage        = 6500,   // End of cleaning zone
+  .lengthSlow              = 200,    // Distance to decelerate
+  .wingTip                 = 6500,   // End of the wing
+  #endif
+  .groundOutMax            = 800,    // Maximum extension in ground mode
+  .windingInDecelDistance  = 400,    // Distance to start deceleration before fuselage
+  .windingInDecelSpeed     = 25,     // Speed threshold to switch to deceleration mode
+  .wiggleStraightDistance  = 75      // Distance to check cable tightness during wiggle OUT
 };
 
 ESP32Encoder bw_motorEncoder;
@@ -1104,22 +1135,12 @@ void stateStartCleanOut(const BW_ModeConfig& cfg) {
     return;
   }
 
-  if (stateTimedOut(cfg.maxTime)) {
-    changeMode(M_ERROR);
-    return;
-  }
-
   if (bw_motorState.position_mm >= positionConfig.slowZoneStartOut) {
     changeMode(cfg.defaultNext);
   }
 }
 
 void stateCleaning(const BW_ModeConfig& cfg) {
-  if (stateTimedOut(cfg.maxTime)) {
-    changeMode(M_ERROR);
-    return;
-  }
-
   if (bw_cableLooseFilter.state) {
     changeMode(M_DECEL_LOOSE);
     return;
@@ -1176,7 +1197,7 @@ void stateWiggleLoose(const BW_ModeConfig& cfg) {
       bw_motorInit(cmd);
     } else {
       // Cable is tight, check distance
-      if (bw_motorState.position_mm - straightStartPosition > BW_WIGGLE_STRAIGHT_DISTANCE) {  // Distance tight during extension
+      if (bw_motorState.position_mm - straightStartPosition > positionConfig.wiggleStraightDistance) {  // Distance tight during extension
         initialized = false;
         changeMode(cfg.defaultNext);
       }
@@ -1192,7 +1213,15 @@ void stateDecelEnd(const BW_ModeConfig& cfg) {
 }
 
 void stateWindingIn(const BW_ModeConfig& cfg) {
-  void();
+  if ((bw_motorState.position_mm <= positionConfig.windingInDecelDistance) &&
+      (abs(bw_motorState.speed) <= positionConfig.windingInDecelSpeed)) {
+    changeMode(M_WINDING_IN_DECEL);
+    return;
+  }
+}
+
+void stateWindingInDecel(const BW_ModeConfig& cfg) {
+  // Deceleration handled by global timeout and end-check logic
 }
 
 void stateGroundOut(const BW_ModeConfig& cfg) {
@@ -1266,6 +1295,7 @@ void BugWiper_processFSM()
     case M_WIGGLE_LOOSE:          stateWiggleLoose(cfg);        break;
     case M_DECEL_END:             stateDecelEnd(cfg);           break;
     case M_WINDING_IN:            stateWindingIn(cfg);          break;
+    case M_WINDING_IN_DECEL:      stateWindingInDecel(cfg);     break;
     case M_GROUND_OUT:            stateGroundOut(cfg);          break;
     case M_DECEL_LOOSE_GROUND:    stateDecelLooseGround(cfg);   break;
     case M_FINISHED:              stateFinished(cfg);           break;
