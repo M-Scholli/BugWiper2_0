@@ -35,7 +35,7 @@
 #define BW_BTN_HOLD_TICKS     500  // fast task ticks
 
 // Wiggle and winding-in parameters are now defined in positionConfig struct initialization
-#define BW_DECEL_LOOSE_TO_WIGGLE_TIME_MS 1500  // Time in ms after which to switch to wiggle if cable still loose and motor slowed down
+#define BW_DECEL_LOOSE_TO_WIGGLE_TIME_MS 800  // Time in ms after which to switch to wiggle if cable still loose and motor slowed down
 
 // String representation of BW_MODE for logging and debugging
 static const char* BW_MODE_STR[BW_MODE_COUNT] = {
@@ -318,8 +318,8 @@ const BW_ModeConfig bw_modeConfig[BW_MODE_COUNT] = {
     .motorCmd = {
       .dir         = IN,
       .startPower  = 0,
-      .targetPower = 150,
-      .rampTime    = 4
+      .targetPower = 120,
+      .rampTime    = 3
     },
 
     .ledCmd = {
@@ -559,8 +559,8 @@ const PositionConfig positionConfig = {
   .wingTip                 = 6500,   // End of the wing
   #endif
   .groundOutMax            = 800,    // Maximum extension in ground mode
-  .windingInDecelDistance  = 400,    // Distance to start deceleration before fuselage
-  .windingInDecelSpeed     = 25,     // Speed threshold to switch to deceleration mode
+  .windingInDecelDistance  = 500,    // Distance to start deceleration before fuselage
+  .windingInDecelSpeed     = 40,     // Speed threshold to switch to deceleration mode
   .wiggleStraightDistance  = 75      // Distance to check cable tightness during wiggle OUT
 };
 
