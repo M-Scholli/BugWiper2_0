@@ -25,17 +25,12 @@
 #define BW_STOP_V_BAT 8.0
 #define BW_STOP_T_MAX 70
 
-// Position thresholds are now defined in positionConfig struct initialization below
-
 // Sensor filter parameters (more stable)
 #define BW_SENSOR_FILTER_THRESHOLD  30
 // Button filter parameters (fast reaction)
 #define BW_BTN_FILTER_THRESHOLD  10
 #define BW_BTN_DEBOUNCE_TICKS  3    // fast task ticks
 #define BW_BTN_HOLD_TICKS     500  // fast task ticks
-
-// Wiggle and winding-in parameters are now defined in positionConfig struct initialization
-#define BW_DECEL_LOOSE_TO_WIGGLE_TIME_MS 800  // Time in ms after which to switch to wiggle if cable still loose and motor slowed down
 
 // String representation of BW_MODE for logging and debugging
 static const char* BW_MODE_STR[BW_MODE_COUNT] = {
@@ -562,6 +557,13 @@ const PositionConfig positionConfig = {
   .windingInDecelDistance  = 500,    // Distance to start deceleration before fuselage
   .windingInDecelSpeed     = 40,     // Speed threshold to switch to deceleration mode
   .wiggleStraightDistance  = 75      // Distance to check cable tightness during wiggle OUT
+};
+
+const WiggleTiming wiggleTimingConfig = {
+  .inDuration_ms         = 180,    // Retract (IN) for 1000ms
+  .outDuration_ms        = 380,    // Extend (OUT) for 1000ms
+  .minRetractTime_ms     = 400,     // Minimum retract time before checking cable on OUT
+  .decelLooseToWiggleTime_ms = 500  // Time after which to switch to wiggle if cable still loose and motor slowed down
 };
 
 ESP32Encoder bw_motorEncoder;
@@ -1152,7 +1154,7 @@ void stateCleaning(const BW_ModeConfig& cfg) {
 void stateDecelLoose(const BW_ModeConfig& cfg) {
   if (bw_cableLooseFilter.state == false) {
     changeMode(M_START_CLEAN_OUT);
-  } else if (BW_DECEL_LOOSE_TO_WIGGLE_TIME_MS > 0 && motorSlowedDown() && (millis() - bw_modeStartTime) >= BW_DECEL_LOOSE_TO_WIGGLE_TIME_MS) {
+  } else if (wiggleTimingConfig.decelLooseToWiggleTime_ms > 0 && motorSlowedDown() && (millis() - bw_modeStartTime) >= wiggleTimingConfig.decelLooseToWiggleTime_ms) {
     changeMode(M_WIGGLE_LOOSE);
   }
 }
@@ -1169,36 +1171,60 @@ void stateDecelLooseGround(const BW_ModeConfig& cfg) {
 
 void stateWiggleLoose(const BW_ModeConfig& cfg) {
   static direction wiggleDir = IN;
+  static uint32_t wigglePhaseStartTime = 0;
   static int32_t straightStartPosition = 0;
   static bool initialized = false;
 
+  // Initialize wiggle state
   if (!initialized) {
     wiggleDir = IN;
+    wigglePhaseStartTime = millis();
     MotorCommand cmd = {IN, cfg.motorCmd.startPower, cfg.motorCmd.targetPower, cfg.motorCmd.rampTime};
     bw_motorInit(cmd);
     initialized = true;
   }
 
+  uint32_t elapsedInPhase = millis() - wigglePhaseStartTime;
+
   if (wiggleDir == IN) {
-    if (!bw_cableLooseFilter.state) {  // Cable is tight
+    // Retract (IN) phase
+    if (elapsedInPhase >= wiggleTimingConfig.inDuration_ms) {
       // Switch to OUT
       wiggleDir = OUT;
+      wigglePhaseStartTime = millis();
       MotorCommand cmd = {OUT, cfg.motorCmd.startPower, cfg.motorCmd.targetPower, cfg.motorCmd.rampTime};
       bw_motorInit(cmd);
-      straightStartPosition = bw_motorState.position_mm;  // Reset position for OUT
+      straightStartPosition = bw_motorState.position_mm;
     }
   } else {  // OUT
-    if (bw_cableLooseFilter.state) {  // Cable is loose
-      // Switch back to IN
+    // Extend (OUT) phase
+    
+    // Check if we've reached minimum retract time to check cable status
+    if (elapsedInPhase >= wiggleTimingConfig.minRetractTime_ms) {
+      if (bw_cableLooseFilter.state) {
+        // Cable is loose, switch back to IN
+        wiggleDir = IN;
+        wigglePhaseStartTime = millis();
+        MotorCommand cmd = {IN, cfg.motorCmd.startPower, cfg.motorCmd.targetPower, cfg.motorCmd.rampTime};
+        bw_motorInit(cmd);
+      } else {
+        // Cable is tight, check if it stays tight during extension
+        if (bw_motorState.position_mm - straightStartPosition > positionConfig.wiggleStraightDistance) {
+          // Cable stayed tight for the required distance, exit wiggle mode
+          initialized = false;
+          changeMode(cfg.defaultNext);
+          return;
+        }
+      }
+    }
+    
+    // Check if OUT phase duration has been reached
+    if (elapsedInPhase >= wiggleTimingConfig.outDuration_ms) {
+      // Switch back to IN regardless of cable state
       wiggleDir = IN;
+      wigglePhaseStartTime = millis();
       MotorCommand cmd = {IN, cfg.motorCmd.startPower, cfg.motorCmd.targetPower, cfg.motorCmd.rampTime};
       bw_motorInit(cmd);
-    } else {
-      // Cable is tight, check distance
-      if (bw_motorState.position_mm - straightStartPosition > positionConfig.wiggleStraightDistance) {  // Distance tight during extension
-        initialized = false;
-        changeMode(cfg.defaultNext);
-      }
     }
   }
 }

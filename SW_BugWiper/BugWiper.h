@@ -199,6 +199,14 @@ struct PositionConfig {
   int32_t wiggleStraightDistance; // Distance to check if cable stays straight during OUT
 };
 
+// Wiggle timing parameters
+struct WiggleTiming {
+  uint32_t inDuration_ms;        // Time motor should run inward (retract) in ms
+  uint32_t outDuration_ms;       // Time motor should run outward (extend) in ms
+  uint32_t minRetractTime_ms;    // Minimum time to retract before checking cable status on OUT
+  uint32_t decelLooseToWiggleTime_ms; // Time after which to switch to wiggle if cable still loose and motor slowed down
+};
+
 struct ADCFilter {
   uint32_t filter_sum;
   uint32_t old_values[32];  // ADC_FILTER_SIZE
@@ -236,6 +244,7 @@ typedef struct {
 
 extern const BW_ModeConfig bw_modeConfig[BW_MODE_COUNT];
 extern const PositionConfig positionConfig;
+extern const WiggleTiming wiggleTimingConfig;
 
 inline constexpr RGB_COLOUR BLACK = { 0, 0, 0 };
 inline constexpr RGB_COLOUR RED = { 100, 0, 0 };
