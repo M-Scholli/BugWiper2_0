@@ -222,7 +222,7 @@ const BW_ModeConfig bw_modeConfig[BW_MODE_COUNT] = {
   {
     .motorCmd = {
       .dir         = IN,
-      .startPower  = 90,
+      .startPower  = 100,
       .targetPower = 150,
       .rampTime    = 4
     },
@@ -252,9 +252,9 @@ const BW_ModeConfig bw_modeConfig[BW_MODE_COUNT] = {
   {
     .motorCmd = {
       .dir         = OUT,
-      .startPower  = 40,
-      .targetPower = 80,
-      .rampTime    = 6
+      .startPower  = 35,
+      .targetPower = 100,
+      .rampTime    = 10
     },
 
     .ledCmd = {
@@ -591,11 +591,11 @@ const PositionConfig positionConfig = {
 };
 
 const WiggleTiming wiggleTimingConfig = {
-  .inDuration_ms         = 180,    // Retract (IN) for 1000ms
-  .outDuration_ms        = 380,    // Extend (OUT) for 1000ms
-  .minRetractTime_ms     = 400,     // Minimum retract time before checking cable on OUT
-  .decelLooseToWiggleTime_ms = 500,  // Time after which to switch to wiggle if cable still loose and motor slowed down
-  .totalWiggleTimeout_ms = 6000     // Total timeout for entire wiggle process
+  .inDuration_ms         = 100,    // Retract (IN) for 1000ms
+  .outDuration_ms        = 450,    // Extend (OUT) for 1000ms
+  .minRetractTime_ms     = 550,     // Minimum retract time before checking cable on OUT
+  .decelLooseToWiggleTime_ms = 150,  // Time after which to switch to wiggle if cable still loose and motor slowed down
+  .totalWiggleTimeout_ms = 5000     // Total timeout for entire wiggle process
 };
 
 ESP32Encoder bw_motorEncoder;
