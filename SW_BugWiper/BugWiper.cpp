@@ -554,7 +554,7 @@ uint32_t bw_modeStartTime = 0;
 static UserCommand lastUserCommand = CMD_NONE;
 
 ADCFilter adc_filter;
-ADCFiltered adc_filtered;
+ADCValues adc_values;
 StopDetection stop_detection;
 
 BwFilter bw_cableLooseFilter;
@@ -671,19 +671,19 @@ void bw_btn_log(void) {
 void bw_log(void){
   unsigned long t = millis();
   DEBUG_INFO("Time:" + String(t)+ "  State: " + bw_ModeToString(bw_currentMode));
-  DEBUG_INFO("ADC_Current:" + String(adc_filtered.current_mA_filtered)+ "  M_Power:" + String(bw_motorState.power));
+  DEBUG_INFO("ADC_Current:" + String(adc_values.current_mA_filtered)+ "  M_Power:" + String(bw_motorState.power));
   DEBUG_INFO("Encoder_count:" + String((int32_t)bw_motorState.encoder_count) + "  Position:" + String(bw_motorState.position_mm) + "  Speed:" + String(bw_motorState.speed));
-  DEBUG_INFO("ADC_VBat:" + String(adc_filtered.battery_voltage) + "  NTC:" + String(adc_filtered.temperature_degree));
-  sdLoggerLog(t, bw_currentMode, bw_motorState.position_mm, bw_motorState.speed, adc_filtered.current_mA_filtered, adc_filtered.battery_voltage);
+  DEBUG_INFO("ADC_VBat:" + String(adc_values.battery_voltage) + "  NTC:" + String(adc_values.temperature_degree));
+  sdLoggerLog(t, bw_currentMode, bw_motorState.position_mm, bw_motorState.speed, adc_values.current_mA_filtered, adc_values.battery_voltage);
 }
 
 void bw_log_event(void){
   unsigned long t = millis();
   DEBUG_WARNING("Time:" + String(t)+ "  State: " + bw_ModeToString(bw_currentMode));
-  DEBUG_WARNING("ADC_Current:" + String(adc_filtered.current_mA_filtered)+ "  M_Power:" + String(bw_motorState.power));
+  DEBUG_WARNING("ADC_Current:" + String(adc_values.current_mA_filtered)+ "  M_Power:" + String(bw_motorState.power));
   DEBUG_WARNING("Encoder_count:" + String((int32_t)bw_motorState.encoder_count) + "  Position:" + String(bw_motorState.position_mm) + "  Speed:" + String(bw_motorState.speed));
-  DEBUG_WARNING("ADC_VBat:" + String(adc_filtered.battery_voltage) + "  NTC:" + String(adc_filtered.temperature_degree));
-  sdLoggerLog(t, bw_currentMode, bw_motorState.position_mm, bw_motorState.speed, adc_filtered.current_mA_filtered, adc_filtered.battery_voltage);
+  DEBUG_WARNING("ADC_VBat:" + String(adc_values.battery_voltage) + "  NTC:" + String(adc_values.temperature_degree));
+  sdLoggerLog(t, bw_currentMode, bw_motorState.position_mm, bw_motorState.speed, adc_values.current_mA_filtered, adc_values.battery_voltage);
 }
 
 void bw_test_Motor(void) {
@@ -858,7 +858,7 @@ void bw_read_motor_current(void) {
   adc_filter.filter_sum -= adc_filter.old_values[adc_filter.counter];
   adc_filter.old_values[adc_filter.counter] = current_mV;
   adc_filter.filter_sum += adc_filter.old_values[adc_filter.counter];
-  adc_filtered.current_mA_filtered = (adc_filter.filter_sum / ADC_FILTER_SIZE) * CURRENT_CAL_FACTOR;
+  adc_values.current_mA_filtered = (adc_filter.filter_sum / ADC_FILTER_SIZE) * CURRENT_CAL_FACTOR;
   
   adc_filter.counter++;
   if (adc_filter.counter >= ADC_FILTER_SIZE) {
@@ -878,17 +878,17 @@ void bw_ADC_filter_init(void) {
 void bw_read_ADCs_slow(void) {
   uint16_t adc_temp;
   adc_temp = analogReadMilliVolts(ADC_NTC_PIN);
-  adc_filtered.temperature_degree = (float)adc_temp * 4095.0 / 3100.0;
-  adc_temp = (uint16_t)adc_filtered.temperature_degree;
-  adc_filtered.temperature_degree = ((float)adc_temp * (float)adc_temp * (float)adc_temp * (-2.87638e-9)) + ((float)adc_temp * (float)adc_temp * (2.01243e-5)) + ((-0.0702) * (float)adc_temp) + 109.013;
-  adc_filtered.battery_voltage = analogReadMilliVolts(ADC_VBat_PIN) * 0.0081;
+  adc_values.temperature_degree = (float)adc_temp * 4095.0 / 3100.0; // convert in ADC Digits
+  adc_temp = (uint16_t)adc_values.temperature_degree;
+  adc_values.temperature_degree = ((float)adc_temp * (float)adc_temp * (float)adc_temp * (-2.87638e-9)) + ((float)adc_temp * (float)adc_temp * (2.01243e-5)) + ((-0.0702) * (float)adc_temp) + 109.013;
+  adc_values.battery_voltage = analogReadMilliVolts(ADC_VBat_PIN) * 0.0081;
 }
 
 bool bw_check_end_reached_current(void) {
-  if (adc_filtered.current_mA_filtered >= BW_STOP_CURRENT) {
+  if (adc_values.current_mA_filtered >= BW_STOP_CURRENT) {
     stop_detection.current_counter++;
     if (stop_detection.current_counter > BW_STOP_CURRENT_COUNTS) {
-      DEBUG_INFO("Finished: current:" + String(adc_filtered.current_mA_filtered) + " above " + String((float)BW_STOP_CURRENT));
+      DEBUG_INFO("Finished: current:" + String(adc_values.current_mA_filtered) + " above " + String((float)BW_STOP_CURRENT));
       bw_log_event();
       return true;
     }
@@ -942,15 +942,15 @@ bool motorSlowedDown(void) {
 
 bool bw_safety_protection(void) {
   // Under voltage protection
-  if (adc_filtered.battery_voltage <= BW_STOP_V_BAT) {
-    DEBUG_ERROR("Under Voltage: V BAT:" + String(adc_filtered.battery_voltage) + " below " + String((float)BW_STOP_V_BAT) + "V");
+  if (adc_values.battery_voltage <= BW_STOP_V_BAT) {
+    DEBUG_ERROR("Under Voltage: V BAT:" + String(adc_values.battery_voltage) + " below " + String((float)BW_STOP_V_BAT) + "V");
     bw_log_event();
     return true;
   }
 
   //Temperature protection
-  if (adc_filtered.temperature_degree > BW_STOP_T_MAX) {
-    DEBUG_ERROR("Over Temperature: T NTC:" + String(adc_filtered.temperature_degree) + "above " + String((float)BW_STOP_T_MAX) + "DEG");
+  if (adc_values.temperature_degree > BW_STOP_T_MAX) {
+    DEBUG_ERROR("Over Temperature: T NTC:" + String(adc_values.temperature_degree) + "above " + String((float)BW_STOP_T_MAX) + "DEG");
     bw_log_event();
     return true;
   }

@@ -215,7 +215,7 @@ struct ADCFilter {
   int8_t counter;
 };
 
-struct ADCFiltered {
+struct ADCValues {
   volatile double current_mA_filtered;
   float temperature_degree;
   float battery_voltage;
@@ -267,7 +267,7 @@ void bw_log(void);
 extern BW_MODE bw_currentMode;
 extern ESP32Encoder bw_motorEncoder;
 extern ADCFilter adc_filter;
-extern ADCFiltered adc_filtered;
+extern ADCValues adc_values;
 extern StopDetection stop_detection;
 
 #endif
