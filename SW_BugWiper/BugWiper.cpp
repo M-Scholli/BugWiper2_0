@@ -1306,7 +1306,7 @@ void stateDecelEnd(const BW_ModeConfig& cfg) {
 
 void stateWindingIn(const BW_ModeConfig& cfg) {
   if ((bw_motorState.position_mm <= positionConfig.windingInDecelDistance) &&
-      (abs(bw_motorState.speed) <= positionConfig.windingInDecelSpeed)) {
+      (abs(bw_motorState.speed) >= positionConfig.windingInDecelSpeed)) {
     changeMode(M_WINDING_IN_DECEL);
     return;
   }
