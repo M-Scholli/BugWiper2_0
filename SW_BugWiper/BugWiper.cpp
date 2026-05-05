@@ -39,7 +39,8 @@ static const char* BW_MODE_STR[BW_MODE_COUNT] = {
   "START_CLEAN_OUT",
   "CLEANING",
   "DECEL_LOOSE",
-  "WIGGLE_LOOSE",
+  "WIGGLE_IN",
+  "WIGGLE_OUT",
   "DECEL_END",
   "WINDING_IN",
   "WINDING_IN_DECEL",
@@ -216,14 +217,44 @@ const BW_ModeConfig bw_modeConfig[BW_MODE_COUNT] = {
   },
 
   /* ------------------------------------------------------------
-   * M_WIGGLE_LOOSE
+   * M_WIGGLE_IN
    * ------------------------------------------------------------ */
   {
     .motorCmd = {
       .dir         = IN,
-      .startPower  = 50,
-      .targetPower = 100,
-      .rampTime    = 5
+      .startPower  = 90,
+      .targetPower = 150,
+      .rampTime    = 4
+    },
+
+    .ledCmd = {
+      .color     = ORANGE,
+      .blinkTime = 150
+    },
+
+    .minTime = 0,
+    .maxTime = 10000,
+
+    // Global transition flags
+    .enableEndCheckCurrent = false,
+    .enableEndCheckSpeed   = false,
+    .enableSafetyProtection = true,
+    .enableMaxTimeCheck    = true,
+    .enableStopRequest     = true,
+    .requireMinTimeForEndCheck = false,
+
+    .defaultNext = M_WIGGLE_OUT
+  },
+
+  /* ------------------------------------------------------------
+   * M_WIGGLE_OUT
+   * ------------------------------------------------------------ */
+  {
+    .motorCmd = {
+      .dir         = OUT,
+      .startPower  = 40,
+      .targetPower = 80,
+      .rampTime    = 6
     },
 
     .ledCmd = {
@@ -563,7 +594,8 @@ const WiggleTiming wiggleTimingConfig = {
   .inDuration_ms         = 180,    // Retract (IN) for 1000ms
   .outDuration_ms        = 380,    // Extend (OUT) for 1000ms
   .minRetractTime_ms     = 400,     // Minimum retract time before checking cable on OUT
-  .decelLooseToWiggleTime_ms = 500  // Time after which to switch to wiggle if cable still loose and motor slowed down
+  .decelLooseToWiggleTime_ms = 500,  // Time after which to switch to wiggle if cable still loose and motor slowed down
+  .totalWiggleTimeout_ms = 6000     // Total timeout for entire wiggle process
 };
 
 ESP32Encoder bw_motorEncoder;
@@ -1155,7 +1187,7 @@ void stateDecelLoose(const BW_ModeConfig& cfg) {
   if (bw_cableLooseFilter.state == false) {
     changeMode(M_START_CLEAN_OUT);
   } else if (wiggleTimingConfig.decelLooseToWiggleTime_ms > 0 && motorSlowedDown() && (millis() - bw_modeStartTime) >= wiggleTimingConfig.decelLooseToWiggleTime_ms) {
-    changeMode(M_WIGGLE_LOOSE);
+    changeMode(M_WIGGLE_IN);
   }
 }
 
@@ -1169,62 +1201,98 @@ void stateDecelLooseGround(const BW_ModeConfig& cfg) {
   changeMode(M_GROUND_OUT);
 }
 
-void stateWiggleLoose(const BW_ModeConfig& cfg) {
-  static direction wiggleDir = IN;
+void stateWiggleIn(const BW_ModeConfig& cfg) {
   static uint32_t wigglePhaseStartTime = 0;
-  static int32_t straightStartPosition = 0;
+  static uint32_t totalWiggleStartTime = 0;
   static bool initialized = false;
 
-  // Initialize wiggle state
+  // Initialize wiggle IN state
   if (!initialized) {
-    wiggleDir = IN;
     wigglePhaseStartTime = millis();
+    if (totalWiggleStartTime == 0) {
+      totalWiggleStartTime = millis();  // Start total timeout on first entry
+    }
     MotorCommand cmd = {IN, cfg.motorCmd.startPower, cfg.motorCmd.targetPower, cfg.motorCmd.rampTime};
     bw_motorInit(cmd);
     initialized = true;
   }
 
   uint32_t elapsedInPhase = millis() - wigglePhaseStartTime;
+  uint32_t totalElapsed = millis() - totalWiggleStartTime;
 
-  if (wiggleDir == IN) {
-    // Retract (IN) phase
-    if (elapsedInPhase >= wiggleTimingConfig.inDuration_ms) {
-      // Switch to OUT
-      wiggleDir = OUT;
-      wigglePhaseStartTime = millis();
-      MotorCommand cmd = {OUT, cfg.motorCmd.startPower, cfg.motorCmd.targetPower, cfg.motorCmd.rampTime};
-      bw_motorInit(cmd);
-      straightStartPosition = bw_motorState.position_mm;
+  // Check if total wiggle timeout has been reached
+  if (totalElapsed >= wiggleTimingConfig.totalWiggleTimeout_ms) {
+    // Total timeout reached, exit wiggle mode
+    initialized = false;
+    totalWiggleStartTime = 0;  // Reset for next time
+    changeMode(M_CLEANING);
+    return;
+  }
+
+  // Retract (IN) phase for specified duration
+  if (elapsedInPhase >= wiggleTimingConfig.inDuration_ms) {
+    // Switch to OUT phase
+    initialized = false;
+    changeMode(cfg.defaultNext);  // Should be M_WIGGLE_OUT
+  }
+}
+
+void stateWiggleOut(const BW_ModeConfig& cfg) {
+  static uint32_t wigglePhaseStartTime = 0;
+  static uint32_t totalWiggleStartTime = 0;
+  static int32_t straightStartPosition = 0;
+  static bool initialized = false;
+
+  // Initialize wiggle OUT state
+  if (!initialized) {
+    wigglePhaseStartTime = millis();
+    if (totalWiggleStartTime == 0) {
+      totalWiggleStartTime = millis();  // Start total timeout on first entry
     }
-  } else {  // OUT
-    // Extend (OUT) phase
-    
-    // Check if we've reached minimum retract time to check cable status
-    if (elapsedInPhase >= wiggleTimingConfig.minRetractTime_ms) {
-      if (bw_cableLooseFilter.state) {
-        // Cable is loose, switch back to IN
-        wiggleDir = IN;
-        wigglePhaseStartTime = millis();
-        MotorCommand cmd = {IN, cfg.motorCmd.startPower, cfg.motorCmd.targetPower, cfg.motorCmd.rampTime};
-        bw_motorInit(cmd);
-      } else {
-        // Cable is tight, check if it stays tight during extension
-        if (bw_motorState.position_mm - straightStartPosition > positionConfig.wiggleStraightDistance) {
-          // Cable stayed tight for the required distance, exit wiggle mode
-          initialized = false;
-          changeMode(cfg.defaultNext);
-          return;
-        }
+    MotorCommand cmd = {OUT, cfg.motorCmd.startPower, cfg.motorCmd.targetPower, cfg.motorCmd.rampTime};
+    bw_motorInit(cmd);
+    straightStartPosition = bw_motorState.position_mm;
+    initialized = true;
+  }
+
+  uint32_t elapsedInPhase = millis() - wigglePhaseStartTime;
+  uint32_t totalElapsed = millis() - totalWiggleStartTime;
+
+  // Check if total wiggle timeout has been reached
+  bool totalTimeoutReached = (totalElapsed >= wiggleTimingConfig.totalWiggleTimeout_ms);
+
+  // Extend (OUT) phase
+
+  // Check if we've reached minimum retract time to check cable status
+  if (elapsedInPhase >= wiggleTimingConfig.minRetractTime_ms) {
+    if (bw_cableLooseFilter.state && !totalTimeoutReached) {
+      // Cable is loose and total timeout not reached, switch back to IN
+      initialized = false;
+      changeMode(M_WIGGLE_IN);
+      return;
+    } else if (!bw_cableLooseFilter.state) {
+      // Cable is tight, check if it stays tight during extension
+      if (bw_motorState.position_mm - straightStartPosition > positionConfig.wiggleStraightDistance) {
+        // Cable stayed tight for the required distance, exit wiggle mode
+        initialized = false;
+        totalWiggleStartTime = 0;  // Reset for next time
+        changeMode(cfg.defaultNext);  // Should be M_CLEANING
+        return;
       }
     }
-    
-    // Check if OUT phase duration has been reached
-    if (elapsedInPhase >= wiggleTimingConfig.outDuration_ms) {
-      // Switch back to IN regardless of cable state
-      wiggleDir = IN;
-      wigglePhaseStartTime = millis();
-      MotorCommand cmd = {IN, cfg.motorCmd.startPower, cfg.motorCmd.targetPower, cfg.motorCmd.rampTime};
-      bw_motorInit(cmd);
+  }
+
+  // Check if OUT phase duration has been reached
+  if (elapsedInPhase >= wiggleTimingConfig.outDuration_ms) {
+    if (totalTimeoutReached) {
+      // Total timeout reached, exit wiggle mode
+      initialized = false;
+      totalWiggleStartTime = 0;  // Reset for next time
+      changeMode(M_CLEANING);
+    } else {
+      // Switch back to IN
+      initialized = false;
+      changeMode(M_WIGGLE_IN);
     }
   }
 }
@@ -1316,7 +1384,8 @@ void bw_processFSM()
     case M_START_CLEAN_OUT:       stateStartCleanOut(cfg);      break;
     case M_CLEANING:              stateCleaning(cfg);           break;
     case M_DECEL_LOOSE:           stateDecelLoose(cfg);         break;
-    case M_WIGGLE_LOOSE:          stateWiggleLoose(cfg);        break;
+    case M_WIGGLE_IN:             stateWiggleIn(cfg);           break;
+    case M_WIGGLE_OUT:            stateWiggleOut(cfg);          break;
     case M_DECEL_END:             stateDecelEnd(cfg);           break;
     case M_WINDING_IN:            stateWindingIn(cfg);          break;
     case M_WINDING_IN_DECEL:      stateWindingInDecel(cfg);     break;

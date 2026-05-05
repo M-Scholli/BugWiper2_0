@@ -75,7 +75,8 @@ enum BW_MODE {
   M_CLEANING,             // Normal cleaning movement
 
   M_DECEL_LOOSE,          // Decelerate after loose cable detected
-  M_WIGGLE_LOOSE,         // Wiggle motor to release wiper
+  M_WIGGLE_IN,            // Wiggle motor inward to release wiper
+  M_WIGGLE_OUT,           // Wiggle motor outward to check cable
 
   M_DECEL_END,            // Decelerate before wingtip end
   M_WINDING_IN,           // Normal winding in
@@ -205,6 +206,7 @@ struct WiggleTiming {
   uint32_t outDuration_ms;       // Time motor should run outward (extend) in ms
   uint32_t minRetractTime_ms;    // Minimum time to retract before checking cable status on OUT
   uint32_t decelLooseToWiggleTime_ms; // Time after which to switch to wiggle if cable still loose and motor slowed down
+  uint32_t totalWiggleTimeout_ms; // Total timeout for entire wiggle process
 };
 
 struct ADCFilter {
