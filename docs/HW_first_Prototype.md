@@ -19,7 +19,7 @@
 |Test|Result PCB1| Result PCB2|
 |--|---|---|
 |Wing Side|||
-|Thermal Interface|OK|foil must be removed|
+|Thermal Interface|OK|OK|
 |Voltage Regulator 12V-3.3V|OK|OK|
 |Voltage Regulator 5V-3.3V|OK|OK|
 |Standby Current in mA|10|13|
@@ -30,9 +30,9 @@
 |ButtonIN|OK|OK|
 |ButtonOUT|OK|OK|
 |RBG LED|OK|OK|
-|Cable Loose Sensor|||
+|Cable Loose Sensor|OK|OK|
 |Ground Sensor|||
-|Current Sensor|OK||
+|Current Sensor|OK|OK|
 |Voltage Sensor|OK|OK|
 |Temperature Sensor|OK|OK|
 |Current Sensor calibration|||
