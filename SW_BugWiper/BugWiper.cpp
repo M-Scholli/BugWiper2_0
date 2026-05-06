@@ -868,6 +868,8 @@ void bw_read_motor_current(void) {
 
 void bw_ADC_filter_init(void) {
   uint32_t initial_current_mV = analogReadMilliVolts(MOTOR_CURRENT_SENSE_PIN);
+  uint32_t initial_voltage_mV = analogReadMilliVOlts(ADC_VBat_PIN);
+  
   adc_filter.filter_sum = 0;
   for (uint8_t j = 0; j < ADC_FILTER_SIZE; j++) {
     adc_filter.old_values[j] = initial_current_mV;
@@ -1426,13 +1428,26 @@ void bw_Task1_fast(void* parameter) {
   
   bw_encoder_init();
   for (;;) {
-    // update (fast task)
+
+#if (DEBUG_LEVEL >= DEBUG_LEVEL_INFO)
+    uint32_t t_start = micros();
+#endif (DEBUG_LEVEL >= DEBUG_LEVEL_INFO)
+
     bw_filterUpdate(&bw_cableLooseFilter, bw_readCableLooseRaw());
     bw_filterUpdate(&bw_btnInFilter,  !digitalRead(BTN_IN_PIN));    // Inverted
     bw_filterUpdate(&bw_btnOutFilter, !digitalRead(BTN_OUT_PIN));   // Inverted
     bw_adcUpdateRotatingMilliVolts();// vbat / ntc
     bw_read_motor_current();
-    bw_motorUpdate();  // motor ramp + HW output
+    bw_motorUpdate();  // motor ramp + HW output    
+    
+#if (DEBUG_LEVEL >= DEBUG_LEVEL_INFO)
+    uint32_t t_exec = micros() - t_start;
+    static uint32_t cnt = 0;
+    if (++cnt % 2000 == 0) {
+      DEBUG_INFO("t Task1: " + String(t_exec));
+    }
+#endif
+
     vTaskDelayUntil(&xLastWakeTime, taskPeriod);
   }
 }
@@ -1443,9 +1458,15 @@ void bw_Task2_slow(void* parameter) {
   
   //bw_test_Motor();
   for (;;) {
+
+#if (DEBUG_LEVEL >= DEBUG_LEVEL_INFO)
+    uint32_t t_start = micros();
+#endif
+
 #ifdef BW_ENABLE_GROUND_MODE
     bw_filterUpdate(&bw_groundSwitchFilter, bw_readGroundSwitchRaw());
 #endif
+
     bw_convert_ADCs_slow();
     bw_encoderRead();
     bw_buttonUpdate(&bw_btnIn, bw_btnInFilter.state);
@@ -1453,6 +1474,15 @@ void bw_Task2_slow(void* parameter) {
     bw_btn_log();
     bw_processFSM();
     bw_ledUpdate();   // LED blink
+
+#if (DEBUG_LEVEL >= DEBUG_LEVEL_INFO)
+    uint32_t t_exec = micros() - t_start;
+    static uint32_t cnt = 0;
+    if (++cnt % 200 == 0) {
+      DEBUG_INFO("t Task2: " + String(t_exec));
+    }
+#endif
+
     vTaskDelayUntil(&xLastWakeTime, taskPeriod);
   }
 }
