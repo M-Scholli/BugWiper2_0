@@ -18,24 +18,24 @@
 ## PCB tests
 |Test|Result PCB1| Result PCB2|
 |--|---|---|
+|Wing Side|||
 |Thermal Interface|OK|foil must be removed|
-|Voltage Regulator 12V-3.3V|OK||
-|Voltage Regulator 5V-3.3V|OK||
-|USB-C Port|OK||
-|Motor driver|OK||
-|Motor Encoder|OK||
+|Voltage Regulator 12V-3.3V|OK|OK|
+|Voltage Regulator 5V-3.3V|OK|OK|
+|Standby Current in mA|10|13|
+|USB-C Port|OK|OK|
+|Motor driver|OK|OK|
+|Motor Encoder|OK|OK|
 |SD Card|OK|OK|
-|ButtonIN|OK||
-|ButtonOUT|OK||
-|RBG LED|OK||
+|ButtonIN|OK|OK|
+|ButtonOUT|OK|OK|
+|RBG LED|OK|OK|
 |Cable Loose Sensor|||
 |Ground Sensor|||
 |Current Sensor|OK||
-|Voltage Sensor|OK||
-|Temperature Sensor|OK||
+|Voltage Sensor|OK|OK|
+|Temperature Sensor|OK|OK|
 |Current Sensor calibration|||
 |Voltage Sensor calibration|||
 |Motor Encoder calibration|||
 |Ground Test after assembly|||
-
-
