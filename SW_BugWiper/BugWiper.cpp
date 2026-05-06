@@ -746,7 +746,7 @@ void bw_motorInit(const MotorCommand& cmd)
   bw_motorState.rampTimer   = 0;
 }
 
-void bw_set_motor_power(void) {
+void bw_motorUpdate(void) {
  if (bw_motorState.rampTicks == 0) {
     // Immediate target
     bw_motorState.power = bw_motorState.targetPower;
@@ -875,13 +875,34 @@ void bw_ADC_filter_init(void) {
   }
 }
 
-void bw_read_ADCs_slow(void) {
+void bw_adcUpdateRotatingMilliVolts(void)
+{
+  static uint8_t ch = 0;
+  uint32_t v;
+
+  switch (ch) {
+    case 0:
+      v = analogReadMilliVolts(ADC_VBat_PIN);
+      if (v != 0) adc_values.battery_v_raw = v;
+      ch = 1;
+      break;
+
+    case 1:
+      v = analogReadMilliVolts(ADC_NTC_PIN);
+      if (v != 0) adc_values.temperature_raw = v;
+      ch = 0;
+      break;
+  }
+}
+
+
+void bw_convert_ADCs_slow(void) {
   uint16_t adc_temp;
-  adc_temp = analogReadMilliVolts(ADC_NTC_PIN);
+  adc_temp = adc_values.temperature_raw;
   adc_values.temperature_degree = (float)adc_temp * 4095.0 / 3100.0; // convert in ADC Digits
   adc_temp = (uint16_t)adc_values.temperature_degree;
   adc_values.temperature_degree = ((float)adc_temp * (float)adc_temp * (float)adc_temp * (-2.87638e-9)) + ((float)adc_temp * (float)adc_temp * (2.01243e-5)) + ((-0.0702) * (float)adc_temp) + 109.013;
-  adc_values.battery_voltage = analogReadMilliVolts(ADC_VBat_PIN) * 0.0081;
+  adc_values.battery_voltage = adc_values.battery_v_raw * 0.0081;
 }
 
 bool bw_check_end_reached_current(void) {
@@ -1409,8 +1430,9 @@ void bw_Task1_fast(void* parameter) {
     bw_filterUpdate(&bw_cableLooseFilter, bw_readCableLooseRaw());
     bw_filterUpdate(&bw_btnInFilter,  !digitalRead(BTN_IN_PIN));    // Inverted
     bw_filterUpdate(&bw_btnOutFilter, !digitalRead(BTN_OUT_PIN));   // Inverted
+    bw_adcUpdateRotatingMilliVolts();// vbat / ntc
     bw_read_motor_current();
-    bw_set_motor_power();  // motor ramp + HW output
+    bw_motorUpdate();  // motor ramp + HW output
     vTaskDelayUntil(&xLastWakeTime, taskPeriod);
   }
 }
@@ -1424,7 +1446,7 @@ void bw_Task2_slow(void* parameter) {
 #ifdef BW_ENABLE_GROUND_MODE
     bw_filterUpdate(&bw_groundSwitchFilter, bw_readGroundSwitchRaw());
 #endif
-    bw_read_ADCs_slow();
+    bw_convert_ADCs_slow();
     bw_encoderRead();
     bw_buttonUpdate(&bw_btnIn, bw_btnInFilter.state);
     bw_buttonUpdate(&bw_btnOut, bw_btnOutFilter.state);

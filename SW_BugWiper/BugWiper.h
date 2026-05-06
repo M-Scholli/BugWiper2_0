@@ -216,10 +216,11 @@ struct ADCFilter {
 };
 
 struct ADCValues {
+  uint32_t temperature_raw;
+  uint32_t battery_v_raw;
   volatile double current_mA_filtered;
   float temperature_degree;
   float battery_voltage;
-  // HB1/HB2 omitted as requested
 };
 
 struct StopDetection {
