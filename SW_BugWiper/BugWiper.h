@@ -39,7 +39,7 @@
 #define MOTOR_HB2_DK 28900
 
 #define MOTOR_CURRENT_SENSE_PIN 1
-#define CURRENT_CAL_FACTOR 5.0
+#define CURRENT_CAL_FACTOR 50 // in tenth
 
 #define ADC_NTC_PIN 5
 #define ADC_VBat_PIN 4
@@ -216,11 +216,10 @@ struct ADCFilter {
 };
 
 struct ADCValues {
-  uint32_t temperature_raw;
-  uint32_t battery_v_raw;
-  volatile double current_mA_filtered;
-  float temperature_degree;
-  float battery_voltage;
+  volatile uint32_t current_mA_filtered;
+  volatile float BatteryVoltage_filtered;
+  volatile uint32_t tempNTC_raw_filtered;
+  float tempNTC_degree;
 };
 
 struct StopDetection {
@@ -267,7 +266,7 @@ void bw_log(void);
 
 extern BW_MODE bw_currentMode;
 extern ESP32Encoder bw_motorEncoder;
-extern ADCFilter adc_filter;
+extern ADCFilter adc_current_filter;
 extern ADCValues adc_values;
 extern StopDetection stop_detection;
 

@@ -553,7 +553,10 @@ uint32_t bw_modeStartTime = 0;
 
 static UserCommand lastUserCommand = CMD_NONE;
 
-ADCFilter adc_filter;
+ADCFilter adc_current_filter;
+ADCFilter adc_voltage_filter;
+ADCFilter adc_tempNTC_filter;
+
 ADCValues adc_values;
 StopDetection stop_detection;
 
@@ -673,8 +676,8 @@ void bw_log(void){
   DEBUG_INFO("Time:" + String(t)+ "  State: " + bw_ModeToString(bw_currentMode));
   DEBUG_INFO("ADC_Current:" + String(adc_values.current_mA_filtered)+ "  M_Power:" + String(bw_motorState.power));
   DEBUG_INFO("Encoder_count:" + String((int32_t)bw_motorState.encoder_count) + "  Position:" + String(bw_motorState.position_mm) + "  Speed:" + String(bw_motorState.speed));
-  DEBUG_INFO("ADC_VBat:" + String(adc_values.battery_voltage) + "  NTC:" + String(adc_values.temperature_degree));
-  sdLoggerLog(t, bw_currentMode, bw_motorState.position_mm, bw_motorState.speed, adc_values.current_mA_filtered, adc_values.battery_voltage);
+  DEBUG_INFO("ADC_VBat:" + String(adc_values.BatteryVoltage_filtered) + "  NTC:" + String(adc_values.tempNTC_degree));
+  sdLoggerLog(t, bw_currentMode, bw_motorState.position_mm, bw_motorState.speed, adc_values.current_mA_filtered, adc_values.BatteryVoltage_filtered);
 }
 
 void bw_log_event(void){
@@ -682,8 +685,8 @@ void bw_log_event(void){
   DEBUG_WARNING("Time:" + String(t)+ "  State: " + bw_ModeToString(bw_currentMode));
   DEBUG_WARNING("ADC_Current:" + String(adc_values.current_mA_filtered)+ "  M_Power:" + String(bw_motorState.power));
   DEBUG_WARNING("Encoder_count:" + String((int32_t)bw_motorState.encoder_count) + "  Position:" + String(bw_motorState.position_mm) + "  Speed:" + String(bw_motorState.speed));
-  DEBUG_WARNING("ADC_VBat:" + String(adc_values.battery_voltage) + "  NTC:" + String(adc_values.temperature_degree));
-  sdLoggerLog(t, bw_currentMode, bw_motorState.position_mm, bw_motorState.speed, adc_values.current_mA_filtered, adc_values.battery_voltage);
+  DEBUG_WARNING("ADC_VBat:" + String(adc_values.BatteryVoltage_filtered) + "  NTC:" + String(adc_values.tempNTC_degree));
+  sdLoggerLog(t, bw_currentMode, bw_motorState.position_mm, bw_motorState.speed, adc_values.current_mA_filtered, adc_values.BatteryVoltage_filtered);
 }
 
 void bw_test_Motor(void) {
@@ -851,29 +854,41 @@ bool stateTimedOut(uint32_t maxTime)
 
 void bw_read_motor_current(void) {
   uint32_t current_mV = analogReadMilliVolts(MOTOR_CURRENT_SENSE_PIN);
-  // Convert to mA locally
-  double current_mA = current_mV * CURRENT_CAL_FACTOR;
   
   // Use for filter
-  adc_filter.filter_sum -= adc_filter.old_values[adc_filter.counter];
-  adc_filter.old_values[adc_filter.counter] = current_mV;
-  adc_filter.filter_sum += adc_filter.old_values[adc_filter.counter];
-  adc_values.current_mA_filtered = (adc_filter.filter_sum / ADC_FILTER_SIZE) * CURRENT_CAL_FACTOR;
+  adc_current_filter.filter_sum -= adc_current_filter.old_values[adc_current_filter.counter];
+  adc_current_filter.old_values[adc_current_filter.counter] = current_mV;
+  adc_current_filter.filter_sum += adc_current_filter.old_values[adc_current_filter.counter];
+
+  adc_values.current_mA_filtered = (adc_current_filter.filter_sum / ADC_FILTER_SIZE) * CURRENT_CAL_FACTOR / 10;
   
-  adc_filter.counter++;
-  if (adc_filter.counter >= ADC_FILTER_SIZE) {
-    adc_filter.counter = 0;
+  adc_current_filter.counter++;
+  if (adc_current_filter.counter >= ADC_FILTER_SIZE) {
+    adc_current_filter.counter = 0;
   }
 }
 
 void bw_ADC_filter_init(void) {
   uint32_t initial_current_mV = analogReadMilliVolts(MOTOR_CURRENT_SENSE_PIN);
-  uint32_t initial_voltage_mV = analogReadMilliVOlts(ADC_VBat_PIN);
-  
-  adc_filter.filter_sum = 0;
+  uint32_t initial_voltage_mV = analogReadMilliVolts(ADC_VBat_PIN);
+  uint32_t initial_tempNTC_mV = analogReadMilliVolts(ADC_NTC_PIN);
+
+  adc_current_filter.filter_sum = 0;
+  adc_voltage_filter.filter_sum = 0;
+  adc_tempNTC_filter.filter_sum = 0;
+
+  adc_values.current_mA_filtered = initial_current_mV;
+  adc_values.BatteryVoltage_filtered = initial_voltage_mV;
+  adc_values.tempNTC_raw_filtered = initial_tempNTC_mV;
+
   for (uint8_t j = 0; j < ADC_FILTER_SIZE; j++) {
-    adc_filter.old_values[j] = initial_current_mV;
-    adc_filter.filter_sum += initial_current_mV;
+    adc_current_filter.old_values[j] = initial_current_mV;
+    adc_voltage_filter.old_values[j] = initial_voltage_mV;
+    adc_tempNTC_filter.old_values[j] = initial_tempNTC_mV;
+
+    adc_current_filter.filter_sum += initial_current_mV;
+    adc_voltage_filter.filter_sum += initial_voltage_mV;
+    adc_tempNTC_filter.filter_sum += initial_tempNTC_mV;
   }
 }
 
@@ -885,13 +900,37 @@ void bw_adcUpdateRotatingMilliVolts(void)
   switch (ch) {
     case 0:
       v = analogReadMilliVolts(ADC_VBat_PIN);
-      if (v != 0) adc_values.battery_v_raw = v;
+      if (v != 0) {        
+        // Use for filter
+        adc_voltage_filter.filter_sum -= adc_voltage_filter.old_values[adc_voltage_filter.counter];
+        adc_voltage_filter.old_values[adc_voltage_filter.counter] = v;
+        adc_voltage_filter.filter_sum += adc_voltage_filter.old_values[adc_voltage_filter.counter];
+
+        adc_values.BatteryVoltage_filtered = (float)(adc_voltage_filter.filter_sum / ADC_FILTER_SIZE)* 0.0081;
+        
+        adc_voltage_filter.counter++;
+        if (adc_voltage_filter.counter >= ADC_FILTER_SIZE) {
+          adc_voltage_filter.counter = 0;
+        }
+      }
       ch = 1;
       break;
 
     case 1:
       v = analogReadMilliVolts(ADC_NTC_PIN);
-      if (v != 0) adc_values.temperature_raw = v;
+      if (v != 0) {
+        // Use for filter
+        adc_tempNTC_filter.filter_sum -= adc_tempNTC_filter.old_values[adc_tempNTC_filter.counter];
+        adc_tempNTC_filter.old_values[adc_tempNTC_filter.counter] = v;
+        adc_tempNTC_filter.filter_sum += adc_tempNTC_filter.old_values[adc_tempNTC_filter.counter];
+
+        adc_values.tempNTC_raw_filtered = (float)(adc_tempNTC_filter.filter_sum / ADC_FILTER_SIZE);
+        
+        adc_tempNTC_filter.counter++;
+        if (adc_tempNTC_filter.counter >= ADC_FILTER_SIZE) {
+          adc_tempNTC_filter.counter = 0;
+        }
+      }
       ch = 0;
       break;
   }
@@ -900,11 +939,9 @@ void bw_adcUpdateRotatingMilliVolts(void)
 
 void bw_convert_ADCs_slow(void) {
   uint16_t adc_temp;
-  adc_temp = adc_values.temperature_raw;
-  adc_values.temperature_degree = (float)adc_temp * 4095.0 / 3100.0; // convert in ADC Digits
-  adc_temp = (uint16_t)adc_values.temperature_degree;
-  adc_values.temperature_degree = ((float)adc_temp * (float)adc_temp * (float)adc_temp * (-2.87638e-9)) + ((float)adc_temp * (float)adc_temp * (2.01243e-5)) + ((-0.0702) * (float)adc_temp) + 109.013;
-  adc_values.battery_voltage = adc_values.battery_v_raw * 0.0081;
+  adc_values.tempNTC_degree = adc_values.tempNTC_raw_filtered * 4095.0 / 3100.0; // convert in ADC Digits
+  adc_temp = (uint16_t)adc_values.tempNTC_degree;
+  adc_values.tempNTC_degree = ((float)adc_temp * (float)adc_temp * (float)adc_temp * (-2.87638e-9)) + ((float)adc_temp * (float)adc_temp * (2.01243e-5)) + ((-0.0702) * (float)adc_temp) + 109.013;
 }
 
 bool bw_check_end_reached_current(void) {
@@ -965,15 +1002,15 @@ bool motorSlowedDown(void) {
 
 bool bw_safety_protection(void) {
   // Under voltage protection
-  if (adc_values.battery_voltage <= BW_STOP_V_BAT) {
-    DEBUG_ERROR("Under Voltage: V BAT:" + String(adc_values.battery_voltage) + " below " + String((float)BW_STOP_V_BAT) + "V");
+  if (adc_values.BatteryVoltage_filtered <= BW_STOP_V_BAT) {
+    DEBUG_ERROR("Under Voltage: V BAT:" + String(adc_values.BatteryVoltage_filtered) + " below " + String((float)BW_STOP_V_BAT) + "V");
     bw_log_event();
     return true;
   }
 
   //Temperature protection
-  if (adc_values.temperature_degree > BW_STOP_T_MAX) {
-    DEBUG_ERROR("Over Temperature: T NTC:" + String(adc_values.temperature_degree) + "above " + String((float)BW_STOP_T_MAX) + "DEG");
+  if (adc_values.tempNTC_degree > BW_STOP_T_MAX) {
+    DEBUG_ERROR("Over Temperature: T NTC:" + String(adc_values.tempNTC_degree) + "above " + String((float)BW_STOP_T_MAX) + "DEG");
     bw_log_event();
     return true;
   }
