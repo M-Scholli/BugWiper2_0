@@ -170,6 +170,7 @@ typedef struct {
   bool enableSafetyProtection; // Enable safety protection check in global transitions
   bool enableMaxTimeCheck;    // Enable max time check in global transitions
   bool enableStopRequest;     // Enable stop request check in global transitions
+  bool enableWingTipCheck;    // Enable check if the wingtip is reached
   bool requireMinTimeForEndCheck; // Require minTime to elapse before any endCheck can trigger
 
   // FSM flow

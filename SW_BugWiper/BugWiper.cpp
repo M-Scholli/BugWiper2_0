@@ -91,6 +91,7 @@ const BW_ModeConfig bw_modeConfig[BW_MODE_COUNT] = {
     .enableSafetyProtection = false,
     .enableMaxTimeCheck    = false,
     .enableStopRequest     = false,
+    .enableWingTipCheck    = false,
     .requireMinTimeForEndCheck = false,
 
     .defaultNext = M_IDLE
@@ -121,6 +122,7 @@ const BW_ModeConfig bw_modeConfig[BW_MODE_COUNT] = {
     .enableSafetyProtection = true,
     .enableMaxTimeCheck    = true,
     .enableStopRequest     = true,
+    .enableWingTipCheck    = false,
     .requireMinTimeForEndCheck = false,
 
     .defaultNext = M_START_CLEAN_OUT
@@ -151,6 +153,7 @@ const BW_ModeConfig bw_modeConfig[BW_MODE_COUNT] = {
     .enableSafetyProtection = true,
     .enableMaxTimeCheck    = true,
     .enableStopRequest     = true,
+    .enableWingTipCheck    = true,
     .requireMinTimeForEndCheck = false,  // minTime > 0
 
     .defaultNext = M_CLEANING
@@ -181,6 +184,7 @@ const BW_ModeConfig bw_modeConfig[BW_MODE_COUNT] = {
     .enableSafetyProtection = true,
     .enableMaxTimeCheck    = true,
     .enableStopRequest     = true,
+    .enableWingTipCheck    = true,
     .requireMinTimeForEndCheck = true,
 
     .defaultNext = M_DECEL_END
@@ -211,6 +215,7 @@ const BW_ModeConfig bw_modeConfig[BW_MODE_COUNT] = {
     .enableSafetyProtection = true,
     .enableMaxTimeCheck    = true,
     .enableStopRequest     = true,
+    .enableWingTipCheck    = true,
     .requireMinTimeForEndCheck = false,
 
     .defaultNext = M_START_CLEAN_OUT
@@ -241,6 +246,7 @@ const BW_ModeConfig bw_modeConfig[BW_MODE_COUNT] = {
     .enableSafetyProtection = true,
     .enableMaxTimeCheck    = true,
     .enableStopRequest     = true,
+    .enableWingTipCheck    = true,
     .requireMinTimeForEndCheck = false,
 
     .defaultNext = M_WIGGLE_OUT
@@ -271,6 +277,7 @@ const BW_ModeConfig bw_modeConfig[BW_MODE_COUNT] = {
     .enableSafetyProtection = true,
     .enableMaxTimeCheck    = true,
     .enableStopRequest     = true,
+    .enableWingTipCheck    = true,
     .requireMinTimeForEndCheck = false,
 
     .defaultNext = M_CLEANING
@@ -301,6 +308,7 @@ const BW_ModeConfig bw_modeConfig[BW_MODE_COUNT] = {
     .enableSafetyProtection = true,
     .enableMaxTimeCheck    = true,
     .enableStopRequest     = true,
+    .enableWingTipCheck    = true,
     .requireMinTimeForEndCheck = false,
 
     .defaultNext = M_WINDING_IN
@@ -331,6 +339,7 @@ const BW_ModeConfig bw_modeConfig[BW_MODE_COUNT] = {
     .enableSafetyProtection = true,
     .enableMaxTimeCheck    = true,
     .enableStopRequest     = true,
+    .enableWingTipCheck    = false,
     .requireMinTimeForEndCheck = true,
 
     .defaultNext = M_FINISHED
@@ -362,6 +371,7 @@ const BW_ModeConfig bw_modeConfig[BW_MODE_COUNT] = {
     .enableSafetyProtection = true,
     .enableMaxTimeCheck    = true,
     .enableStopRequest     = true,
+    .enableWingTipCheck    = false,
     .requireMinTimeForEndCheck = true,
 
     .defaultNext = M_FINISHED
@@ -392,6 +402,7 @@ const BW_ModeConfig bw_modeConfig[BW_MODE_COUNT] = {
     .enableSafetyProtection = true,
     .enableMaxTimeCheck    = true,
     .enableStopRequest     = true,
+    .enableWingTipCheck    = true,
     .requireMinTimeForEndCheck = false,
 
     .defaultNext = M_FINISHED
@@ -422,6 +433,7 @@ const BW_ModeConfig bw_modeConfig[BW_MODE_COUNT] = {
     .enableSafetyProtection = true,
     .enableMaxTimeCheck    = true,
     .enableStopRequest     = true,
+    .enableWingTipCheck    = true,
     .requireMinTimeForEndCheck = false,
 
     .defaultNext = M_GROUND_OUT
@@ -452,6 +464,7 @@ const BW_ModeConfig bw_modeConfig[BW_MODE_COUNT] = {
     .enableSafetyProtection = false,
     .enableMaxTimeCheck    = false,
     .enableStopRequest     = false,
+    .enableWingTipCheck    = false,
     .requireMinTimeForEndCheck = false,
 
     .defaultNext = M_IDLE
@@ -482,6 +495,7 @@ const BW_ModeConfig bw_modeConfig[BW_MODE_COUNT] = {
     .enableSafetyProtection = false,  // Emergency mode
     .enableMaxTimeCheck    = false,   // maxTime = 0
     .enableStopRequest     = true,
+    .enableWingTipCheck    = false,
     .requireMinTimeForEndCheck = false,
 
     .defaultNext = M_IDLE
@@ -512,6 +526,7 @@ const BW_ModeConfig bw_modeConfig[BW_MODE_COUNT] = {
     .enableSafetyProtection = false,
     .enableMaxTimeCheck    = false,
     .enableStopRequest     = false,
+    .enableWingTipCheck    = false,
     .requireMinTimeForEndCheck = false,
 
     .defaultNext = M_IDLE
@@ -542,6 +557,7 @@ const BW_ModeConfig bw_modeConfig[BW_MODE_COUNT] = {
     .enableSafetyProtection = false,
     .enableMaxTimeCheck    = false,
     .enableStopRequest     = false,
+    .enableWingTipCheck    = false,
     .requireMinTimeForEndCheck = false,
 
     .defaultNext = M_IDLE
@@ -1181,6 +1197,14 @@ bool handleGlobalTransitions(const BW_ModeConfig& cfg) {
 
   // Max time check
   if (cfg.enableMaxTimeCheck && cfg.maxTime > 0 && (millis() - bw_modeStartTime) > cfg.maxTime) {
+    changeMode(M_ERROR);
+    return true;
+  }
+
+  // Wing Tip check
+  if (cfg.enableWingTipCheck && bw_motorState.position_mm >= (positionConfig.wingTip + 10)) {
+    DEBUG_ERROR("Exceeded wing tip: Position:" + String(bw_motorState.position_mm) + "mm above " + String(positionConfig.wingTip) + "mm");
+    bw_log_event();
     changeMode(M_ERROR);
     return true;
   }
