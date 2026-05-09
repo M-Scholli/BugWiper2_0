@@ -18,7 +18,7 @@
 ## PCB tests
 |Test|Result PCB1| Result PCB2|
 |--|---|---|
-|Wing Side|||
+|Wing Side|R|L|
 |Thermal Interface|OK|OK|
 |Voltage Regulator 12V-3.3V|OK|OK|
 |Voltage Regulator 5V-3.3V|OK|OK|
