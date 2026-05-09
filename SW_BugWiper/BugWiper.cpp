@@ -203,7 +203,7 @@ const BW_ModeConfig bw_modeConfig[BW_MODE_COUNT] = {
       .blinkTime = 400
     },
 
-    .minTime = 0,
+    .minTime = 1000,
     .maxTime = 10000,
 
     // Global transition flags
@@ -224,8 +224,8 @@ const BW_ModeConfig bw_modeConfig[BW_MODE_COUNT] = {
   {
     .motorCmd = {
       .dir         = IN,
-      .startPower  = 100,
-      .targetPower = 150,
+      .startPower  = 70,
+      .targetPower = 100,
       .rampTime    = 4
     },
 
@@ -603,9 +603,9 @@ const PositionConfig positionConfig = {
 };
 
 const WiggleTiming wiggleTimingConfig = {
-  .inDuration_ms         = 100,    // Retract (IN) for 1000ms
-  .outDuration_ms        = 450,    // Extend (OUT) for 1000ms
-  .minRetractTime_ms     = 550,     // Minimum retract time before checking cable on OUT
+  .inDuration_ms         = 70,    // Retract (IN) wiggel duration in ms
+  .outDuration_ms        = 450,    // Extend (OUT) wiigle duration in ms
+  .minRetractTime_ms     = 350,     // Minimum retract time before checking cable on OUT
   .decelLooseToWiggleTime_ms = 150,  // Time after which to switch to wiggle if cable still loose and motor slowed down
   .totalWiggleTimeout_ms = 5000     // Total timeout for entire wiggle process
 };
@@ -1263,7 +1263,7 @@ void stateCleaning(const BW_ModeConfig& cfg) {
 void stateDecelLoose(const BW_ModeConfig& cfg) {
   if (bw_cableLooseFilter.state == false) {
     changeMode(M_START_CLEAN_OUT);
-  } else if (wiggleTimingConfig.decelLooseToWiggleTime_ms > 0 && motorSlowedDown() && (millis() - bw_modeStartTime) >= wiggleTimingConfig.decelLooseToWiggleTime_ms) {
+  } else if ( motorSlowedDown() && (millis() - bw_modeStartTime) >= cfg.min) {
     changeMode(M_WIGGLE_IN);
   }
 }
