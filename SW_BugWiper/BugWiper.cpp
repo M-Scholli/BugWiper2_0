@@ -27,7 +27,7 @@
 // Button filter parameters (fast reaction)
 #define BW_BTN_FILTER_THRESHOLD  10
 #define BW_BTN_DEBOUNCE_TICKS  3    // fast task ticks
-#define BW_BTN_HOLD_TICKS     500  // fast task ticks
+#define BW_BTN_HOLD_TICKS     125  // fast task ticks
 
 // String representation of BW_MODE for logging and debugging
 static const char* BW_MODE_STR[BW_MODE_COUNT] = {
