@@ -1224,7 +1224,7 @@ void stateIdle(const BW_ModeConfig& cfg) {
     lastUserCommand = CMD_WINDING_IN;
     changeMode(M_WINDING_IN);
   }
-  else if (bw_btnOut.event == BTN_EVT_SHORT) {
+  else if ((!groundModeActive()) && (bw_btnOut.event == BTN_EVT_SHORT)) {
     lastUserCommand = CMD_CLEANING;
     changeMode(M_START_CLEAN_OUT);
   }
