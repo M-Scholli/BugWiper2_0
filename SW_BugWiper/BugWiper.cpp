@@ -138,7 +138,7 @@ const BW_ModeConfig bw_modeConfig[BW_MODE_COUNT] = {
 
     .ledCmd = {
       .color     = GREEN,
-      .blinkTime = 300
+      .blinkTime = 400
     },
 
     .minTime = 500,
@@ -169,7 +169,7 @@ const BW_ModeConfig bw_modeConfig[BW_MODE_COUNT] = {
 
     .ledCmd = {
       .color     = GREEN,
-      .blinkTime = 300
+      .blinkTime = 400
     },
 
     .minTime = 250,
@@ -200,7 +200,7 @@ const BW_ModeConfig bw_modeConfig[BW_MODE_COUNT] = {
 
     .ledCmd = {
       .color     = ORANGE,
-      .blinkTime = 300
+      .blinkTime = 400
     },
 
     .minTime = 0,
@@ -231,7 +231,7 @@ const BW_ModeConfig bw_modeConfig[BW_MODE_COUNT] = {
 
     .ledCmd = {
       .color     = ORANGE,
-      .blinkTime = 150
+      .blinkTime = 400
     },
 
     .minTime = 0,
@@ -262,7 +262,7 @@ const BW_ModeConfig bw_modeConfig[BW_MODE_COUNT] = {
 
     .ledCmd = {
       .color     = ORANGE,
-      .blinkTime = 150
+      .blinkTime = 400
     },
 
     .minTime = 0,
@@ -418,7 +418,7 @@ const BW_ModeConfig bw_modeConfig[BW_MODE_COUNT] = {
 
     .ledCmd = {
       .color     = ORANGE,
-      .blinkTime = 300
+      .blinkTime = 150
     },
 
     .minTime = 0,
