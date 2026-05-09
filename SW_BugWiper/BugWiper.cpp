@@ -8,9 +8,6 @@
 #include "btn99x0_motor_control.hpp"
 #include "sd_logger.h"
 
-// Enable/disable ground mode support
-#define BW_ENABLE_GROUND_MODE
-
 #define ADC_FILTER_SIZE 32
 
 // Task periods in ms
