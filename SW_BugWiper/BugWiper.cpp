@@ -1581,6 +1581,14 @@ void bw_init(void) {
   bw_filterInit(&bw_btnOutFilter, BW_BTN_FILTER_THRESHOLD);
 #ifdef BW_ENABLE_GROUND_MODE
   bw_filterInit(&bw_groundSwitchFilter, BW_SENSOR_FILTER_THRESHOLD);
+  if (bw_readGroundSwitchRaw()){
+    bw_rgbLedWrite(ORANGE);
+  } else {
+    bw_rgbLedWrite(GREEN);
+  }
+  delay(500);
+  bw_rgbLedWrite(BLACK);
+  delay(200);
 #endif
 
   //bw_encoder_init();
