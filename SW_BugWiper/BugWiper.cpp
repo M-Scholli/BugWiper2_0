@@ -596,7 +596,7 @@ const PositionConfig positionConfig = {
   .slowZoneWingTip         = 5200,   // Start slow before wing tip
   .wingTip                 = 5500,   // End of the wing
   #endif
-  .groundOutMax            = 800,    // Maximum extension in ground mode
+  .groundOutMax            = 1000,    // Maximum extension in ground mode
   .windingInDecelDistance  = 500,    // Distance to start deceleration before fuselage
   .windingInDecelSpeed     = 40,     // Speed threshold to switch to deceleration mode
   .wiggleStraightDistance  = 75      // Distance to check cable tightness during wiggle OUT

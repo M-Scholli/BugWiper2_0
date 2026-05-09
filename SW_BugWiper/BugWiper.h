@@ -14,7 +14,7 @@
 #define BW_ENABLE_GROUND_MODE
 
 // Invert ground switch logic
-#define BW_GROUND_SWITCH_INVERTED
+//#define BW_GROUND_SWITCH_INVERTED
 
 // Invert cable loose switch logic
 #define BW_CABLE_LOOSE_INVERTED
