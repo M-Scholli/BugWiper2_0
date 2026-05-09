@@ -3,7 +3,7 @@
 #include "my_debug.h"
 #include "sd_logger.h"
 
-#define FIRMWARE_VERSION "V0.0.3"
+#define FIRMWARE_VERSION "V0.0.4"
 
 //The setup function is called once at startup of the sketch
 void setup() {
