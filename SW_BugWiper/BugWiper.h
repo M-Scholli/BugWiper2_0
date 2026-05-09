@@ -6,7 +6,7 @@
 #include <Arduino.h>
 #include <ESP32Encoder.h>
 
-#define TESTBENCH 1
+//#define TESTBENCH 1
 #define BugWiperPCB 1
 
 #if BugWiperPCB
