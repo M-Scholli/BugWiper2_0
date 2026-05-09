@@ -1229,7 +1229,7 @@ void stateIdle(const BW_ModeConfig& cfg) {
   }
   else if (bw_btnOut.event == BTN_EVT_SHORT) {
     lastUserCommand = CMD_CLEANING;
-    changeMode(M_REFERENCE_IN);
+    changeMode(M_START_CLEAN_OUT);
   }
 }
 
