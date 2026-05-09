@@ -217,7 +217,6 @@ struct WiggleTiming {
   uint32_t inDuration_ms;        // Time motor should run inward (retract) in ms
   uint32_t outDuration_ms;       // Time motor should run outward (extend) in ms
   uint32_t minRetractTime_ms;    // Minimum time to retract before checking cable status on OUT
-  uint32_t decelLooseToWiggleTime_ms; // Time after which to switch to wiggle if cable still loose and motor slowed down
   uint32_t totalWiggleTimeout_ms; // Total timeout for entire wiggle process
 };
 

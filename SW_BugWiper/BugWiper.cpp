@@ -606,7 +606,6 @@ const WiggleTiming wiggleTimingConfig = {
   .inDuration_ms         = 70,    // Retract (IN) wiggel duration in ms
   .outDuration_ms        = 450,    // Extend (OUT) wiigle duration in ms
   .minRetractTime_ms     = 350,     // Minimum retract time before checking cable on OUT
-  .decelLooseToWiggleTime_ms = 150,  // Time after which to switch to wiggle if cable still loose and motor slowed down
   .totalWiggleTimeout_ms = 5000     // Total timeout for entire wiggle process
 };
 
