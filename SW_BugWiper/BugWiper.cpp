@@ -1098,10 +1098,10 @@ void bw_buttonUpdate(ButtonRuntime* btn, bool level)
 
     case BTN_PRESSED:
       if (!level) {
-          btn->event = BTN_EVT_SHORT;
+        btn->event = BTN_EVT_SHORT;
         btn->state = BTN_IDLE;
       } else if (++btn->holdCnt >= BW_BTN_HOLD_TICKS) {
-          btn->event = BTN_EVT_LONG;
+        btn->event = BTN_EVT_LONG;
         btn->state = BTN_HELD;
       }
       break;
@@ -1216,7 +1216,7 @@ void stateIdle(const BW_ModeConfig& cfg) {
     lastUserCommand = CMD_CLEANING;   // ground out is still an "out" operation
     changeMode(M_GROUND_OUT);
   }
-  else if (bw_btnIn.event == BTN_EVT_LONG) {
+  else if ((bw_btnIn.event == BTN_EVT_LONG) || (bw_btnIn.state == BTN_HELD)) {
     lastUserCommand = CMD_WINDING_IN;
     changeMode(M_EMERGENCY_IN);
   }
@@ -1224,7 +1224,7 @@ void stateIdle(const BW_ModeConfig& cfg) {
     lastUserCommand = CMD_WINDING_IN;
     changeMode(M_WINDING_IN);
   }
-  else if ((!groundModeActive()) && (bw_btnOut.event == BTN_EVT_SHORT)) {
+  else if ((!groundModeActive()) && ((bw_btnOut.event == BTN_EVT_SHORT) || (bw_btnOut.state == BTN_HELD))) {
     lastUserCommand = CMD_CLEANING;
     changeMode(M_START_CLEAN_OUT);
   }
