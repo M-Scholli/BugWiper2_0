@@ -9,7 +9,7 @@
 #include "sd_logger.h"
 
 // Enable/disable ground mode support
-//#define BW_ENABLE_GROUND_MODE
+#define BW_ENABLE_GROUND_MODE
 
 #define ADC_FILTER_SIZE 32
 
