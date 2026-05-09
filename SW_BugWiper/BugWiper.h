@@ -13,6 +13,13 @@
 // Enable/disable ground mode support
 #define BW_ENABLE_GROUND_MODE
 
+// Invert ground switch logic
+//#define BW_GROUND_SWITCH_INVERTED
+
+// Invert cable loose switch logic
+#define BW_CABLE_LOOSE_INVERTED
+
+
 #define BugWiperPCB 1
 
 #if BugWiperPCB
@@ -64,12 +71,6 @@
 
 #define SW_CABLE_LOOSE_PIN 18
 #define SW_GROUND_PIN 47  // Safety switch to deactivate the BugWiper
-
-// Invert ground switch logic
-#define BW_GROUND_SWITCH_INVERTED
-
-// Invert cable loose switch logic
-#define BW_CABLE_LOOSE_INVERTED
 
 // Encoder
 #define MOTOR_ENCODER_1_PIN 16
