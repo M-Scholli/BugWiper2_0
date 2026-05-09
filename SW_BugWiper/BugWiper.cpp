@@ -1579,8 +1579,10 @@ void bw_init(void) {
 #ifdef BW_ENABLE_GROUND_MODE
   bw_filterInit(&bw_groundSwitchFilter, BW_SENSOR_FILTER_THRESHOLD);
   if (bw_readGroundSwitchRaw()){
+    DEBUG_INFO("Ground Mode Active");
     bw_rgbLedWrite(ORANGE);
   } else {
+    DEBUG_INFO("Ground Mode NOT Active");
     bw_rgbLedWrite(GREEN);
   }
   delay(500);
