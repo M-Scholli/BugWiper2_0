@@ -27,7 +27,7 @@
 // Button filter parameters (fast reaction)
 #define BW_BTN_FILTER_THRESHOLD  10
 #define BW_BTN_DEBOUNCE_TICKS  3    // fast task ticks
-#define BW_BTN_HOLD_TICKS     125  // fast task ticks
+#define BW_BTN_HOLD_TICKS     100  // fast task ticks
 
 // String representation of BW_MODE for logging and debugging
 static const char* BW_MODE_STR[BW_MODE_COUNT] = {
@@ -163,7 +163,7 @@ const BW_ModeConfig bw_modeConfig[BW_MODE_COUNT] = {
     .motorCmd = {
       .dir         = OUT,
       .startPower  = 0,
-      .targetPower = 250,
+      .targetPower = 255,
       .rampTime    = 7
     },
 
@@ -328,7 +328,7 @@ const BW_ModeConfig bw_modeConfig[BW_MODE_COUNT] = {
     },
 
     .minTime = 1500,
-    .maxTime = 10000,
+    .maxTime = 20000,
 
     // Global transition flags
     .enableEndCheckCurrent = true,
@@ -350,7 +350,7 @@ const BW_ModeConfig bw_modeConfig[BW_MODE_COUNT] = {
     .motorCmd = {
       .dir         = IN,
       .startPower  = 0,
-      .targetPower = 120,
+      .targetPower = 180,
       .rampTime    = 3
     },
 
@@ -360,7 +360,7 @@ const BW_ModeConfig bw_modeConfig[BW_MODE_COUNT] = {
     },
 
     .minTime = 500,
-    .maxTime = 3000,
+    .maxTime = 7000,
 
     // Global transition flags
     .enableEndCheckCurrent = true,
@@ -381,7 +381,7 @@ const BW_ModeConfig bw_modeConfig[BW_MODE_COUNT] = {
     .motorCmd = {
       .dir         = OUT,
       .startPower  = 40,
-      .targetPower = 120,
+      .targetPower = 100,
       .rampTime    = 20
     },
 
@@ -590,15 +590,11 @@ const PositionConfig positionConfig = {
   #ifdef TESTBENCH
   .slowZoneStartOut        = 100,    // Slow start length in mm
   .slowZoneWingTip         = 1400,   // Start slow before wing tip
-  .slowZoneFuselage        = 500,    // End of cleaning zone
-  .lengthSlow              = 200,    // Distance to decelerate
   .wingTip                 = 1600,   // End of the wing
   #else
   .slowZoneStartOut        = 200,    // Slow start length in mm
-  .slowZoneWingTip         = 6000,   // Start slow before wing tip
-  .slowZoneFuselage        = 6500,   // End of cleaning zone
-  .lengthSlow              = 200,    // Distance to decelerate
-  .wingTip                 = 6500,   // End of the wing
+  .slowZoneWingTip         = 5200,   // Start slow before wing tip
+  .wingTip                 = 5500,   // End of the wing
   #endif
   .groundOutMax            = 800,    // Maximum extension in ground mode
   .windingInDecelDistance  = 500,    // Distance to start deceleration before fuselage

@@ -14,7 +14,7 @@
 #define BW_ENABLE_GROUND_MODE
 
 // Invert ground switch logic
-//#define BW_GROUND_SWITCH_INVERTED
+#define BW_GROUND_SWITCH_INVERTED
 
 // Invert cable loose switch logic
 #define BW_CABLE_LOOSE_INVERTED
@@ -201,8 +201,6 @@ struct PositionConfig {
   // Outward movement zones
   int32_t slowZoneStartOut;      // Start of slow zone for initial extension
   int32_t slowZoneWingTip;       // Start of slow zone before wing tip
-  int32_t slowZoneFuselage;      // End of cleaning zone at fuselage
-  int32_t lengthSlow;            // Distance to decelerate before end position
   int32_t wingTip;               // End of the wing
   int32_t groundOutMax;          // Maximum extension in ground mode
   
