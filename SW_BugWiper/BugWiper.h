@@ -8,7 +8,7 @@
 
 //#define TESTBENCH 1
 
-//#define SWITCH_BTN_IN_OUT
+#define SWITCH_BTN_IN_OUT
 
 // Enable/disable ground mode support
 #define BW_ENABLE_GROUND_MODE
