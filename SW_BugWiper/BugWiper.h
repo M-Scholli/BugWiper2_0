@@ -7,6 +7,8 @@
 #include <ESP32Encoder.h>
 
 //#define TESTBENCH 1
+#define SWITCH_BTN_IN_OUT
+
 #define BugWiperPCB 1
 
 #if BugWiperPCB
@@ -48,8 +50,14 @@
 #define PWM_CHANNEL_A 0
 
 //Button PINs
+#ifdef SWITCH_BTN_IN_OUT
+#define BTN_OUT_PIN 14
+#define BTN_IN_PIN 21
+#else
 #define BTN_OUT_PIN 21
 #define BTN_IN_PIN 14
+#endif
+
 #define SW_CABLE_LOOSE_PIN 18
 #define SW_GROUND_PIN 47  // Safety switch to deactivate the BugWiper
 
