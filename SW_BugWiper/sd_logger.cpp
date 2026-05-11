@@ -233,14 +233,24 @@ bool sdLoggerOpenLogLater() {
 
 
 void sdLoggerHandleCard() {
-  bool current = isCardInserted();
+  const bool current = isCardInserted();
 
-  if (current && (sdStatus == SD_NOT_PRESENT || sdStatus == SD_INIT_FAILED || sdStatus == SD_FILE_ERROR || sdStatus == SD_UNKNOWN)) {
-    sdMountOnly();
+  // Detect rising edge: card inserted
+  if (current && !lastCardState) {
+    DEBUG_INFO("[SD] Card inserted");
+    sdMountOnly();  // Phase 1 only -> sets SD_MOUNTED
   }
 
-  if (!current && (sdStatus == SD_OK || sdStatus == SD_MOUNTED)) {
-    if (logFile) logFile.close();
+  // Detect falling edge: card removed
+  if (!current && lastCardState) {
+    DEBUG_INFO("[SD] Card removed");
+
+    if (logFile) {
+      logFile.close();
+      logFile = File();
+    }
+
+    SD.end();                 // Reset SD library state (important for re-insert)
     setSDStatus(SD_NOT_PRESENT);
   }
 
@@ -294,7 +304,7 @@ void sdLoggerLog(unsigned long t, BW_MODE mode, int32_t pos, int32_t speed, uint
     logFile.close();
     return;
   }
-  
+
   logFile.flush();
 }
 
