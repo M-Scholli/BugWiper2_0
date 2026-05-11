@@ -203,7 +203,7 @@ const BW_ModeConfig bw_modeConfig[BW_MODE_COUNT] = {
       .blinkTime = 400
     },
 
-    .minTime = 1000,
+    .minTime = 700,
     .maxTime = 10000,
 
     // Global transition flags
@@ -265,7 +265,7 @@ const BW_ModeConfig bw_modeConfig[BW_MODE_COUNT] = {
       .blinkTime = 400
     },
 
-    .minTime = 0,
+    .minTime = 370,
     .maxTime = 5000,
 
     // Global transition flags
@@ -603,8 +603,8 @@ const PositionConfig positionConfig = {
 };
 
 const WiggleTiming wiggleTimingConfig = {
-  .inDuration_ms         = 50,    // Retract (IN) wiggle duration in ms
-  .outDuration_ms        = 200,    // Min Extend (OUT) wiggle duration in ms
+  .inDuration_ms         = 40,    // Retract (IN) wiggle duration in ms
+  .outDuration_ms        = 275,    // Min Extend (OUT) wiggle duration in ms
   .totalWiggleTimeout_ms = 3000     // Total timeout for entire wiggle process
 };
 
@@ -1360,10 +1360,21 @@ void stateWiggleOut(const BW_ModeConfig& cfg) {
   // Check if we've reached minimum retract time to check cable status
   if (elapsedInPhase >= wiggleTimingConfig.outDuration_ms) {
     if (totalTimeoutReached) {
-      // Total timeout reached, Stop the motor and wait for cable to be tight again or for the timeout to end
-      stop = true;
-      MotorCommand cmd = {STOP, cfg.motorCmd.startPower, cfg.motorCmd.targetPower, cfg.motorCmd.rampTime};
-      bw_motorInit(cmd);
+      if (!stop) {
+        // Total timeout reached, Stop the motor and wait for cable to be tight again or for the timeout to end
+        stop = true;
+        MotorCommand cmd = {STOP, cfg.motorCmd.startPower, cfg.motorCmd.targetPower, cfg.motorCmd.rampTime};
+        bw_motorInit(cmd);
+      } else {
+        // Total timeout already reached and motor is stopped, just wait for cable to be tight again
+        if (!bw_cableLooseFilter.state) {
+          // cable is not loose anymore restart wiggle out
+          stop = false;
+          initialized = false;
+          totalWiggleStartTime = 0;
+          changeMode(M_START_CLEAN_OUT);
+        }
+      }
       return;
     }
     if (stop) {
@@ -1374,7 +1385,7 @@ void stateWiggleOut(const BW_ModeConfig& cfg) {
         initialized = false;
         changeMode(M_WIGGLE_OUT);
         return;
-      } else if (bw_cableLooseFilter.state && motorSlowedDown() && !totalTimeoutReached) {
+      } else if (bw_cableLooseFilter.state && motorSlowedDown() && ((millis() - wigglePhaseStartTime) >= cfg.minTime)) {
         // Cable is still loose and the motor is stoped
         initialized = false;
         changeMode(M_WIGGLE_IN);
