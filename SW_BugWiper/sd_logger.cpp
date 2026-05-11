@@ -61,18 +61,67 @@ static void setSDStatus(SDStatus newStatus) {
   }
 }
 
-// ================= FILE NUMBER FINDER =================
-static int findNextFileNumber() {
-  char filepath[64];
+// ================= DIR SCAN (maxNum + count) =================
+struct DirStats {
+  int maxNum;
+  int count;
+};
 
-  for (int i = 0; i <= 9999; i++) {
-    snprintf(filepath, sizeof(filepath), "%s/log_%04d.csv", BASE_DIR, i);
+static DirStats scanLogDir() {
+  DirStats s{ .maxNum = -1, .count = 0 };
 
-    if (!SD.exists(filepath)) {
-      return i;
+  File dir = SD.open(BASE_DIR);
+  if (!dir) return s;
+
+  while (true) {
+    File e = dir.openNextFile();
+    if (!e) break;
+
+    if (!e.isDirectory()) {
+      s.count++;
+
+      int num;
+      // SD-Lib liefert meist nur den Dateinamen (8.3), passt hier: "log_0000.csv"
+      if (sscanf(e.name(), "log_%4d.csv", &num) == 1) {
+        if (num > s.maxNum) s.maxNum = num;
+      }
+    }
+    e.close();
+  }
+
+  dir.close();
+  return s;
+}
+
+// ================= LAST FILE VALIDATION =================
+static bool fileHasLessThanNLines(const char* path, int minLines) {
+  File f = SD.open(path, FILE_READ);
+  if (!f) return true;              // wenn nicht lesbar, behandeln wie "ungültig"
+
+  int lines = 0;
+  bool anyData = false;
+
+  while (f.available()) {
+    int c = f.read();
+    anyData = true;
+    if (c == '\n') {
+      lines++;
+      if (lines >= minLines) {      // früh abbrechen -> schnell
+        f.close();
+        return false;               // hat genug Zeilen
+      }
     }
   }
-  return -1;
+  f.close();
+
+  if (!anyData) return true;        // 0 Bytes
+  return (lines < minLines);
+}
+
+static bool overwriteFile(const char* path) {
+  if (SD.exists(path)) SD.remove(path);
+  logFile = SD.open(path, FILE_WRITE);   // neu erstellen
+  return (bool)logFile;
 }
 
 // ================= INIT =================
@@ -94,24 +143,46 @@ static void initSD() {
     SD.mkdir(BASE_DIR);
   }
 
-  int fileNumber = findNextFileNumber();
-  if (fileNumber < 0) {
-    setSDStatus(SD_FILE_ERROR);
-    return;
+  // 1) Scan: count + max
+  DirStats st = scanLogDir();
+  DEBUG_INFO("[SD] Dateien im Ordner: " + String(st.count) + " maxNum: " + String(st.maxNum));
+
+  int fileNumber = 0;
+
+  // 2) Entscheiden: letzte Datei wiederverwenden wenn "zu kurz"
+  if (st.maxNum >= 0) {
+    char lastPath[64];
+    snprintf(lastPath, sizeof(lastPath), "%s/log_%04d.csv", BASE_DIR, st.maxNum);
+
+    bool tooShort = fileHasLessThanNLines(lastPath, 20); // <20 Zeilen -> überschreiben
+    if (tooShort) {
+      fileNumber = st.maxNum;
+      if (!overwriteFile(lastPath)) {
+        setSDStatus(SD_FILE_ERROR);
+        return;
+      }
+      DEBUG_INFO("[SD] Letzte Datei überschrieben: " + String(fileNumber));
+    } else {
+      fileNumber = st.maxNum + 1;
+    }
+  } else {
+    fileNumber = 0;
   }
 
-  char filepath[64];
-  snprintf(filepath, sizeof(filepath), "%s/log_%04d.csv", BASE_DIR, fileNumber);
-
-  logFile = SD.open(filepath, FILE_WRITE);
-  DEBUG_INFO("[SD] Log-Datei Nummer: " + String(fileNumber));
+  // 3) Falls nicht überschrieben wurde: neue Datei öffnen
   if (!logFile) {
-    setSDStatus(SD_FILE_ERROR);
-    return;
+    char filepath[64];
+    snprintf(filepath, sizeof(filepath), "%s/log_%04d.csv", BASE_DIR, fileNumber);
+
+    logFile = SD.open(filepath, FILE_WRITE);
+    if (!logFile) {
+      setSDStatus(SD_FILE_ERROR);
+      return;
+    }
   }
 
+  DEBUG_INFO("[SD] Log-Datei Nummer: " + String(fileNumber));
   logFile.println("time,state,position,speed,motor_current,BatteryVoltage_filtered");
-  //logFile.flush();
 
   setSDStatus(SD_OK);
 }
