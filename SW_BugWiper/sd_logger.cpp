@@ -235,13 +235,13 @@ bool sdLoggerOpenLogLater() {
 void sdLoggerHandleCard() {
   const bool current = isCardInserted();
 
-  // Detect rising edge: card inserted
   if (current && !lastCardState) {
     DEBUG_INFO("[SD] Card inserted");
-    sdMountOnly();  // Phase 1 only -> sets SD_MOUNTED
+    if (sdMountOnly()) {
+      sdFindAndOpenLogFile();   // Phase 2 immediately
+    }
   }
 
-  // Detect falling edge: card removed
   if (!current && lastCardState) {
     DEBUG_INFO("[SD] Card removed");
 
@@ -250,7 +250,7 @@ void sdLoggerHandleCard() {
       logFile = File();
     }
 
-    SD.end();                 // Reset SD library state (important for re-insert)
+    SD.end();
     setSDStatus(SD_NOT_PRESENT);
   }
 
