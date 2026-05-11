@@ -152,7 +152,7 @@ void sdLoggerLog(unsigned long t, BW_MODE mode, int32_t pos, int32_t speed, doub
 
   const char* modeStr = bw_ModeToString(mode);
 
-  if (!logFile.printf("%lu;%s;%d;%d;%.2f;%.1f\n",
+  if (!logFile.printf("%lu,%s,%d,%d,%.2f,%.1f\n",
                       t, modeStr, pos, speed, current, voltage)) {
     setSDStatus(SD_FILE_ERROR);
     logFile.close();
