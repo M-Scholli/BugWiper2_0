@@ -604,8 +604,7 @@ const PositionConfig positionConfig = {
 
 const WiggleTiming wiggleTimingConfig = {
   .inDuration_ms         = 70,    // Retract (IN) wiggel duration in ms
-  .outDuration_ms        = 450,    // Extend (OUT) wiigle duration in ms
-  .minRetractTime_ms     = 350,     // Minimum retract time before checking cable on OUT
+  .outDuration_ms        = 300,    // Min Extend (OUT) wiigle duration in ms
   .totalWiggleTimeout_ms = 5000     // Total timeout for entire wiggle process
 };
 
@@ -1262,7 +1261,7 @@ void stateCleaning(const BW_ModeConfig& cfg) {
 void stateDecelLoose(const BW_ModeConfig& cfg) {
   if (bw_cableLooseFilter.state == false) {
     changeMode(M_START_CLEAN_OUT);
-  } else if ( motorSlowedDown() && (millis() - bw_modeStartTime) >= cfg.min) {
+  } else if ( motorSlowedDown() && (millis() - bw_modeStartTime) >= cfg.minTime) {
     changeMode(M_WIGGLE_IN);
   }
 }
@@ -1288,8 +1287,6 @@ void stateWiggleIn(const BW_ModeConfig& cfg) {
     if (totalWiggleStartTime == 0) {
       totalWiggleStartTime = millis();  // Start total timeout on first entry
     }
-    MotorCommand cmd = {IN, cfg.motorCmd.startPower, cfg.motorCmd.targetPower, cfg.motorCmd.rampTime};
-    bw_motorInit(cmd);
     initialized = true;
   }
 
@@ -1308,15 +1305,15 @@ void stateWiggleOut(const BW_ModeConfig& cfg) {
   static uint32_t totalWiggleStartTime = 0;
   static int32_t straightStartPosition = 0;
   static bool initialized = false;
+  static bool stop = false;
 
   // Initialize wiggle OUT state
   if (!initialized) {
     wigglePhaseStartTime = millis();
+    stop = false;
     if (totalWiggleStartTime == 0) {
       totalWiggleStartTime = millis();  // Start total timeout on first entry
     }
-    MotorCommand cmd = {OUT, cfg.motorCmd.startPower, cfg.motorCmd.targetPower, cfg.motorCmd.rampTime};
-    bw_motorInit(cmd);
     straightStartPosition = bw_motorState.position_mm;
     initialized = true;
   }
@@ -1330,38 +1327,49 @@ void stateWiggleOut(const BW_ModeConfig& cfg) {
   // Extend (OUT) phase
 
   // Check if we've reached minimum retract time to check cable status
-  if (elapsedInPhase >= wiggleTimingConfig.minRetractTime_ms) {
-    if (bw_cableLooseFilter.state && !totalTimeoutReached) {
-      // Cable is loose and total timeout not reached, switch back to IN
-      initialized = false;
-      changeMode(M_WIGGLE_IN);
-      return;
-    } else if (!bw_cableLooseFilter.state) {
-      // Cable is tight, check if it stays tight during extension
-      if (bw_motorState.position_mm - straightStartPosition > positionConfig.wiggleStraightDistance) {
-        // Cable stayed tight for the required distance, exit wiggle mode
-        initialized = false;
-        totalWiggleStartTime = 0;  // Reset for next time
-        changeMode(cfg.defaultNext);  // Should be M_CLEANING
-        return;
-      }
-    }
-  }
-
-  // Check if OUT phase duration has been reached
   if (elapsedInPhase >= wiggleTimingConfig.outDuration_ms) {
     if (totalTimeoutReached) {
       // Total timeout reached, exit wiggle mode
       initialized = false;
       totalWiggleStartTime = 0;  // Reset for next time
       changeMode(M_CLEANING);
+      return;
+    }
+    if (stop) {
+      // cable was loose again and motor is stopping
+      if (!bw_cableLooseFilter.state) {
+        // cable is not loose anymore restart wiggle out
+        stop = false;
+        initialized = false;
+        changeMode(M_WIGGLE_OUT);
+        return;
+      } else if (bw_cableLooseFilter.state && motorSlowedDown()) {
+        // Cable is still loose and the motor is stoped
+        initialized = false;
+        changeMode(M_WIGGLE_IN);
+        return;
+      }
     } else {
-      // Switch back to IN
-      initialized = false;
-      changeMode(M_WIGGLE_IN);
+      if (bw_cableLooseFilter.state) {
+        // Cable is loose, first stop the motor
+        stop = true;
+        MotorCommand cmd = {STOP, cfg.motorCmd.startPower, cfg.motorCmd.targetPower, cfg.motorCmd.rampTime};
+        bw_motorInit(cmd);
+        return;
+      } else {
+        // Cable is tight, check if it stays tight during extension
+        if (bw_motorState.position_mm - straightStartPosition > positionConfig.wiggleStraightDistance) {
+          // Cable stayed tight for the required distance, exit wiggle mode
+          initialized = false;
+          totalWiggleStartTime = 0;  // Reset for next time
+          changeMode(cfg.defaultNext);
+          return;
+        }
+      }
     }
   }
 }
+
 
 void stateDecelEnd(const BW_ModeConfig& cfg) {
   if (motorSlowedDown() ||
