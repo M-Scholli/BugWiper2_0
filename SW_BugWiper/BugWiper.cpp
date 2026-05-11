@@ -1292,7 +1292,7 @@ void stateCleaning(const BW_ModeConfig& cfg) {
 void stateDecelLoose(const BW_ModeConfig& cfg) {
   if (bw_cableLooseFilter.state == false) {
     changeMode(M_START_CLEAN_OUT);
-  } else if ( motorSlowedDown() && (millis() - bw_modeStartTime) >= cfg.minTime) {
+  } else if ( (millis() - bw_modeStartTime) >= cfg.minTime && motorSlowedDown()){
     changeMode(M_WIGGLE_IN);
   }
 }
@@ -1385,7 +1385,7 @@ void stateWiggleOut(const BW_ModeConfig& cfg) {
         initialized = false;
         changeMode(M_WIGGLE_OUT);
         return;
-      } else if (bw_cableLooseFilter.state && motorSlowedDown() && ((millis() - wigglePhaseStartTime) >= cfg.minTime)) {
+      } else if (bw_cableLooseFilter.state && ((millis() - wigglePhaseStartTime) >= cfg.minTime) && motorSlowedDown()) {
         // Cable is still loose and the motor is stoped
         initialized = false;
         changeMode(M_WIGGLE_IN);
