@@ -4,8 +4,10 @@
 #include <Arduino.h>
 #include "BugWiper.h"
 
-// Initialisierung
+// Initialisation
 void sdLoggerInit();
+
+bool sdLoggerOpenLogLater();
 
 // Card Detect / State Handling
 void sdLoggerHandleCard();

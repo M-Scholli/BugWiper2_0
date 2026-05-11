@@ -9,8 +9,16 @@
 void setup() {
   DEBUG_INIT(115200);
   bw_rgbLed_init();
-  delay(10);
+  bw_init();
   sdLoggerInit();
+  while(millis() < 600) {
+    delay(100);
+  }
+  bw_rgbLedWrite(BLACK);
+  sdLoggerOpenLogLater();
+  while(millis() < 1200) {
+    delay(100);
+  }
   if (sdLoggerAvailable()) {
     bw_rgbLedWrite(GREEN);
   } else {
@@ -18,10 +26,8 @@ void setup() {
   }
   delay(300);
   bw_rgbLedWrite(BLACK);
-  delay(200);
   DEBUG_INFO("BugWiper start programm");
-  bw_init();
-  //bw_log();
+  bw_log();
 }
 
 // The loop function is called in an endless loop

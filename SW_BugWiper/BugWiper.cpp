@@ -1578,9 +1578,6 @@ void bw_init(void) {
     DEBUG_INFO("Ground Mode NOT Active");
     bw_rgbLedWrite(GREEN);
   }
-  delay(500);
-  bw_rgbLedWrite(BLACK);
-  delay(200);
 #endif
 
   //bw_encoder_init();

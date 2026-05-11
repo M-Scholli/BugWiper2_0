@@ -18,7 +18,8 @@ enum SDStatus {
   SD_OK,
   SD_NOT_PRESENT,
   SD_INIT_FAILED,
-  SD_FILE_ERROR
+  SD_FILE_ERROR,
+  SD_MOUNTED
 };
 
 static SDStatus sdStatus = SD_UNKNOWN;
@@ -53,6 +54,10 @@ static void setSDStatus(SDStatus newStatus) {
 
     case SD_FILE_ERROR:
       DEBUG_ERROR("[SD] FILE_ERROR");
+      break;
+    
+    case SD_MOUNTED:
+      DEBUG_INFO("[SD] MOUNTED");
       break;
 
     default:
@@ -125,43 +130,59 @@ static bool overwriteFile(const char* path) {
 }
 
 // ================= INIT =================
-static void initSD() {
-  DEBUG_INFO("[SD] Init start");
+
+static bool sdMountOnly() {
+  DEBUG_INFO("[SD] mount start");
+
   if (!isCardInserted()) {
     setSDStatus(SD_NOT_PRESENT);
-    return;
+    return false;
   }
 
   SPI.begin(PIN_SCK, PIN_MISO, PIN_MOSI, PIN_CS);
 
   if (!SD.begin(PIN_CS)) {
     setSDStatus(SD_INIT_FAILED);
-    return;
+    return false;
   }
 
   if (!SD.exists(BASE_DIR)) {
     SD.mkdir(BASE_DIR);
   }
 
+  setSDStatus(SD_MOUNTED);
+  return true;
+}
+
+static bool sdFindAndOpenLogFile() {
+  if (!isCardInserted()) {
+    setSDStatus(SD_NOT_PRESENT);
+    return false;
+  }
+
+  if (sdStatus != SD_MOUNTED) {
+    setSDStatus(SD_INIT_FAILED);
+    return false;
+  }
+
   // 1) Scan: count + max
   DirStats st = scanLogDir();
-  DEBUG_INFO("[SD] Dateien im Ordner: " + String(st.count) + " maxNum: " + String(st.maxNum));
+  DEBUG_INFO("[SD] files inside folder: " + String(st.count) + " maxNum: " + String(st.maxNum));
 
   int fileNumber = 0;
 
-  // 2) Entscheiden: letzte Datei wiederverwenden wenn "zu kurz"
   if (st.maxNum >= 0) {
     char lastPath[64];
     snprintf(lastPath, sizeof(lastPath), "%s/log_%04d.csv", BASE_DIR, st.maxNum);
 
-    bool tooShort = fileHasLessThanNLines(lastPath, 20); // <20 Zeilen -> überschreiben
+    bool tooShort = fileHasLessThanNLines(lastPath, 20);
     if (tooShort) {
       fileNumber = st.maxNum;
       if (!overwriteFile(lastPath)) {
         setSDStatus(SD_FILE_ERROR);
-        return;
+        return false;
       }
-      DEBUG_INFO("[SD] Letzte Datei überschrieben: " + String(fileNumber));
+      DEBUG_INFO("[SD] overwrite last file: " + String(fileNumber));
     } else {
       fileNumber = st.maxNum + 1;
     }
@@ -169,7 +190,6 @@ static void initSD() {
     fileNumber = 0;
   }
 
-  // 3) Falls nicht überschrieben wurde: neue Datei öffnen
   if (!logFile) {
     char filepath[64];
     snprintf(filepath, sizeof(filepath), "%s/log_%04d.csv", BASE_DIR, fileNumber);
@@ -177,38 +197,49 @@ static void initSD() {
     logFile = SD.open(filepath, FILE_WRITE);
     if (!logFile) {
       setSDStatus(SD_FILE_ERROR);
-      return;
+      return false;
     }
   }
 
-  DEBUG_INFO("[SD] Log-Datei Nummer: " + String(fileNumber));
+  DEBUG_INFO("[SD] log-file number: " + String(fileNumber));
   logFile.println("time,state,position,speed,motor_current,BatteryVoltage_filtered");
 
   setSDStatus(SD_OK);
+  return true;
+}
+
+static void initSD() {
+  if (!sdMountOnly()) return;
+  sdFindAndOpenLogFile();
 }
 
 // ================= PUBLIC API =================
 void sdLoggerInit() {
   pinMode(SD_DETECT_PIN, INPUT_PULLUP);
   delay(50);
+
   lastCardState = isCardInserted();
   if (lastCardState) {
     DEBUG_INFO("[SD] PRESENT");
-    initSD();
+    sdMountOnly();   // <-- nur Phase 1
   } else {
     setSDStatus(SD_NOT_PRESENT);
   }
 }
 
+bool sdLoggerOpenLogLater() {
+  return sdFindAndOpenLogFile();
+}
+
+
 void sdLoggerHandleCard() {
   bool current = isCardInserted();
 
-  if (current && sdStatus != SD_OK) {
-    initSD();
+  if (current && (sdStatus == SD_NOT_PRESENT || sdStatus == SD_INIT_FAILED || sdStatus == SD_FILE_ERROR || sdStatus == SD_UNKNOWN)) {
+    sdMountOnly();
   }
 
-
-  if (!current && sdStatus == SD_OK) {
+  if (!current && (sdStatus == SD_OK || sdStatus == SD_MOUNTED)) {
     if (logFile) logFile.close();
     setSDStatus(SD_NOT_PRESENT);
   }
