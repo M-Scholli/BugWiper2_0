@@ -1524,7 +1524,7 @@ void bw_Task1_fast(void* parameter) {
 
 #if (DEBUG_LEVEL >= 4)
     uint32_t t_start = micros();
-#endif (DEBUG_LEVEL >= DEBUG_LEVEL_INFO)
+#endif (DEBUG_LEVEL >= 4)
 
     bw_filterUpdate(&bw_cableLooseFilter, bw_readCableLooseRaw());
     bw_filterUpdate(&bw_btnInFilter,  !digitalRead(BTN_IN_PIN));    // Inverted
