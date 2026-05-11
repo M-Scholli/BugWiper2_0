@@ -1522,7 +1522,7 @@ void bw_Task1_fast(void* parameter) {
   bw_encoder_init();
   for (;;) {
 
-#if (DEBUG_LEVEL >= DEBUG_LEVEL_INFO)
+#if (DEBUG_LEVEL >= 4)
     uint32_t t_start = micros();
 #endif (DEBUG_LEVEL >= DEBUG_LEVEL_INFO)
 
@@ -1533,7 +1533,7 @@ void bw_Task1_fast(void* parameter) {
     bw_read_motor_current();
     bw_motorUpdate();  // motor ramp + HW output    
     
-#if (DEBUG_LEVEL >= DEBUG_LEVEL_INFO)
+#if (DEBUG_LEVEL >= 4)
     uint32_t t_exec = micros() - t_start;
     static uint32_t cnt = 0;
     if (++cnt % 2000 == 0) {
