@@ -21,7 +21,7 @@ void setup() {
   delay(200);
   DEBUG_INFO("BugWiper start programm");
   bw_init();
-  bw_log();
+  //bw_log();
 }
 
 // The loop function is called in an endless loop
