@@ -1611,10 +1611,16 @@ void bw_init(void) {
 #endif  // BTS7960B_CONTROLLER
   
   // Explicitly set initial FSM state
-  changeMode(M_IDLE);
+  bw_currentMode = M_IDLE;
+  const BW_ModeConfig& cfg_start = bw_modeConfig[M_IDLE];
+  bw_modeStartTime = millis();
+  // Motor entry action
+  bw_motorInit(cfg_start.motorCmd);
+  // LED entry action
+  bw_ledInit(cfg_start.ledCmd);
   
   xTaskCreate(bw_Task1_fast, "BW_T1_fast", 1024 * 4, NULL, 3, NULL);
-  xTaskCreate(bw_Task2_slow, "BW_T2_alow", 1024 * 8, NULL, 3, NULL);
+  xTaskCreate(bw_Task2_slow, "BW_T2_slow", 1024 * 8, NULL, 3, NULL);
 }
 
 
