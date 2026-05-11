@@ -1294,16 +1294,6 @@ void stateWiggleIn(const BW_ModeConfig& cfg) {
   }
 
   uint32_t elapsedInPhase = millis() - wigglePhaseStartTime;
-  uint32_t totalElapsed = millis() - totalWiggleStartTime;
-
-  // Check if total wiggle timeout has been reached
-  if (totalElapsed >= wiggleTimingConfig.totalWiggleTimeout_ms) {
-    // Total timeout reached, exit wiggle mode
-    initialized = false;
-    totalWiggleStartTime = 0;  // Reset for next time
-    changeMode(M_CLEANING);
-    return;
-  }
 
   // Retract (IN) phase for specified duration
   if (elapsedInPhase >= wiggleTimingConfig.inDuration_ms) {
