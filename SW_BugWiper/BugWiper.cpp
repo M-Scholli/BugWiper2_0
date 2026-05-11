@@ -678,22 +678,49 @@ void bw_btn_log(void) {
   bw_btnOut_log();
 }
 
-void bw_log(void){
-  unsigned long t = millis();
-  DEBUG_INFO("Time:" + String(t)+ "  State: " + bw_ModeToString(bw_currentMode));
-  DEBUG_INFO("ADC_Current:" + String(adc_values.current_mA_filtered)+ "  M_Power:" + String(bw_motorState.power));
-  DEBUG_INFO("Encoder_count:" + String((int32_t)bw_motorState.encoder_count) + "  Position:" + String(bw_motorState.position_mm) + "  Speed:" + String(bw_motorState.speed));
-  DEBUG_INFO("ADC_VBat:" + String(adc_values.BatteryVoltage_filtered) + "  NTC:" + String(adc_values.tempNTC_degree));
-  sdLoggerLog(t, bw_currentMode, bw_motorState.position_mm, bw_motorState.speed, adc_values.current_mA_filtered, adc_values.BatteryVoltage_filtered);
+void bw_log(void) {
+  const unsigned long t = millis();
+  // Snapshot volatile values once to avoid inconsistent reads
+  const uint32_t cur_mA = adc_values.current_mA_filtered;
+  const float vbat      = adc_values.BatteryVoltage_filtered;
+  const float ntc       = adc_values.tempNTC_degree;
+  const int32_t pos     = bw_motorState.position_mm;
+  const int32_t speed   = bw_motorState.speed;
+
+  DEBUG_INFO("Time: " + String(t) + "  State: " + bw_ModeToString(bw_currentMode));
+  DEBUG_INFO("ADC Current (mA): " + String(cur_mA) + "  Motor Power: " + String(bw_motorState.power));
+  DEBUG_INFO("Encoder Count: " + String((int32_t)bw_motorState.encoder_count) +
+             "  Position (mm): " + String(pos) + "  Speed: " + String(speed));
+  DEBUG_INFO("Battery (V): " + String(vbat) + "  NTC (C): " + String(ntc));
+
+  sdLoggerLog(t, bw_currentMode, pos, speed, cur_mA, vbat, ntc, "-");
 }
 
-void bw_log_event(void){
-  unsigned long t = millis();
-  DEBUG_WARNING("Time:" + String(t)+ "  State: " + bw_ModeToString(bw_currentMode));
-  DEBUG_WARNING("ADC_Current:" + String(adc_values.current_mA_filtered)+ "  M_Power:" + String(bw_motorState.power));
-  DEBUG_WARNING("Encoder_count:" + String((int32_t)bw_motorState.encoder_count) + "  Position:" + String(bw_motorState.position_mm) + "  Speed:" + String(bw_motorState.speed));
-  DEBUG_WARNING("ADC_VBat:" + String(adc_values.BatteryVoltage_filtered) + "  NTC:" + String(adc_values.tempNTC_degree));
-  sdLoggerLog(t, bw_currentMode, bw_motorState.position_mm, bw_motorState.speed, adc_values.current_mA_filtered, adc_values.BatteryVoltage_filtered);
+void bw_log_event(const char* eventText) {
+  const unsigned long t = millis();
+  // Snapshot volatile values once to avoid inconsistent reads
+  const uint32_t cur_mA = adc_values.current_mA_filtered;
+  const float vbat      = adc_values.BatteryVoltage_filtered;
+  const float ntc       = adc_values.tempNTC_degree;
+  const int32_t pos     = bw_motorState.position_mm;
+  const int32_t speed   = bw_motorState.speed;
+
+  // Print the event only once
+  DEBUG_WARNING(String("[EVENT] ") + (eventText ? eventText : ""));
+
+  DEBUG_WARNING("Time: " + String(t) + "  State: " + bw_ModeToString(bw_currentMode));
+  DEBUG_WARNING("ADC Current (mA): " + String(cur_mA) + "  Motor Power: " + String(bw_motorState.power));
+  DEBUG_WARNING("Encoder Count: " + String((int32_t)bw_motorState.encoder_count) +
+                "  Position (mm): " + String(pos) + "  Speed: " + String(speed));
+  DEBUG_WARNING("Battery (V): " + String(vbat) + "  NTC (C): " + String(ntc));
+
+  // Log the event text as the last CSV column
+  sdLoggerLog(t, bw_currentMode, pos, speed, cur_mA, vbat, ntc, eventText);
+}
+
+void bw_log_event(const String& eventText) {
+  // Forward to the const char* version
+  bw_log_event(eventText.c_str());
 }
 
 void bw_test_Motor(void) {
@@ -956,7 +983,7 @@ bool bw_check_end_reached_current(void) {
     stop_detection.current_counter++;
     if (stop_detection.current_counter > BW_STOP_CURRENT_COUNTS) {
       DEBUG_INFO("Finished: current:" + String(adc_values.current_mA_filtered) + " above " + String((float)BW_STOP_CURRENT));
-      bw_log_event();
+      bw_log_event("Finished by current");
       return true;
     }
   } else {
@@ -972,7 +999,7 @@ bool bw_check_end_reached_speed(void) {
     stop_detection.speed_counter++;
     if (stop_detection.speed_counter >= BW_STOP_SPEED_COUNTS) {
       DEBUG_INFO("Finished: Speed:" + String(abs(bw_motorState.speed)) + " below " + String((float)BW_STOP_SPEED));
-      bw_log_event();
+      bw_log_event("Finished by speed");
       return true;
     }
   } else {
@@ -994,10 +1021,11 @@ bool motorSlowedDown(void) {
     if (stop_detection.speed_counter >= BW_STOP_SPEED_COUNTS) {
       if(bw_motorState.speed < BW_STOP_SPEED){
         DEBUG_INFO("Decel End Finished: Speed:" + String(bw_motorState.speed) + " below " + String((float)BW_STOP_SPEED));
+        bw_log_event("Decel End Finished by speed");
       } else {
         DEBUG_INFO("Decel End Finished: M_Power:" + String(bw_motorState.power) + " reached target " + String((float)bw_motorState.targetPower));
+        bw_log_event("Decel End Finished by power");
       }
-      bw_log_event();
       return true;
     }
   } else {
@@ -1011,14 +1039,14 @@ bool bw_safety_protection(void) {
   // Under voltage protection
   if (adc_values.BatteryVoltage_filtered <= BW_STOP_V_BAT) {
     DEBUG_ERROR("Under Voltage: V BAT:" + String(adc_values.BatteryVoltage_filtered) + " below " + String((float)BW_STOP_V_BAT) + "V");
-    bw_log_event();
+    bw_log_event("Under Voltage");
     return true;
   }
 
   //Temperature protection
   if (adc_values.tempNTC_degree > BW_STOP_T_MAX) {
     DEBUG_ERROR("Over Temperature: T NTC:" + String(adc_values.tempNTC_degree) + "above " + String((float)BW_STOP_T_MAX) + "DEG");
-    bw_log_event();
+    bw_log_event("Over Temperature");
     return true;
   }
 
@@ -1115,6 +1143,7 @@ bool eventStopRequested(void)
   if (lastUserCommand == CMD_CLEANING &&
       bw_btnIn.state == BTN_PRESSED) {
     DEBUG_WARNING("Stop requested: cleaning");
+    bw_log_event("Stop requested: cleaning");
     return true;
   }
 
@@ -1122,6 +1151,7 @@ bool eventStopRequested(void)
   if (lastUserCommand == CMD_WINDING_IN &&
       bw_btnOut.state == BTN_PRESSED) {
     DEBUG_WARNING("Stop requested: winding in");
+    bw_log_event("Stop requested: winding in");
     return true;
   }
   return false;
@@ -1139,7 +1169,7 @@ bool groundModeActive(void) {
 
 void changeMode(BW_MODE newMode)
 {
-  DEBUG_INFO("FSM transition: " + String(bw_ModeToString(bw_currentMode)) + " -> " + String(bw_ModeToString(newMode)));
+  bw_log_event("FSM Transition: "+ String(bw_ModeToString(bw_currentMode)) + " -> " + String(bw_ModeToString(newMode)));
   bw_currentMode = newMode;
   const BW_ModeConfig& cfg = bw_modeConfig[newMode];
 
@@ -1150,8 +1180,6 @@ void changeMode(BW_MODE newMode)
 
   // LED entry action
   bw_ledInit(cfg.ledCmd);
-
-  bw_log_event();
 }
 
 
@@ -1188,14 +1216,14 @@ bool handleGlobalTransitions(const BW_ModeConfig& cfg) {
 
   // Max time check
   if (cfg.enableMaxTimeCheck && cfg.maxTime > 0 && (millis() - bw_modeStartTime) > cfg.maxTime) {
+    bw_log_event("Max time exceeded: " + String((millis() - bw_modeStartTime)) + "ms above " + String(cfg.maxTime) + "ms");
     changeMode(M_ERROR);
     return true;
   }
 
   // Wing Tip check
   if (cfg.enableWingTipCheck && bw_motorState.position_mm >= (positionConfig.wingTip + 10)) {
-    DEBUG_ERROR("Exceeded wing tip: Position:" + String(bw_motorState.position_mm) + "mm above " + String(positionConfig.wingTip) + "mm");
-    bw_log_event();
+    bw_log_event("Exceeded wing tip: Position:" + String(bw_motorState.position_mm) + "mm above " + String(positionConfig.wingTip) + "mm");
     changeMode(M_ERROR);
     return true;
   }

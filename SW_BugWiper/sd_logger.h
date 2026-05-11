@@ -13,8 +13,7 @@ bool sdLoggerOpenLogLater();
 void sdLoggerHandleCard();
 
 // Logging
-void sdLoggerLog(unsigned long t, BW_MODE mode, int32_t pos, int32_t speed, double current, double voltage);
-
+void sdLoggerLog(unsigned long t, BW_MODE mode, int32_t pos, int32_t speed, uint32_t current, float voltage, float ntcTemp, const char* event);
 // Status
 bool sdLoggerAvailable();
 

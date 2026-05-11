@@ -247,20 +247,55 @@ void sdLoggerHandleCard() {
   lastCardState = current;
 }
 
-void sdLoggerLog(unsigned long t, BW_MODE mode, int32_t pos, int32_t speed, double current, double voltage) {
+static bool writeCsvEscaped(File& f, const char* s) {
+  if (!s) s = "";
+
+  if (f.write('"') != 1) return false;
+
+  for (const char* p = s; *p; ++p) {
+    if (*p == '"') {
+      // Quote verdoppeln: ""
+      if (f.write('"') != 1) return false;
+      if (f.write('"') != 1) return false;
+    } else if (*p == '\r') {
+      // optional ignorieren
+    } else {
+      if (f.write((uint8_t)*p) != 1) return false;
+    }
+  }
+
+  if (f.write('"') != 1) return false;
+  return true;
+}
+
+void sdLoggerLog(unsigned long t, BW_MODE mode, int32_t pos, int32_t speed, uint32_t current, float voltage, float ntcTemp, const char* event) {
+
 
   if (sdStatus != SD_OK) return;
   if (!isCardInserted()) return;
 
   const char* modeStr = bw_ModeToString(mode);
 
-  if (!logFile.printf("%lu,%s,%d,%d,%.2f,%.1f\n",
-                      t, modeStr, pos, speed, current, voltage)) {
+  if (!logFile.printf("%lu,%s,%d,%d,%d,%.1f,%.1f,",
+                      t, modeStr, pos, speed, current, voltage, ntcTemp)) {
     setSDStatus(SD_FILE_ERROR);
     logFile.close();
-  } else {
-    logFile.flush();
+    return;
   }
+
+  if (!writeCsvEscaped(logFile, event)) {
+      setSDStatus(SD_FILE_ERROR);
+      logFile.close();
+      return;
+    }
+
+  if (logFile.write('\n') != 1) {
+    setSDStatus(SD_FILE_ERROR);
+    logFile.close();
+    return;
+  }
+  
+  logFile.flush();
 }
 
 bool sdLoggerAvailable() {
