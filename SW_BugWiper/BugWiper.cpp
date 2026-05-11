@@ -604,8 +604,8 @@ const PositionConfig positionConfig = {
 
 const WiggleTiming wiggleTimingConfig = {
   .inDuration_ms         = 40,    // Retract (IN) wiggle duration in ms
-  .outDuration_ms        = 275,    // Min Extend (OUT) wiggle duration in ms
-  .totalWiggleTimeout_ms = 3000     // Total timeout for entire wiggle process
+  .outDuration_ms        = 260,    // Min Extend (OUT) wiggle duration in ms
+  .totalWiggleTimeout_ms = 2500     // Total timeout for entire wiggle process
 };
 
 ESP32Encoder bw_motorEncoder;
