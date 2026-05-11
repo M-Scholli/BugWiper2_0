@@ -1538,7 +1538,7 @@ void bw_Task2_slow(void* parameter) {
   //bw_test_Motor();
   for (;;) {
 
-#if (DEBUG_LEVEL >= DEBUG_LEVEL_INFO)
+#if (DEBUG_LEVEL >= 4)
     uint32_t t_start = micros();
 #endif
 
@@ -1554,7 +1554,7 @@ void bw_Task2_slow(void* parameter) {
     bw_processFSM();
     bw_ledUpdate();   // LED blink
 
-#if (DEBUG_LEVEL >= DEBUG_LEVEL_INFO)
+#if (DEBUG_LEVEL >= 4)
     uint32_t t_exec = micros() - t_start;
     static uint32_t cnt = 0;
     if (++cnt % 200 == 0) {
