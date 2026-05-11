@@ -686,14 +686,16 @@ void bw_log(void) {
   const float ntc       = adc_values.tempNTC_degree;
   const int32_t pos     = bw_motorState.position_mm;
   const int32_t speed   = bw_motorState.speed;
+  const bool loose = bw_cableLooseFilter.state;
+
 
   DEBUG_INFO("Time: " + String(t) + "  State: " + bw_ModeToString(bw_currentMode));
   DEBUG_INFO("ADC Current (mA): " + String(cur_mA) + "  Motor Power: " + String(bw_motorState.power));
   DEBUG_INFO("Encoder Count: " + String((int32_t)bw_motorState.encoder_count) +
              "  Position (mm): " + String(pos) + "  Speed: " + String(speed));
-  DEBUG_INFO("Battery (V): " + String(vbat) + "  NTC (C): " + String(ntc));
+  DEBUG_INFO("Battery (V): " + String(vbat) + "  NTC (C): " + String(ntc) + "  C_Loose: " + String(loose));
 
-  sdLoggerLog(t, bw_currentMode, pos, speed, cur_mA, vbat, ntc, "-");
+  sdLoggerLog(t, bw_currentMode, pos, speed, cur_mA, vbat, ntc, loose, "-");
 }
 
 void bw_log_event(const char* eventText) {
@@ -704,6 +706,7 @@ void bw_log_event(const char* eventText) {
   const float ntc       = adc_values.tempNTC_degree;
   const int32_t pos     = bw_motorState.position_mm;
   const int32_t speed   = bw_motorState.speed;
+  const bool loose = bw_cableLooseFilter.state;
 
   // Print the event only once
   DEBUG_WARNING(String("[EVENT] ") + (eventText ? eventText : ""));
@@ -712,10 +715,10 @@ void bw_log_event(const char* eventText) {
   DEBUG_WARNING("ADC Current (mA): " + String(cur_mA) + "  Motor Power: " + String(bw_motorState.power));
   DEBUG_WARNING("Encoder Count: " + String((int32_t)bw_motorState.encoder_count) +
                 "  Position (mm): " + String(pos) + "  Speed: " + String(speed));
-  DEBUG_WARNING("Battery (V): " + String(vbat) + "  NTC (C): " + String(ntc));
+  DEBUG_WARNING("Battery (V): " + String(vbat) + "  NTC (C): " + String(ntc) + "  C_Loose: " + String(loose));
 
   // Log the event text as the last CSV column
-  sdLoggerLog(t, bw_currentMode, pos, speed, cur_mA, vbat, ntc, eventText);
+  sdLoggerLog(t, bw_currentMode, pos, speed, cur_mA, vbat, ntc, loose, eventText);
 }
 
 void bw_log_event(const String& eventText) {

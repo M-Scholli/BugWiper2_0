@@ -202,7 +202,7 @@ static bool sdFindAndOpenLogFile() {
   }
 
   DEBUG_INFO("[SD] log-file number: " + String(fileNumber));
-  logFile.println("time,state,position,speed,motor_current,BatteryVoltage_filtered");
+  logFile.println("time,state,position,speed,motor current in mA, BatteryVoltage, NTC temp in C, Cable Loose, event");
 
   setSDStatus(SD_OK);
   return true;
@@ -278,7 +278,7 @@ static bool writeCsvEscaped(File& f, const char* s) {
   return true;
 }
 
-void sdLoggerLog(unsigned long t, BW_MODE mode, int32_t pos, int32_t speed, uint32_t current, float voltage, float ntcTemp, const char* event) {
+void sdLoggerLog(unsigned long t, BW_MODE mode, int32_t pos, int32_t speed, uint32_t current, float voltage, float ntcTemp, bool loose, const char* event) {
 
 
   if (sdStatus != SD_OK) return;
@@ -286,8 +286,7 @@ void sdLoggerLog(unsigned long t, BW_MODE mode, int32_t pos, int32_t speed, uint
 
   const char* modeStr = bw_ModeToString(mode);
 
-  if (!logFile.printf("%lu,%s,%d,%d,%d,%.1f,%.1f,",
-                      t, modeStr, pos, speed, current, voltage, ntcTemp)) {
+  if (!logFile.printf("%lu,%s,%d,%d,%d,%.1f,%.1f,%s,", t, modeStr, pos, speed, current, voltage, ntcTemp, loose ? "true" : "false")) {
     setSDStatus(SD_FILE_ERROR);
     logFile.close();
     return;
