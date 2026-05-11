@@ -386,7 +386,7 @@ const BW_ModeConfig bw_modeConfig[BW_MODE_COUNT] = {
     },
 
     .ledCmd = {
-      .color     = CYAN,
+      .color     = GREEN,
       .blinkTime = 150
     },
 
