@@ -110,8 +110,8 @@ static void initSD() {
     return;
   }
 
-  logFile.println("time;state;position;speed;motor_current;BatteryVoltage_filtered");
-  logFile.flush();
+  logFile.println("time,state,position,speed,motor_current,BatteryVoltage_filtered");
+  //logFile.flush();
 
   setSDStatus(SD_OK);
 }
