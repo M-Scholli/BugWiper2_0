@@ -593,8 +593,8 @@ const PositionConfig positionConfig = {
   .wingTip                 = 1600,   // End of the wing
   #else
   .slowZoneStartOut        = 200,    // Slow start length in mm
-  .slowZoneWingTip         = 5200,   // Start slow before wing tip
-  .wingTip                 = 5500,   // End of the wing
+  .slowZoneWingTip         = 5050,   // Start slow before wing tip
+  .wingTip                 = 5250,   // End of the wing
   #endif
   .groundOutMax            = 1000,    // Maximum extension in ground mode
   .windingInDecelDistance  = 500,    // Distance to start deceleration before fuselage
