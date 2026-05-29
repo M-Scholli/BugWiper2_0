@@ -7,20 +7,16 @@ I suggest to use a ESP32-WROOM-32 or ESP32-S3-WROOM.
 Simple and small solution:
 - diymore ESP32 WROOM 32 Nodemcu https://amzn.eu/d/j1bOF2C
 ### Pinout SP32-S3-DevKitC-1 N16R8:
-![Image](../fotos/Pinout_ESP32.jpg)
+![Image](../images/Pinout_ESP32.jpg)
 
 ### CH340 Driver (USB-Serial)
 https://www.arduined.eu/ch340-windows-10-driver-download/
-### Board Settings:
-![Image](../fotos/settings_ESP32.PNG)
 
 ## ESP32-S3-WROOM
 newer ESP-S3:
 - iHaospace 2 x ESP32-S3-DevKitC-1 N16R8 16Mb Flash, 8MB PSRAM https://www.amazon.de/dp/B0D1CBV999
 ### Pinout SP32-S3-DevKitC-1 N16R8:
-![Image](../fotos/Pinout_ESP32-S3.png)
-### Board Settings:
-![Image](../fotos/settings_ESP32-S3.PNG)
+![Image](../images/Pinout_ESP32-S3.png)
 
 ## Motor controller / H-Bridge
 ### Complete Motor Driver PCB
@@ -28,7 +24,7 @@ newer ESP-S3:
 - https://www.makershop.de/module/motosteuerung/double-bts7960/
 - https://www.amazon.de/dp/B09HGBM5D2
 
-![image](../fotos/Pinout_BTS7960B.png)
+![image](../images/Pinout_BTS7960B.png)
 
 Specs:
 - Max Current: 43 A
@@ -36,7 +32,7 @@ Specs:
 - Max PWM freq.: 25 kHz
 - Current sensing output
 
-![image](../fotos/schematics_BTS7960B.png)
+![image](../images/schematics_BTS7960B.png)
 
 ### Others
 - IBT_2 BTS7960B 43 A Motor Driver: https://www.amazon.de/dp/B09HGBM5D2

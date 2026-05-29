@@ -18,7 +18,7 @@
 ## PCB tests
 |Test|Result PCB1| Result PCB2|
 |--|---|---|
-|Wing Side|R|L|
+|Wing Side|right side|left side|
 |Thermal Interface|OK|OK|
 |Voltage Regulator 12V-3.3V|OK|OK|
 |Voltage Regulator 5V-3.3V|OK|OK|
@@ -31,11 +31,12 @@
 |ButtonOUT|OK|OK|
 |RBG LED|OK|OK|
 |Cable Loose Sensor|OK|OK|
-|Ground Sensor|||
+|Ground Sensor|canopy reed switch|canopy reed switch|
 |Current Sensor|OK|OK|
 |Voltage Sensor|OK|OK|
 |Temperature Sensor|OK|OK|
 |Current Sensor calibration|||
 |Voltage Sensor calibration|||
 |Motor Encoder calibration|||
-|Ground Test after assembly|||
+|Ground Test after assembly| OK | OK |
+|Flight Test| OK | OK |

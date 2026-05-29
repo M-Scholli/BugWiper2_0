@@ -4,12 +4,12 @@
 - Designd in KiCAD 7
 - 4 Layer PCB
 
-![image](../fotos/PCB_3D_TOP.png)
-![image](../fotos/PCB_3D_Bottom.png)
+![image](../images/PCB_3D_TOP.png)
+![image](../images/PCB_3D_Bottom.png)
 
 ## Circuit Diagram
-[Schematics Controller PCB.pdf](../Hardware/ControllerPCB/BugWiper_ControllerPCB_SDT.pdf)
-[Schematics Panel PCB.pdf](../Hardware/PanelPCB/BugWiper_Control_Panel_PCB_SDT.pdf)
+[Schematics Controller PCB.pdf](../../Hardware/ControllerPCB/BugWiper_ControllerPCB_SDT.pdf)
+[Schematics Panel PCB.pdf](../../Hardware/PanelPCB/BugWiper_Control_Panel_PCB_SDT.pdf)
 
 ## Key Components
 
@@ -25,7 +25,7 @@
 |EVP-AT2L1B000|Panasonic|switch|https://mou.sr/4j0OPno|
 
 ## Bill of Material
-[BOM Controller PCB.csv](../Hardware/ControllerPCB/BugWiperPCB.csv)
-[Bom Panel PCB.csv](../Hardware/PanelPCB/Panel/Panel.csv)
+[BOM Controller PCB.csv](../../Hardware/ControllerPCB/BugWiperPCB.csv)
+[Bom Panel PCB.csv](../../Hardware/PanelPCB/Panel/Panel.csv)
 
 

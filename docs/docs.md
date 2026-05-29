@@ -1,3 +1,8 @@
+# BugWiper
+
+This project is an open source electronic bug wiper system. 
+
+
 ## New ESP32-S3 Version
 
 ### New electronic design
@@ -47,8 +52,37 @@
 - BLE for communication and logging
 - Connection to Flarm or flight computer to get the speed of the plane for ground detection and the date and time for better logging.
 
-The documentation of the new version is still in progress, but you can already find some information about the hardware and software design in the following documents:
- [Documentation](./docs/doc.md)
+# Software
 
- The user manual can be found here:
- [User Manual](./docs/user_manuel.md)
+[More information to setup the software and the code can be found here](./software/setup.md)
+[Configuration and code documentation can be found here](./software/configuration.md)
+
+# Hardware
+
+[More information and documentation of PCB and mechanical construction can be found here](./hardware/hardware.md)
+![image](./images/CAD_1.png)
+
+## Electronics / PCB Designs
+
+### Motor Controller PCB
+
+![image](./images/PCB_3D_Top.png)
+![image](./images/PCB_3D_Bottom.png)
+[More info here](./hardware/electronics.md)
+
+### ControlPanel PCB
+
+![image](./images/Controlpanel1.png)
+![image](./images/Controlpanel2.png)
+
+
+
+## Motor
+[More Details and Motor tests here](./hardware/motors.md)
+
+
+# Construction
+[More information and documentation of mechanical construction can be found here](./mechanics/construction.md)
+
+## Old Version
+[More information and documentation of the old prototypes and there problems can be found here](./old_version.md)

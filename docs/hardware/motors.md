@@ -1,13 +1,13 @@
 # Motor
 
 ## Motor recommendations and comparison
-In the Hardware folder of this repo is a [Excel](../Hardware/Motor_comparison.xlsx)  and CSV file witch lots of motors and its comparison and the calculated winding times and forces at different drum diameters.
+In the Hardware folder of this repo is a [Excel](../../Hardware/Motor_comparison.xlsx)  and CSV file witch lots of motors and its comparison and the calculated winding times and forces at different drum diameters.
 #### Motor selection criteria:
 - Motor RPM between 250 to 450 RPM. This allows a cleaning time around 30 seconds with a spool diameter between 20 mm and 40 mm
 - Motor Torque / Motor Power high enough to reach a pulling force of 3 to 5 kg
 - high friction / high gear ratio / high no load current or self locking gear that the bug wiper wings don't pull out the rope when the motor is shut down. 
 
-![Image](../fotos/motor_excel.png)
+![Image](../images/motor_excel.png)
 
 # Motor Tests:
 
@@ -17,7 +17,7 @@ https://www.bringsmart.com/pd.jsp?id=110
 
 similar to https://nfpshop.com/product/12v-24v-metal-gear-worm-gear-model-nfp-5840-555-en ???
 
-![Image](../fotos/motor1.jpg)
+![Image](../images/motor1.jpg)
 
 ### Motor Parameters:
 - 12 Volt
@@ -65,7 +65,7 @@ https://www.amazon.de/gp/product/B00T48KC1Q
 
 https://www.zhengkemotor.com/product/Zhengk_DC_Brushed_Motor_RS555__EccentricShaft_37mm_Gearhead_RoundFlange_ZGB37RH.html
 
-![Image](../fotos/motor2.jpg)
+![Image](../images/motor2.jpg)
 
 ### Motor Parameters:
 - 12 Volt

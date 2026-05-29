@@ -1,6 +1,8 @@
 ## Old Version
 ### Version 1
-![Image](../fotos/old_version.jpg)
+![Image](./images/old_version.jpg)
+
+[Link to the old version repository](https://github.com/M-Scholli/BugWiper)
 
 - Modelcraft RB350018-2A723R Hochleistungsgetriebemotor 12 V 18:1 :https://www.conrad.de/de/p/modelcraft-rb350018-2a723r-hochleistungsgetriebemotor-12-v-18-1-233131.html
 - dual H-Bridge Motor driver L298 3A
@@ -15,7 +17,7 @@
 - The high pull force of the cable tightens the cable sometimes so strong, that at the next winding out the windings are pressed so strong together, that the spool is pulling the wings back inwards after a couple of rotations
 
 ### Version 1.1
-![Image](../fotos/old_version2.jpg)
+![Image](./images/old_version2.jpg)
 
 #### Features:
 - new higher geared motor for more torque and more resistance when powered off 
@@ -33,4 +35,4 @@
 ### Panel
  - one LED per Wing
  - one two-way toggle-switch
-![Image](../fotos/panel.jpg)
+![Image](./images/panel.jpg)
